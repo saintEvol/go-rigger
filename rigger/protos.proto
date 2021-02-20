@@ -1,0 +1,25 @@
+syntax = "proto3";
+import "github.com/AsynkronIT/protoactor-go/actor/protos.proto";
+package rigger;
+// 用于远程启动子进程的命令
+message RemoteStartChildCmd {
+    bytes specOrArgs = 1;
+}
+
+// 表示成功的回复
+message OkResp {
+
+}
+
+// 表示出错的回复
+message ErrorResp {
+    string error = 1;
+}
+
+// 起进程回复
+message SpawnResponse {
+    actor.PID sender = 1;
+    actor.PID parent = 2;
+    actor.PID pid = 3;
+    string error = 4;
+}
