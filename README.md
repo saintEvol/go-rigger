@@ -32,9 +32,10 @@ go-rigger程序的开发往往开始于一张应用的进程规划图,比如, �
 + 为了能够在运行时监测各个进程的状态, 并在各进程异常退出时对其进行重启, 我们还需要一个监控进程, 命名为: ```GameSup```
 现在, 我们的游戏的进程树应该如下所示:
 ```mermaid
-graph LR
+graph TD
     GameApp[GameApp] -->  GameSup(GameSup)
     --> GatewayServer>GatewayServer]
     GameSup(GameSup) --> LoginServer>LoginServer]
     GameSup(GameSup) --> PlayerManagingServer>PlayerManagingServer]
     GameSup(GameSup) --> PlayerServer>PlayerServer]
+```
