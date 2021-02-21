@@ -26,9 +26,9 @@ type SupervisorBehaviourProducer func() SupervisorBehaviour
 type StrategyFlag int
 
 const (
-	OneForOne StrategyFlag = iota	// 只重启失败的进程
+	OneForOne StrategyFlag = iota // 只重启失败的进程
 	AllForOne
-	SimpleOneForOne              	// 只重启失败的进程,并且,此模式下,只允许动态启动子进程
+	SimpleOneForOne // 只重启失败的进程,并且,此模式下,只允许动态启动子进程
 )
 
 // 监控标志
@@ -63,6 +63,7 @@ type UnexceptedStartResult string
 func (u UnexceptedStartResult) Error() string {
 	return "unexpected start result"
 }
+
 // 以异步的方式启动子进程,如果启动成功,会将新的进程ID通知给from进程
 func StartChildNotified(from actor.Context, pid *actor.PID, spawnSpecOrArgs interface{}) error {
 	// 判断是否是远程进程
@@ -117,10 +118,11 @@ func waitStartChildResp(future *actor.Future) (*actor.PID, error) {
 	}
 }
 
+// 启动一个监控进程
 func StartSupervisor(parent interface{}, id string) (*Supervisor, error) {
 	if _, ok := getRegisterInfo(id); ok {
-		server, err := NewSupervisor().WithSupervisor(parent). WithSpawner(parent).StartSpec(&SpawnSpec{
-			Id: id,
+		server, err := NewSupervisor().WithSupervisor(parent).WithSpawner(parent).StartSpec(&SpawnSpec{
+			Id:           id,
 			SpawnTimeout: startTimeOut,
 		})
 		if err != nil {
@@ -135,27 +137,27 @@ func StartSupervisor(parent interface{}, id string) (*Supervisor, error) {
 
 // Parent:*Application, *Supervisor, *Generalserver, actor.Context, *actor.ActorSystem
 func StartSupervisorSpec(parent interface{}, spec *SpawnSpec) (*Supervisor, error) {
-	return NewSupervisor().WithSupervisor(parent). WithSpawner(parent).StartSpec(spec)
+	return NewSupervisor().WithSupervisor(parent).WithSpawner(parent).StartSpec(spec)
 }
 
 // TODO 当前重启会有问题,重启后可能不会走回调
 type Supervisor struct {
 	pid      *actor.PID
-	id string
-	spawner actor.SpawnerContext // TODO 是否无用
+	id       string
+	spawner  actor.SpawnerContext // TODO 是否无用
 	delegate *supDelegate
 
 	childStrategy actor.SupervisorStrategy
-	strategy actor.SupervisorStrategy
+	strategy      actor.SupervisorStrategy
 
 	// SpawnSpec part
-	initArgs interface{}
+	initArgs       interface{}
 	receiveTimeout time.Duration
 
 	//id string // 内部标识,只有由config启动时才会设置,可以根据ID获取配置值
 }
 
-func (sup *Supervisor)StartSpec(spec *SpawnSpec) (*Supervisor, error) {
+func (sup *Supervisor) StartSpec(spec *SpawnSpec) (*Supervisor, error) {
 	if info, ok := getRegisterInfo(spec.Id); ok {
 		switch prod := info.producer.(type) {
 		case SupervisorBehaviourProducer:
@@ -192,9 +194,8 @@ func (sup *Supervisor)StartSpec(spec *SpawnSpec) (*Supervisor, error) {
 	return sup, nil
 }
 
-
 // 设置其监控者,只能设置一次,重复设置则简单忽略
-func (sup *Supervisor)WithSupervisor(maybeSupervisor interface{}) *Supervisor  {
+func (sup *Supervisor) WithSupervisor(maybeSupervisor interface{}) *Supervisor {
 	if sup.strategy != nil {
 		return sup
 	}
@@ -202,7 +203,7 @@ func (sup *Supervisor)WithSupervisor(maybeSupervisor interface{}) *Supervisor  {
 	return sup
 }
 
-func (sup *Supervisor)WithSpawner(spawner interface{}) *Supervisor {
+func (sup *Supervisor) WithSpawner(spawner interface{}) *Supervisor {
 	withSpawner(sup, spawner)
 	return sup
 }
@@ -236,12 +237,12 @@ func (sup *Supervisor) setSupervisor(strategy actor.SupervisorStrategy) supervis
 	return sup
 }
 
-func (sup *Supervisor) generateProps(producer SupervisorBehaviourProducer, future *actor.Future) *actor.Props  {
+func (sup *Supervisor) generateProps(producer SupervisorBehaviourProducer, future *actor.Future) *actor.Props {
 	props := actor.PropsFromProducer(func() actor.Actor {
 		return &supDelegate{
 			initFuture: future,
-			callback: producer(),
-			owner:    sup,
+			callback:   producer(),
+			owner:      sup,
 		}
 	})
 
@@ -254,7 +255,7 @@ func (sup *Supervisor) generateProps(producer SupervisorBehaviourProducer, futur
 }
 
 // private methods
-func (sup *Supervisor ) prepareSpawn(producer SupervisorBehaviourProducer, timeout time.Duration) (*actor.Props, *actor.Future)  {
+func (sup *Supervisor) prepareSpawn(producer SupervisorBehaviourProducer, timeout time.Duration) (*actor.Props, *actor.Future) {
 	if sup.spawner == nil {
 		sup.WithSpawner(nil)
 	}
@@ -292,12 +293,12 @@ func (sup *Supervisor) GetInitArgs() interface{} {
 
 // actor代理
 type supDelegate struct {
-	owner supDelegateHolder
-	initFuture *actor.Future
+	owner          supDelegateHolder
+	initFuture     *actor.Future
 	callback       SupervisorBehaviour
 	supervisorFlag *SupervisorFlag
 	childSpecs     []*SpawnSpec
-	context actor.Context
+	context        actor.Context
 }
 
 // Interface: actor.Actor
@@ -346,7 +347,7 @@ func (sup *supDelegate) Receive(context actor.Context) {
 	}
 }
 
-func (sup *supDelegate)notifyInitComplete(context actor.Context)  {
+func (sup *supDelegate) notifyInitComplete(context actor.Context) {
 	if sup.initFuture != nil {
 		context.Send(sup.initFuture.PID(), context.Self())
 		sup.initFuture = nil
@@ -384,7 +385,7 @@ func (sup *supDelegate) treateSupFlag(supFlag *SupervisorFlag, childSpecs []inte
 	}
 }
 
-func (sup *supDelegate) treateConfig(supFlag *SupervisorFlag)  {
+func (sup *supDelegate) treateConfig(supFlag *SupervisorFlag) {
 	if isFromConfig {
 		return
 	}
@@ -419,7 +420,7 @@ func (sup *supDelegate) initChildConfig(parent *StartingNode, spec *SpawnSpec) {
 		parent:    parent,
 		spawnSpec: spec,
 		children:  nil, // 启动子进程时再生成
-		location:  nil,  // 非配置启动,都为local进程
+		location:  nil, // 非配置启动,都为local进程
 		remote:    nil, // 只有Application才有
 		supFlag:   nil, // 启动子进程时再生成
 	}
@@ -429,17 +430,17 @@ func (sup *supDelegate) initChildConfig(parent *StartingNode, spec *SpawnSpec) {
 
 }
 
-func (sup *supDelegate) initChildrenConfigs(parent *StartingNode, specs []*SpawnSpec)  {
+func (sup *supDelegate) initChildrenConfigs(parent *StartingNode, specs []*SpawnSpec) {
 	for _, spec := range specs {
 		sup.initChildConfig(parent, spec)
 	}
 }
 
-func (sup *supDelegate) startChild(context actor.Context, specOrArgs interface{})  {
+func (sup *supDelegate) startChild(context actor.Context, specOrArgs interface{}) {
 	if sup.supervisorFlag.StrategyFlag == SimpleOneForOne {
 		// 此模式下,直接取原来的Spcs, 并使用新传入的参数
 		pid, err := sup.spawnBySpec(&SpawnSpec{
-			Id: sup.childSpecs[0].Id,
+			Id:           sup.childSpecs[0].Id,
 			Args:         specOrArgs, // SimpleOneForOne模式下,是参数
 			SpawnTimeout: sup.childSpecs[0].SpawnTimeout,
 		})
@@ -451,7 +452,7 @@ func (sup *supDelegate) startChild(context actor.Context, specOrArgs interface{}
 }
 
 // 启动子进程规范中的进程
-func (sup *supDelegate)spawnSpecs(childSpecs []*SpawnSpec)  {
+func (sup *supDelegate) spawnSpecs(childSpecs []*SpawnSpec) {
 	// 依次启动所有子进程
 	for _, childSpec := range childSpecs {
 		if _, err := sup.spawnBySpec(childSpec); err != nil {
@@ -463,7 +464,7 @@ func (sup *supDelegate)spawnSpecs(childSpecs []*SpawnSpec)  {
 }
 
 // 根据spec启动子进程,所有启动都采用同步方式,默认超时时间:10S
-func (sup *supDelegate) spawnBySpec(spec *SpawnSpec) (*actor.PID, error)  {
+func (sup *supDelegate) spawnBySpec(spec *SpawnSpec) (*actor.PID, error) {
 	if info, ok := getRegisterInfo(spec.Id); ok {
 		// 由监控树启动的进程,如果未设置超时,则强行设置为10S
 		if spec.SpawnTimeout == 0 {
@@ -496,7 +497,7 @@ func (sup *supDelegate) spawnBySpec(spec *SpawnSpec) (*actor.PID, error)  {
 	}
 }
 
-func (sup *supDelegate)getSupFlag(context actor.Context) (supFlag SupervisorFlag, childSpecs []interface{}) {
+func (sup *supDelegate) getSupFlag(context actor.Context) (supFlag SupervisorFlag, childSpecs []interface{}) {
 	if isFromConfig {
 		// 从配置启动,所以要从配置中拿
 		// 根据ID拿取自身的信息
@@ -516,7 +517,7 @@ func (sup *supDelegate)getSupFlag(context actor.Context) (supFlag SupervisorFlag
 	}
 }
 
-func (sup *supDelegate) responseStartChild(context actor.Context, pid *actor.PID, err error)  {
+func (sup *supDelegate) responseStartChild(context actor.Context, pid *actor.PID, err error) {
 	sender := context.Sender()
 	if sender != nil {
 		// 有发送者,进行回应
@@ -531,7 +532,7 @@ func (sup *supDelegate) responseStartChild(context actor.Context, pid *actor.PID
 
 func unifySpawnSpecs(maybeSpecs []interface{}) []*SpawnSpec {
 	var ret = make([]*SpawnSpec, len(maybeSpecs))
-	for idx, spec := range  maybeSpecs {
+	for idx, spec := range maybeSpecs {
 		ret[idx] = unifySpawnSpec(spec)
 	}
 
@@ -554,7 +555,7 @@ func unifySpawnSpec(specOrOtherThing interface{}) *SpawnSpec {
 
 func makeDefaultSpawnSpec(id string) *SpawnSpec {
 	return &SpawnSpec{
-		Id: id,
+		Id:           id,
 		SpawnTimeout: startTimeOut,
 	}
 }
@@ -583,7 +584,6 @@ func encodeMsg(argsOrSpawnSpec interface{}) ([]byte, error) {
 	return buffer.Bytes(), nil
 }
 
-
 func decodeMsg(b []byte) (interface{}, error) {
 	decoder := gob.NewDecoder(bytes.NewReader(b))
 	arr := make([]interface{}, 1, 1)
@@ -595,4 +595,3 @@ func decodeMsg(b []byte) (interface{}, error) {
 		return arr[0], nil
 	}
 }
-
