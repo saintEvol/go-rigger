@@ -19,14 +19,17 @@ type ApplicationBehaviour interface {
 
 type ApplicationBehaviourProducer func() ApplicationBehaviour
 
+// 根据应用ID启动应用
 func startApplication(id string) (*Application, error) {
 	return startApplicationSpec(makeDefaultSpawnSpec(id))
 }
 
+// 根据启动规范启动应用
 func startApplicationSpec(spec *SpawnSpec)	(*Application, error)  {
 	return (&Application{}).StartSpec(spec)
 }
 
+// 根据启动规范和system启动应用
 func startApplicationWithSystem(system *actor.ActorSystem, spec *SpawnSpec) (*Application, error) {
 	return (&Application{Parent: system}).StartSpec(spec)
 }
@@ -67,6 +70,7 @@ func (app *Application)StartSpec(spec *SpawnSpec) (*Application, error) {
 			if app.Parent == nil {
 				app.Parent = actor.NewActorSystem()
 			}
+			// 准备启动, 会准备好props, 初始化future等
 			props, initFuture := app.prepareSpawn(prod, spec.SpawnTimeout)
 			if spec.ReceiveTimeout <= 0 {
 				app.receiveTimeout = -1

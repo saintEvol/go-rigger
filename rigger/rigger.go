@@ -53,15 +53,13 @@ func NewDefaultSpawnSpec() *SpawnSpec {
 //	Pid    *actor.PID //新进程的PID
 //}
 
+// noReply,一种特殊的消息处理返回值,表示不需要rigger-go回复发送者,相反,需要用户自己进行回复
 type noReply int
-
 func (n noReply) Reset() {
 }
-
 func (n noReply) String() string {
 	return "no reply"
 }
-
 func (n noReply) ProtoMessage() {
 }
 
@@ -110,10 +108,18 @@ type LifeCyclePart interface {
 	OnRestarting(ctx actor.Context)
 	// 启动时的回调,应该在此回调中进行初始化,不管是正常启动或是重启,都会调用此事件
 	OnStarted(ctx actor.Context, args interface{})
-	// 初始化完成后执行,在调用前会先通知调用者初始化完成,建议将比较费时的初始化操作放在此回调中进行
-	// 以防止初始化太久而导致超时, 对于Supervisro进程来说,调用此方法时,会保证所有子进程都已经启动完成
+	/*
+	初始化完成后执行,在调用前会先通知调用者初始化完成,建议将比较费时的初始化操作放在此回调中进行
+	以防止初始化太久而导致超时, 对于Supervisro进程来说,调用此方法时,会保证所有子进程都已经启动完成
+	*/
 	OnPostStarted(ctx actor.Context, args interface{})
+	/*
+	进程即将停止时,进行回调
+	*/
 	OnStopping(ctx actor.Context)
+	/*
+	进程停止后进行回调
+	*/
 	OnStopped(ctx actor.Context)
 }
 

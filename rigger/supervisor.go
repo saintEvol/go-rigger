@@ -10,9 +10,16 @@ import (
 	"time"
 )
 
+// 监控进程行为模式接口
 type SupervisorBehaviour interface {
 	LifeCyclePart
-	OnGetSupFlag(ctx actor.Context) (supFlag SupervisorFlag, childSpecs []interface{})
+	/*
+	获取监控标志时的回调
+	childSpecs: 子进程规范, 描述如何启动子进程, 可以为以下类型:
+		1. *SpawnSpec
+		2. string, 此时为子规范的ID, 监控进程会根据此id去配置中查找对应的启动规范
+	*/
+	OnGetSupFlag(ctx actor.Context) (supFlag SupervisorFlag, childSpecs []interface{}/*子进程规范, 描述如果启动子进程, 可以为以下类型*/)
 	//PidHolder
 }
 
@@ -101,6 +108,7 @@ func StartChildSync(from actor.Context, pid *actor.PID, spawnSpecOrArgs interfac
 	}
 }
 
+// 等等子进程启动结果
 func waitStartChildResp(future *actor.Future) (*actor.PID, error) {
 	if ret, err := future.Result(); err != nil {
 		return nil, err
@@ -337,7 +345,7 @@ func (sup *supDelegate) Receive(context actor.Context) {
 	case *StartChildCmd:
 		// 启动子进程的命令
 		sup.startChild(context, msg.specOrArgs)
-	case *RemoteStartChildCmd:
+	case *RemoteStartChildCmd: // 远程启动子进程
 		// 解码
 		if data, err := decodeMsg(msg.SpecOrArgs); err == nil {
 			sup.startChild(context, data)
@@ -458,6 +466,7 @@ func (sup *supDelegate) spawnSpecs(childSpecs []*SpawnSpec) {
 		if _, err := sup.spawnBySpec(childSpec); err != nil {
 			// 如果出现错误,直接跳出
 			// TODO 也许需要抛出错误,但同时不应该使用sup本身崩溃
+			log.Fatalf("error when start specs, error: %s", err)
 			return
 		}
 	}

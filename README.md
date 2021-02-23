@@ -31,11 +31,22 @@ go-rigger程序的开发往往开始于一张应用的进程规划图,比如, �
 + 当然, 根据之前的说法,每个rigger-go程序应该至少包含一个Application进程, 所以我们再增加一个```GameApp```
 + 为了能够在运行时监测各个进程的状态, 并在各进程异常退出时对其进行重启, 我们还需要一个监控进程, 命名为: ```GameSup```
 现在, 我们的游戏的进程树应该如下所示:
+
 ```mermaid
 graph TD
     GameApp[GameApp] -->  GameSup(GameSup)
-    --> GatewayServer>GatewayServer]
+    GameSup(GameSup) --> GatewayServer>GatewayServer]
     GameSup(GameSup) --> LoginServer>LoginServer]
     GameSup(GameSup) --> PlayerManagingServer>PlayerManagingServer]
     GameSup(GameSup) --> PlayerServer>PlayerServer]
 ```
+
+当我们有了关于进程树的规划后,就可以开始着手编码了:
+
+下面我们实现进程树中各个进程, 请注意,go-rigger中各个类型的进程的自定义逻辑不是通过实现如: Appication, Supervisor, GeneralServer等接口来实现的(实际上也不存在这些接口)
+相反, go-rigger提供了对应的行为模式接口来供用户自定义逻辑, 分别是: ```ApplicationBehaviour```, ```SupervisorBehaviour``` 与 ```GeneralServerBehaviour```
+
+```go
+
+```
+

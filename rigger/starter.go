@@ -47,6 +47,36 @@ type StartingNode struct {
 	supFlag *SupervisorFlag
 }
 
+// 启动应用
+func Start(applicationId string) error  {
+	isFromConfig = false
+	if app, err := startApplication(applicationId); err == nil {
+		setRunningApplication(applicationId, app)
+	} else {
+		return err
+	}
+	waitInterupt()
+	return nil
+}
+
+// 根据配置启动应用, 如果启动失败,会panic,所以未返回错误
+func StartWithConfig(path string)  {
+	isFromConfig = true
+	// 先设为最高级
+	log.SetLevel(6)
+	// 读取配置文件
+	readStartingConfig(path)
+	//parseServers()
+	// 生成启动树
+	parseConfig()
+	//log.Tracef("r:", r)
+	printProcessTree(startingTasks)
+	startApplications()
+
+	waitInterupt()
+}
+
+
 // 获取正在运行中的应用,如果没有,第二个返回值为 false,否则为true
 func GetRunningApplication(id string) (*Application, bool) {
 	if app, ok := runningApplication[id]; ok {
@@ -116,10 +146,20 @@ type registerInfo struct {
 	startFun SpawnFun
 }
 
-func Register(name string, producer interface{})  {
-	RegisterStartFun(name, producer, nil)
+/*
+注册生成器(producer, 关于producer请参考proto-actor 相关资料)
+注册生成器时, 还会注册一个默认启动函数, 默认的启动函数规则:
+1. 如果进程是普通(非动态/即非SimpleOneForOne)进程, 启动函数会以id作为启动后的进程的名字
+2. 如果进程是动态进程,也即SimpleOneForOne, 启动函数不会对该进程命名
+3. 如果进程是SimpleOneForOne,但又需要命名,此时需要调用 RegisterStartFun来注册自定义的启动函数
+*/
+func Register(id string, producer interface{})  {
+	RegisterStartFun(id, producer, nil)
 }
 
+/*
+给进程注册producer及启动函数
+*/
 func RegisterStartFun(name string, producer interface{}, startFun SpawnFun)  {
 	if _, ok := registerInfoMap[name]; ok {
 		panic(fmt.Sprintf("duplicated producer register key:%s", name))
@@ -138,31 +178,7 @@ func getRegisterInfo(name string) (*registerInfo, bool)  {
 	return info, ok
 }
 
-func Start(applicationId string)  {
-	isFromConfig = false
-	if app, err := startApplication(applicationId); err == nil {
-		setRunningApplication(applicationId, app)
-	}
-	waitInterupt()
-}
-
-// 根据配置启动
-func StartWithConfig(path string)  {
-	isFromConfig = true
-	// 先设为最高级
-	log.SetLevel(6)
-	// 读取配置文件
-	readStartingConfig(path)
-	//parseServers()
-	// 生成启动树
-	parseConfig()
-	//log.Tracef("r:", r)
-	printProcessTree(startingTasks)
-	startApplications()
-
-	waitInterupt()
-}
-
+// 等待打断信息
 func waitInterupt()  {
 	if signalChan == nil {
 		signalChan = make(chan os.Signal)
