@@ -15,7 +15,7 @@ func StartNormal()  {
 		login("test1")
 		login("test2")
 	}()
-	// 启动游戏应用
+	// 启动游戏应用, 会阻塞当前进程,直到收到打断信号
 	if err := rigger.Start(gameAppName); err != nil {
 		fmt.Printf("error when starting app, app id: %s, err: %v\r\n", gameAppName, err)
 	}
