@@ -48,8 +48,10 @@ type StartingNode struct {
 }
 
 // 启动应用
-func Start(applicationId string) error  {
+func Start(applicationId string, configPath string) error  {
 	isFromConfig = false
+	// 读取应用配置
+	readAppConfig(configPath)
 	if app, err := startApplication(applicationId); err == nil {
 		setRunningApplication(applicationId, app)
 	} else {
@@ -59,23 +61,62 @@ func Start(applicationId string) error  {
 	return nil
 }
 
-// 根据配置启动应用, 如果启动失败,会panic,所以未返回错误
-func StartWithConfig(path string)  {
+/*
+从命令行的启动
+函数从命令行相关配置,然后根据这些配置启动应用
+命令行选项:
+-l 启动文件路径, 路径应该指向一个有效的yum文件, 此选项和-n必须至少有一个,且只有一个会生效, 优化使用-l可选选项
+-n 应用名, 此选项和-l必须至少有一个,且只有一个会生效,优化使用-l, 可选选项
+-c 应用配置文件路径, 路径可以指向一个有效的yml文件, toml文件, ini文件, json文件等, 可选项
+ */
+func StartFromCli()  {
+	l, n, c := parseCl()
+	// l与n必须有一个
+	if l == nil && n == nil {
+		log.Panicf("need c launch config or application name to launch go-rigger applications")
+		return // 不写return, IDE无法判断后续对l的解引用总是安全的
+	}
+
+	if l != nil {
+		if c == nil {
+			StartWithConfig(*l, "")
+		} else {
+			StartWithConfig(*l, *c)
+		}
+	} else {
+		var p string
+		if c == nil {
+			p = ""
+		} else {
+			p = *c
+		}
+		if err := Start(*n, p); err != nil {
+			log.Panicf("error when start application: %s, reason: %s", *n, err.Error())
+		}
+
+	}
+}
+
+/*
+根据配置启动应用, 如果启动失败,会panic,所以未返回错误
+函数接受两个配置文件:
+launchConfigPath 启动配置文件,目前为yum 文件, 里面描述了应该如何启动一个节点上的应用
+appConfigPath 运行时环境配置文件, go-rigger不关心里面的内容, 此配置文件供用户自己使用,用户可以使用viper相关函数获取其中的数据
+*/
+func StartWithConfig(launchConfigPath string/*应用启动配置文件*/, appConfigPath string/*应用配置文件*/)  {
 	isFromConfig = true
+	readAppConfig(appConfigPath)
 	// 先设为最高级
 	log.SetLevel(6)
 	// 读取配置文件
-	readStartingConfig(path)
-	//parseServers()
+	readLaunchConfig(launchConfigPath)
 	// 生成启动树
 	parseConfig()
-	//log.Tracef("r:", r)
 	printProcessTree(startingTasks)
 	startApplications()
 
 	waitInterupt()
 }
-
 
 // 获取正在运行中的应用,如果没有,第二个返回值为 false,否则为true
 func GetRunningApplication(id string) (*Application, bool) {
@@ -194,7 +235,7 @@ func waitInterupt()  {
 }
 
 // 加载启动配置
-func readStartingConfig(path string)  {
+func readLaunchConfig(path string)  {
 	viper.SetConfigFile(path)
 	if err := viper.ReadInConfig(); err != nil {
 		log.Panicf("error when read starting config, reason:%s", err.Error())
@@ -648,3 +689,35 @@ func makeStartFun(info *registerInfo) SpawnFun {
 	}
 }
 
+/*
+分析命令行
+因为希望只处理go-rigger关心的选项,所以未使用 flag包来处理命令行参数
+ */
+func parseCl() (launchConfig *string, appName *string, appConfig *string) {
+	for idx := 1; idx < len(os.Args); idx += 1 {
+		cmd := os.Args[idx]
+		switch cmd {
+		case "-l":
+			launchConfig = &os.Args[idx + 1]
+			idx += 1
+		case "-c":
+			appConfig = &os.Args[idx + 1]
+			idx += 1
+		case "-n":
+			appName = &os.Args[idx + 1]
+			idx += 1
+		}
+	}
+
+	return
+}
+
+func readAppConfig(appConfigPath string)  {
+	// 读取应用配置文件
+	if appConfigPath != "" {
+		viper.SetConfigFile(appConfigPath)
+		if err := viper.ReadInConfig(); err != nil {
+			log.Panicf("error when reading config: %s, reason: %s", appConfigPath, err.Error())
+		}
+	}
+}
