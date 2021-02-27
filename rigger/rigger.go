@@ -19,6 +19,11 @@ func IsRemotePid(pid *actor.PID) bool {
 // 启动函数, go-rigger使用此类型的启动进程
 type SpawnFun func(parent actor.SpawnerContext, props *actor.Props, args interface{}) (pid *actor.PID, err error)
 
+// 根据进程名生成一个默认的SpawnSpec
+func DefaultSpawnSpec(name string) *SpawnSpec {
+	return makeDefaultSpawnSpec(name)
+}
+
 // 启动规范
 type SpawnSpec struct {
 	Id             string // Id, 框架会根据此ID查询启动 Producer和StartFun

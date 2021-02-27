@@ -35,12 +35,12 @@ func (g *gameSup) OnStopping(ctx actor.Context) {
 func (g *gameSup) OnStopped(ctx actor.Context) {
 }
 
-func (g *gameSup) OnGetSupFlag(ctx actor.Context) (supFlag rigger.SupervisorFlag, childSpecs []interface{}) {
+func (g *gameSup) OnGetSupFlag(ctx actor.Context) (supFlag rigger.SupervisorFlag, childSpecs []*rigger.SpawnSpec) {
 	// 监控进程会依次同步启动下列进程,
-	childSpecs = append(childSpecs, gatewayServerName)
-	childSpecs = append(childSpecs, loginServerName)
-	childSpecs = append(childSpecs, playerManagingServerName)
-	childSpecs = append(childSpecs, playerServerSupName)
+	childSpecs = append(childSpecs, rigger.DefaultSpawnSpec(gatewayServerName))
+	childSpecs = append(childSpecs, rigger.DefaultSpawnSpec(loginServerName))
+	childSpecs = append(childSpecs, rigger.DefaultSpawnSpec(playerManagingServerName))
+	childSpecs = append(childSpecs, rigger.DefaultSpawnSpec(playerServerSupName))
 
 	return
 }

@@ -19,7 +19,7 @@ type SupervisorBehaviour interface {
 		1. *SpawnSpec
 		2. string, 此时为子规范的ID, 监控进程会根据此id去配置中查找对应的启动规范
 	*/
-	OnGetSupFlag(ctx actor.Context) (supFlag SupervisorFlag, childSpecs []interface{}/*子进程规范, 描述如果启动子进程, 可以为以下类型*/)
+	OnGetSupFlag(ctx actor.Context) (supFlag SupervisorFlag, childSpecs []*SpawnSpec)
 	//PidHolder
 }
 
@@ -363,7 +363,7 @@ func (sup *supDelegate) notifyInitComplete(context actor.Context) {
 }
 
 // 根据监控模式及子进程规范,启动子进程, 在些函数中启动子进程时,均为同步启动,默认超时为10S
-func (sup *supDelegate) treateSupFlag(supFlag *SupervisorFlag, childSpecs []interface{}) {
+func (sup *supDelegate) treateSupFlag(supFlag *SupervisorFlag, childSpecs []*SpawnSpec) {
 	switch supFlag.StrategyFlag {
 	case OneForOne:
 		sup.owner.SetChildStrategy(actor.NewOneForOneStrategy(supFlag.MaxRetries, supFlag.WithinDuration, supFlag.Decider))
@@ -380,7 +380,7 @@ func (sup *supDelegate) treateSupFlag(supFlag *SupervisorFlag, childSpecs []inte
 
 	// 存储下
 	sup.supervisorFlag = supFlag
-	sup.childSpecs = unifySpawnSpecs(childSpecs)
+	sup.childSpecs = childSpecs
 
 	// 生成节点配置信息
 	sup.treateConfig(supFlag)
@@ -506,7 +506,7 @@ func (sup *supDelegate) spawnBySpec(spec *SpawnSpec) (*actor.PID, error) {
 	}
 }
 
-func (sup *supDelegate) getSupFlag(context actor.Context) (supFlag SupervisorFlag, childSpecs []interface{}) {
+func (sup *supDelegate) getSupFlag(context actor.Context) (supFlag SupervisorFlag, childSpecs []*SpawnSpec) {
 	if isFromConfig {
 		// 从配置启动,所以要从配置中拿
 		// 根据ID拿取自身的信息
@@ -539,7 +539,7 @@ func (sup *supDelegate) responseStartChild(context actor.Context, pid *actor.PID
 	}
 }
 
-func unifySpawnSpecs(maybeSpecs []interface{}) []*SpawnSpec {
+func unifySpawnSpecs(maybeSpecs []*SpawnSpec) []*SpawnSpec {
 	var ret = make([]*SpawnSpec, len(maybeSpecs))
 	for idx, spec := range maybeSpecs {
 		ret[idx] = unifySpawnSpec(spec)

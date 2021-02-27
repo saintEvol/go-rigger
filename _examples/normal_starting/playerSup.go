@@ -34,9 +34,9 @@ func (p *playerServerSup) OnStopping(ctx actor.Context) {
 func (p *playerServerSup) OnStopped(ctx actor.Context) {
 }
 
-func (p *playerServerSup) OnGetSupFlag(ctx actor.Context) (supFlag rigger.SupervisorFlag, childSpecs []interface{}) {
+func (p *playerServerSup) OnGetSupFlag(ctx actor.Context) (supFlag rigger.SupervisorFlag, childSpecs []*rigger.SpawnSpec) {
 	supFlag.StrategyFlag = rigger.SimpleOneForOne // 将子进程(玩家进程)变为动态进程
-	childSpecs = append(childSpecs, playerServerName)
+	childSpecs = append(childSpecs, rigger.DefaultSpawnSpec(playerServerName))
 
 	return
 }
