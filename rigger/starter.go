@@ -105,7 +105,7 @@ appConfigPath 运行时环境配置文件, go-rigger不关心里面的内容, �
 */
 func StartWithConfig(launchConfigPath string/*应用启动配置文件*/, appConfigPath string/*应用配置文件*/)  {
 	isFromConfig = true
-	readAppConfig(appConfigPath)
+
 	// 先设为最高级
 	log.SetLevel(6)
 	// 读取配置文件
@@ -113,6 +113,8 @@ func StartWithConfig(launchConfigPath string/*应用启动配置文件*/, appCon
 	// 生成启动树
 	parseConfig()
 	printProcessTree(startingTasks)
+	// 读取应用配置
+	readAppConfig(appConfigPath)
 	startApplications()
 
 	waitInterupt()
