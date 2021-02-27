@@ -147,7 +147,7 @@ func (server *GeneralServer)Request(sender actor.SenderContext, msg interface{})
 
 // 默认5秒超时
 func (server *GeneralServer)RequestFutureDefault(sender actor.SenderContext, msg interface{}) *actor.Future {
-	return server.RequestFuture(sender, msg, 5000000000)
+	return server.RequestFuture(sender, msg, 5 * time.Second)
 }
 
 func (server *GeneralServer)RequestFuture(sender actor.SenderContext, msg interface{}, timeout time.Duration) *actor.Future {
@@ -198,7 +198,6 @@ func (server *GeneralServer) setSupervisor(strategy actor.SupervisorStrategy) su
 	server.strategy = strategy
 	return server
 }
-
 
 // GeneralServer代理
 type genServerDelegate struct {

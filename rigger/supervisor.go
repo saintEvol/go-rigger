@@ -52,7 +52,7 @@ type SupervisorFlag struct {
 func StartChild(from actor.Context, pid *actor.PID, spawnSpecOrArgs interface{}) error {
 	// 判断是否是远程进程
 	if IsLocalPid(pid) {
-		from.Send(pid, &StartChildCmd{specOrArgs: spawnSpecOrArgs})
+		from.Send(pid, &startChildCmd{specOrArgs: spawnSpecOrArgs})
 	} else {
 		// 如果是远程进程,先序列化spawnSpecOrArgs
 		if specBytes, err := encodeMsg(spawnSpecOrArgs); err == nil {
@@ -75,7 +75,7 @@ func (u UnexceptedStartResult) Error() string {
 func StartChildNotified(from actor.Context, pid *actor.PID, spawnSpecOrArgs interface{}) error {
 	// 判断是否是远程进程
 	if IsLocalPid(pid) {
-		from.Request(pid, &StartChildCmd{specOrArgs: spawnSpecOrArgs})
+		from.Request(pid, &startChildCmd{specOrArgs: spawnSpecOrArgs})
 	} else {
 		// 如果是远程进程,先序列化spawnSpecOrArgs
 		if specBytes, err := encodeMsg(spawnSpecOrArgs); err != nil {
@@ -95,7 +95,7 @@ func StartChildSync(from actor.Context, pid *actor.PID, spawnSpecOrArgs interfac
 
 	// 是否是远程进程
 	if IsLocalPid(pid) {
-		future := from.RequestFuture(pid, &StartChildCmd{specOrArgs: spawnSpecOrArgs}, timeout)
+		future := from.RequestFuture(pid, &startChildCmd{specOrArgs: spawnSpecOrArgs}, timeout)
 		return waitStartChildResp(future)
 	} else {
 		//远程进程,先序列化spawnSpecOrArgs
@@ -342,7 +342,7 @@ func (sup *supDelegate) Receive(context actor.Context) {
 	case *actor.ReceiveTimeout:
 		re := sup.callback.(TimeoutReceiver)
 		re.OnTimeout(context)
-	case *StartChildCmd:
+	case *startChildCmd:
 		// 启动子进程的命令
 		sup.startChild(context, msg.specOrArgs)
 	case *RemoteStartChildCmd: // 远程启动子进程
@@ -578,7 +578,7 @@ type supDelegateHolder interface {
 	GetInitArgs() interface{}
 }
 
-//type StartChildCmd struct {
+//type startChildCmd struct {
 //	specOrArgs interface{}
 //}
 // 将启动规范或参数包装在切片里,序列化,以便后续跨节点发送

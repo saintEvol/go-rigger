@@ -26,6 +26,7 @@ var (
 	signalChan chan os.Signal // 接收一些系统信号
 )
 
+// 进程的位置信息
 type location struct {
 	host string
 	port int
@@ -38,7 +39,7 @@ type remoteSpec struct {
 
 type StartingNode struct {
 	name string
-	fullName string // 全名,包含了其父级及祖名称,可以通过其定位的进程
+	fullName string // 全名,包含了其父级及祖名称,可以通过其定位到进程
 	parent *StartingNode
 	spawnSpec *SpawnSpec //  自身的启动规范
 	children []*StartingNode
@@ -47,7 +48,11 @@ type StartingNode struct {
 	supFlag *SupervisorFlag
 }
 
-// 启动应用
+/*
+启动应用
+applicationId: 应用标识, 需要是一个已经注册的应用标识
+configPath: 应用配置文件路径, 路径可以指向一个有效的yml文件, toml文件, ini文件, json文件等
+ */
 func Start(applicationId string, configPath string) error  {
 	isFromConfig = false
 	// 读取应用配置
@@ -133,7 +138,7 @@ func setRunningApplication(id string, app *Application)  {
 	runningApplication[id] = app
 }
 
-// TODO 考虑将所有应用在同一个根上启动,这样各个应用间才好通信
+// TODO 考虑将所有应用在同一个根上启动,这样各个应用间比较好通信
 func GetApplicationRoot(name string) *actor.ActorSystem {
 	if app, ok := GetRunningApplication(name); ok {
 		return app.Parent

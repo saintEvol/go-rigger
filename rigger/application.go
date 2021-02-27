@@ -8,7 +8,7 @@ import (
 )
 
 /**
-应用的行为模式模块,
+应用的行为模式模块
  */
 type ApplicationBehaviour interface {
 	SupervisorBehaviour

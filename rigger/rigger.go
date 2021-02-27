@@ -16,12 +16,9 @@ func IsRemotePid(pid *actor.PID) bool {
 	return !IsLocalPid(pid)
 }
 
-// 启动子进程的命令
-type StartChildCmd struct {
-	specOrArgs interface{}
-}
-
+// 启动函数, go-rigger使用此类型的启动进程
 type SpawnFun func(parent actor.SpawnerContext, props *actor.Props, args interface{}) (pid *actor.PID, err error)
+
 // 启动规范
 type SpawnSpec struct {
 	Id             string // Id, 框架会根据此ID查询启动 Producer和StartFun
@@ -33,6 +30,7 @@ type SpawnSpec struct {
 	ReceiveTimeout time.Duration
 }
 
+// 新创建一个默认的SpawnSpec结构
 func NewDefaultSpawnSpec() *SpawnSpec {
 	return &SpawnSpec{
 		//Producer:       nil,
@@ -44,16 +42,11 @@ func NewDefaultSpawnSpec() *SpawnSpec {
 	}
 }
 
-// spawn(子)进程的回应,目前只有利用监控进程手动启动子进程时,会有此回复
-// 改成通过prtobuf定义
-//type SpawnResponse struct {
-//	Err    error
-//	Sender *actor.PID // 是谁发起的请求
-//	Parent *actor.PID // 父进程ID
-//	Pid    *actor.PID //新进程的PID
-//}
+// 表示不需要回复发送者,意味者,处理者需要自己正确处理回复
+const NoReply = noReply(1)
 
 // noReply,一种特殊的消息处理返回值,表示不需要rigger-go回复发送者,相反,需要用户自己进行回复
+// 为了符合GeneralServerBehaviour.OnMessage的接口说明, 手动实现了,proto.Message
 type noReply int
 func (n noReply) Reset() {
 }
@@ -63,18 +56,17 @@ func (n noReply) String() string {
 func (n noReply) ProtoMessage() {
 }
 
-// 表示不需要回复发送者,意味者,处理者需要自己正确处理回复
-const NoReply = noReply(1)
 
+// 回复类型, 用于转发(Forward)中
 type RespondType byte
-
 const  (
-	RespondNone   RespondType = iota // 不回复
+	RespondNone   RespondType = 1 + iota // 不回复
 	RespondOrigin                    // 回复给原始发送进程
 	RespondSelf                      // 回复给本进程
 )
 
 // 转发结构体,如果处理完消息后返回此值,则会继续将消息转发给指定进程, 且,后续接收进程会根据Responded的值选择是否回复初始发送者
+// 为了满足GeneralServerBehaviour.OnMessage的接口规范, 手动实现了proto.Message
 type Forward struct {
 	To *actor.PID // 转发给谁
 	Message proto.Message // 需要转发的消息
@@ -92,6 +84,8 @@ func (f Forward) ProtoMessage() {
 }
 
 // 如果起动进程时,ReceiveTimeout为大于0的值,则超时后会触发此回调
+// 如果进程设置了超时时间,则必须实现本接口,否则,触发超时时,会引发异常
+// TODO 考虑在启动进程时进行断言
 type TimeoutReceiver interface {
 	OnTimeout(ctx actor.Context)
 }
@@ -104,6 +98,7 @@ type Stoppable interface {
 }
 
 // actor 生命周期接口
+// 所有的go-rigger进程行为模式,都需要实现此接口
 type LifeCyclePart interface {
 	OnRestarting(ctx actor.Context)
 	// 启动时的回调,应该在此回调中进行初始化,不管是正常启动或是重启,都会调用此事件
@@ -124,12 +119,17 @@ type LifeCyclePart interface {
 }
 
 // pid持有接口
-type PidHolder interface {
-	GetPid() *actor.PID
-	SetPid(pid *actor.PID)
-}
+//type PidHolder interface {
+//	GetPid() *actor.PID
+//	SetPid(pid *actor.PID)
+//}
 
-type LifeCycleProducer func() LifeCyclePart
+//type LifeCycleProducer func() LifeCyclePart
+
+// 启动子进程的命令
+type startChildCmd struct {
+	specOrArgs interface{}
+}
 
 type spawnerSetter interface {
 	setSpawner(spawner actor.SpawnerContext) spawnerSetter
@@ -139,6 +139,7 @@ type supervisorSetter interface {
 	setSupervisor(strategy actor.SupervisorStrategy) supervisorSetter
 }
 
+// 根据spawner的类型,获取spawner
 func fetchSpawner(spawner interface{}) actor.SpawnerContext {
 
 	var result actor.SpawnerContext
