@@ -35,10 +35,10 @@ func Broadcast(from actor.Context, routerPid *actor.PID, msg proto.Message)  {
 // 路由类型
 type RouterType int
 const (
-	RandomType RouterType = 1 + iota
-	BroadcastType
-	RoundRobinType
-	ConsistentHashType
+	RandomType RouterType = 1 + iota // 随机选择一个进程,进行消息转发
+	BroadcastType // 广播类型,即将消息转发给所有进程
+	RoundRobinType // 轮询
+	ConsistentHashType // 固定哈希, 即哈希值一样的消息始终在同一个进程处理
 )
 
 // router group行为模式
