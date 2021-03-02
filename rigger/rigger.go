@@ -2,10 +2,24 @@ package rigger
 
 import (
 	"github.com/AsynkronIT/protoactor-go/actor"
-	"github.com/golang/protobuf/proto"
 	"reflect"
-	"time"
 )
+
+/*
+根据函数启动一个进程, 并返回进程id
+*/
+func SpawnFromFun(parent actor.Context, fun actor.ReceiveFunc) *actor.PID {
+	props := actor.PropsFromFunc(fun)
+	return parent.Spawn(props)
+}
+
+/**
+启动一个进程
+ */
+func SpawnFromProducer(parent actor.Context, producer actor.Producer) *actor.PID {
+	props := actor.PropsFromProducer(producer)
+	return parent.Spawn(props)
+}
 
 // 判断PID是否是本地PID
 func IsLocalPid(pid *actor.PID) bool {
@@ -60,7 +74,6 @@ func (n noReply) String() string {
 }
 func (n noReply) ProtoMessage() {
 }
-
 
 // 回复类型, 用于转发(Forward)中
 type RespondType byte
