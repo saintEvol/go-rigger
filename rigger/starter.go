@@ -295,7 +295,7 @@ func filterLocalNode(nodes []*StartingNode) (n []*StartingNode)  {
 //						log.Panicf("faild to start %s, reason: %s", child.name, err.Error())
 //					}
 //				case GeneralServerBehaviourProducer:
-//					if _, err := StartGeneralServerSpec(app, child.spawnSpec); err != nil {
+//					if _, err := startGeneralServerSpec(app, child.spawnSpec); err != nil {
 //						log.Panicf("faild to start %s, reason: %s", child.name, err.Error())
 //					}
 //				default:

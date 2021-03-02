@@ -37,13 +37,13 @@ func startApplicationWithSystem(system *actor.ActorSystem, spec *SpawnSpec) (*Ap
 // 应用
 // ----- Application ------
 type Application struct {
-	id string
-	Pid      *actor.PID
-	delegate *supDelegate
-	Parent   *actor.ActorSystem
-	initArgs interface{}
+	id             string
+	pid            *actor.PID
+	delegate       *supDelegate
+	Parent         *actor.ActorSystem
+	initArgs       interface{}
 	receiveTimeout time.Duration
-	childStrategy actor.SupervisorStrategy
+	childStrategy  actor.SupervisorStrategy
 }
 
 func (app *Application)Start(producer ApplicationBehaviourProducer) *Application  {
@@ -55,8 +55,8 @@ func (app *Application)Start(producer ApplicationBehaviourProducer) *Application
 			callback: cb,
 		}
 	})
-	app.Pid = app.Parent.Root.Spawn(props)
-	//cb.SetPid(app.Pid)
+	app.pid = app.Parent.Root.Spawn(props)
+	//cb.SetPid(app.pid)
 
 	return app
 }
@@ -84,7 +84,7 @@ func (app *Application)StartSpec(spec *SpawnSpec) (*Application, error) {
 				log.Errorf("error when start actor, reason:%s", err.Error())
 				return app, err
 			} else {
-				app.Pid = pid
+				app.pid = pid
 				// application不设置receive timeout了
 				if initFuture != nil {
 					if err = initFuture.Wait(); err != nil {
@@ -128,19 +128,19 @@ func (app *Application) generateProps(producer ApplicationBehaviourProducer, fut
 }
 
 func (app *Application) Stop()  {
-	app.Parent.Root.Stop(app.Pid)
+	app.Parent.Root.Stop(app.pid)
 }
 
 func (app *Application)StopFuture() *actor.Future {
-	return app.Parent.Root.StopFuture(app.Pid)
+	return app.Parent.Root.StopFuture(app.pid)
 }
 
 func (app *Application)Poison() {
-	app.Parent.Root.Poison(app.Pid)
+	app.Parent.Root.Poison(app.pid)
 }
 
 func (app *Application)PoisonFuture() *actor.Future  {
-	return app.Parent.Root.PoisonFuture(app.Pid)
+	return app.Parent.Root.PoisonFuture(app.pid)
 }
 
 // Interface: supDelegateHolder
@@ -219,7 +219,7 @@ func (app *Application) initConfig(spec *SpawnSpec)  {
 //
 //func (app *appDelegate)notifyInitComplete(context actor.Context)  {
 //	if app.initFuture != nil {
-//		context.Send(app.initFuture.PID(), context.RespondSelf())
+//		context.Send(app.initFuture.pid(), context.RespondSelf())
 //		app.initFuture = nil
 //	}
 //}

@@ -26,9 +26,9 @@ type GeneralServerBehaviour interface {
 // 行为模式生成器
 type GeneralServerBehaviourProducer func() GeneralServerBehaviour
 
-func StartGeneralServer(parent interface{}, id string) (*GeneralServer, error) {
+func startGeneralServer(parent interface{}, id string) (*GeneralServer, error) {
 	if _, ok := getRegisterInfo(id); ok {
-		server := NewGeneralServer()
+		server := newGeneralServer()
 		_, err := server.WithSupervisor(parent).WithSpawner(parent).StartSpec(&SpawnSpec{
 			Id: id,
 			SpawnTimeout: startTimeOut,
@@ -42,24 +42,24 @@ func StartGeneralServer(parent interface{}, id string) (*GeneralServer, error) {
 	}
 }
 
-func StartGeneralServerSpec(parent interface{}, spec *SpawnSpec) (*GeneralServer, error) {
-	server := NewGeneralServer()
+func startGeneralServerSpec(parent interface{}, spec *SpawnSpec) (*GeneralServer, error) {
+	server := newGeneralServer()
 	return server.WithSupervisor(parent).WithSpawner(parent).StartSpec(spec)
 }
 
 // 生成一个新的GeneralServer
-func NewGeneralServer() *GeneralServer  {
+func newGeneralServer() *GeneralServer  {
 	server := &GeneralServer{}
 	return server
 }
 
 // 通用服务器
 type GeneralServer struct {
-	pid *actor.PID // 进程ID
-	spawner actor.SpawnerContext
-	strategy actor.SupervisorStrategy
-	initArgs interface{} // 初始化参数
-	delegate *genServerDelegate
+	pid            *actor.PID // 进程ID
+	spawner        actor.SpawnerContext
+	strategy       actor.SupervisorStrategy
+	initArgs       interface{} // 初始化参数
+	delegate       *genServerDelegate
 	receiveTimeout time.Duration
 }
 

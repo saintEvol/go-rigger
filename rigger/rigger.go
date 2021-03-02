@@ -125,8 +125,8 @@ type LifeCyclePart interface {
 
 // pid持有接口
 //type PidHolder interface {
-//	GetPid() *actor.PID
-//	SetPid(pid *actor.PID)
+//	GetPid() *actor.pid
+//	SetPid(pid *actor.pid)
 //}
 
 //type LifeCycleProducer func() LifeCyclePart

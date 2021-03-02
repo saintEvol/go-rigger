@@ -108,24 +108,6 @@ func StartChildSync(from actor.Context, pid *actor.PID, spawnSpecOrArgs interfac
 	}
 }
 
-// 等等子进程启动结果
-func waitStartChildResp(future *actor.Future) (*actor.PID, error) {
-	if ret, err := future.Result(); err != nil {
-		return nil, err
-	} else {
-		switch resp := ret.(type) {
-		case *SpawnResponse:
-			var err error
-			if resp.Error != "" {
-				err = ErrSpawn(resp.Error)
-			}
-			return resp.Pid, err
-		default:
-			return nil, UnexceptedStartResult("")
-		}
-	}
-}
-
 // 启动一个监控进程
 func StartSupervisor(parent interface{}, id string) (*Supervisor, error) {
 	if _, ok := getRegisterInfo(id); ok {
@@ -482,7 +464,7 @@ func (sup *supDelegate) spawnBySpec(spec *SpawnSpec) (*actor.PID, error) {
 
 		switch producer := info.producer.(type) {
 		case GeneralServerBehaviourProducer:
-			if server, err := StartGeneralServerSpec(sup.owner, spec); err != nil {
+			if server, err := startGeneralServerSpec(sup.owner, spec); err != nil {
 				return nil, err
 			} else {
 				// 如果不是从配置启动,且不是sample设置进程ID
@@ -604,3 +586,22 @@ func decodeMsg(b []byte) (interface{}, error) {
 		return arr[0], nil
 	}
 }
+
+// 等等子进程启动结果
+func waitStartChildResp(future *actor.Future) (*actor.PID, error) {
+	if ret, err := future.Result(); err != nil {
+		return nil, err
+	} else {
+		switch resp := ret.(type) {
+		case *SpawnResponse:
+			var err error
+			if resp.Error != "" {
+				err = ErrSpawn(resp.Error)
+			}
+			return resp.Pid, err
+		default:
+			return nil, UnexceptedStartResult("")
+		}
+	}
+}
+

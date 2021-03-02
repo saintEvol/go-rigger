@@ -393,7 +393,7 @@ func (this *SpawnResponse) GoString() string {
 		s = append(s, "Parent: "+fmt.Sprintf("%#v", this.Parent)+",\n")
 	}
 	if this.Pid != nil {
-		s = append(s, "Pid: "+fmt.Sprintf("%#v", this.Pid)+",\n")
+		s = append(s, "pid: "+fmt.Sprintf("%#v", this.Pid)+",\n")
 	}
 	s = append(s, "Error: "+fmt.Sprintf("%#v", this.Error)+",\n")
 	s = append(s, "}")
@@ -643,9 +643,9 @@ func (this *SpawnResponse) String() string {
 		return "nil"
 	}
 	s := strings.Join([]string{`&SpawnResponse{`,
-		`Sender:` + strings.Replace(fmt.Sprintf("%v", this.Sender), "PID", "actor.PID", 1) + `,`,
-		`Parent:` + strings.Replace(fmt.Sprintf("%v", this.Parent), "PID", "actor.PID", 1) + `,`,
-		`Pid:` + strings.Replace(fmt.Sprintf("%v", this.Pid), "PID", "actor.PID", 1) + `,`,
+		`Sender:` + strings.Replace(fmt.Sprintf("%v", this.Sender), "pid", "actor.pid", 1) + `,`,
+		`Parent:` + strings.Replace(fmt.Sprintf("%v", this.Parent), "pid", "actor.pid", 1) + `,`,
+		`pid:` + strings.Replace(fmt.Sprintf("%v", this.Pid), "pid", "actor.pid", 1) + `,`,
 		`Error:` + fmt.Sprintf("%v", this.Error) + `,`,
 		`}`,
 	}, "")
@@ -987,7 +987,7 @@ func (m *SpawnResponse) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 3:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Pid", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field pid", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
