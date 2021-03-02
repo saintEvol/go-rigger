@@ -88,7 +88,11 @@ func StartChildNotified(from actor.Context, pid *actor.PID, spawnSpecOrArgs inte
 	return nil
 }
 
-func StartChildSync(from actor.Context, pid *actor.PID, spawnSpecOrArgs interface{}, timeout time.Duration) (*actor.PID, error) {
+/*
+启动子进程
+已知问题: 如果在父进程内部启动子进程,会导致死锁超时
+*/
+func StartChildSync(from actor.Context/*谁请求*/, pid *actor.PID/*父进程ID*/, spawnSpecOrArgs interface{} /* *SpawnSpec 或启动参数 */, timeout time.Duration) (*actor.PID, error) {
 	if pid == nil {
 		return nil, ErrPidIsNil{}
 	}
@@ -476,6 +480,12 @@ func (sup *supDelegate) spawnBySpec(spec *SpawnSpec) (*actor.PID, error) {
 				return nil, err
 			} else {
 				return childSup.pid, nil
+			}
+		case RouterGroupBehaviourProducer:
+			if group, err := startRouterGroupSpec(sup.owner, spec); err != nil {
+				return nil, err
+			} else {
+				return group.pid, nil
 			}
 		default:
 			typeName := reflect.TypeOf(producer).Name()

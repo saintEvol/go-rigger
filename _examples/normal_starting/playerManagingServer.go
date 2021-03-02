@@ -97,7 +97,29 @@ func (p *playerManagingServer) OnMessage(ctx actor.Context, message interface{})
 				UserId:   0, // 此错误不返回user id
 			}
 		}
+
+	case *LogoutSpec:
+		if player, ok := p.allPlayers[msg.UserName]; ok {
+			// 是否在线
+			if p.isOnline(player.userId) {
+				if playerPid, ok := rigger.GetDynamicPid(playerServerName, genPlayerProcessName(player.userId)); ok {
+					if err := ctx.StopFuture(playerPid).Wait(); err != nil {
+						fmt.Printf("logout err: %s\r\n", err.Error())
+						return &LogoutResp{Error: err.Error()}
+					} else {
+						return &LogoutResp{}
+					}
+				} else {
+					return &LogoutResp{
+						Error: "unknown error",
+					}
+				}
+			} else {
+				return &LogoutResp{Error: "is not online"}
+			}
+		}
 	}
+	
 
 	return nil
 }

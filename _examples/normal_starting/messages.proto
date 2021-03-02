@@ -27,3 +27,14 @@ message loginResp {
   string UserName = 2; // 用户名
   uint64 UserId = 3; // 用户ID
 }
+
+message logoutSpec {
+  string userName = 1;
+}
+message logoutResp {
+  string error = 1;
+}
+// 广播
+message broadcast {
+  string content = 1;
+}

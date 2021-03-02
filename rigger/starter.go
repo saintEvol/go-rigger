@@ -691,7 +691,7 @@ func makeStartFun(info *registerInfo) SpawnFun {
 	} else {
 		log.Warnf("got no config when make start fun, id: %s", info.id)
 		return func(parent actor.SpawnerContext, props *actor.Props, args interface{}) (pid *actor.PID, err error) {
-			return parent.Spawn(props), nil
+			return parent.SpawnNamed(props, info.id)
 		}
 	}
 }

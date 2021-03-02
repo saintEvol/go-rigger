@@ -40,8 +40,8 @@ func (g *gameSup) OnGetSupFlag(ctx actor.Context) (supFlag rigger.SupervisorFlag
 	childSpecs = append(childSpecs, rigger.DefaultSpawnSpec(gatewayServerName))
 	childSpecs = append(childSpecs, rigger.DefaultSpawnSpec(loginServerName))
 	childSpecs = append(childSpecs, rigger.DefaultSpawnSpec(playerManagingServerName))
+	childSpecs = append(childSpecs, rigger.DefaultSpawnSpec(playerBroadcastServerName))
 	childSpecs = append(childSpecs, rigger.DefaultSpawnSpec(playerServerSupName))
-
 	return
 }
 

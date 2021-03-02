@@ -14,6 +14,15 @@ func StartNormal()  {
 		register("test2", "coolman")
 		login("test1")
 		login("test2")
+		time.Sleep(1 * time.Second)
+		// 模拟广播
+		broadcast()
+		// 玩家下线
+		logout("test1")
+		// 测试下线后,广播
+		broadcast()
+		broadcast()
+		broadcast()
 	}()
 	// 启动游戏应用, 会阻塞当前进程,直到收到打断信号
 	if err := rigger.Start(gameAppName, ""); err != nil {
@@ -50,6 +59,7 @@ func login(userName string)  {
 		// 获取应用
 		root := rigger.GetApplicationRoot(gameAppName)
 		// TODO 是否可以优化发消息
+		// TODO 应该是从loginServer登录
 		future := root.Root.RequestFuture(managerPid, &spec, 3 * time.Second)
 		if resp, err := future.Result(); err == nil {
 			ret := resp.(*LoginResp)
@@ -64,4 +74,29 @@ func login(userName string)  {
 		}
 	}
 
+}
+
+func logout(username string)  {
+	if managerPid, ok := rigger.GetPid(playerManagingServerName); ok {
+		root := rigger.GetApplicationRoot(gameAppName)
+		f := root.Root.RequestFuture(managerPid, &LogoutSpec{UserName: username}, 1 * time.Second)
+		if ret, err := f.Result(); err == nil{
+			r := ret.(*LogoutResp)
+			if r.Error == "" {
+				fmt.Printf("success logout:%s\r\n", username)
+			} else {
+				fmt.Printf("failed to logout: %s, reason: %s\r\n", username, r.Error)
+			}
+		}
+	} else {
+		fmt.Printf("faild to get manager pid\r\n")
+	}
+}
+
+func broadcast()  {
+	if broadcastPid, ok := rigger.GetPid(playerBroadcastServerName); ok {
+		// 获取应用
+		root := rigger.GetApplicationRoot(gameAppName)
+		root.Root.Send(broadcastPid, &Broadcast{Content: "hello"})
+	}
 }

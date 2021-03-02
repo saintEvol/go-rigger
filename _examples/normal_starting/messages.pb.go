@@ -239,11 +239,144 @@ func (m *LoginResp) GetUserId() uint64 {
 	return 0
 }
 
+type LogoutSpec struct {
+	UserName string `protobuf:"bytes,1,opt,name=userName,proto3" json:"userName,omitempty"`
+}
+
+func (m *LogoutSpec) Reset()      { *m = LogoutSpec{} }
+func (*LogoutSpec) ProtoMessage() {}
+func (*LogoutSpec) Descriptor() ([]byte, []int) {
+	return fileDescriptor_07e2b1a4647323e4, []int{4}
+}
+func (m *LogoutSpec) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *LogoutSpec) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_LogoutSpec.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *LogoutSpec) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_LogoutSpec.Merge(m, src)
+}
+func (m *LogoutSpec) XXX_Size() int {
+	return m.Size()
+}
+func (m *LogoutSpec) XXX_DiscardUnknown() {
+	xxx_messageInfo_LogoutSpec.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_LogoutSpec proto.InternalMessageInfo
+
+func (m *LogoutSpec) GetUserName() string {
+	if m != nil {
+		return m.UserName
+	}
+	return ""
+}
+
+type LogoutResp struct {
+	Error string `protobuf:"bytes,1,opt,name=error,proto3" json:"error,omitempty"`
+}
+
+func (m *LogoutResp) Reset()      { *m = LogoutResp{} }
+func (*LogoutResp) ProtoMessage() {}
+func (*LogoutResp) Descriptor() ([]byte, []int) {
+	return fileDescriptor_07e2b1a4647323e4, []int{5}
+}
+func (m *LogoutResp) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *LogoutResp) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_LogoutResp.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *LogoutResp) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_LogoutResp.Merge(m, src)
+}
+func (m *LogoutResp) XXX_Size() int {
+	return m.Size()
+}
+func (m *LogoutResp) XXX_DiscardUnknown() {
+	xxx_messageInfo_LogoutResp.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_LogoutResp proto.InternalMessageInfo
+
+func (m *LogoutResp) GetError() string {
+	if m != nil {
+		return m.Error
+	}
+	return ""
+}
+
+// 广播
+type Broadcast struct {
+	Content string `protobuf:"bytes,1,opt,name=content,proto3" json:"content,omitempty"`
+}
+
+func (m *Broadcast) Reset()      { *m = Broadcast{} }
+func (*Broadcast) ProtoMessage() {}
+func (*Broadcast) Descriptor() ([]byte, []int) {
+	return fileDescriptor_07e2b1a4647323e4, []int{6}
+}
+func (m *Broadcast) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *Broadcast) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_Broadcast.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *Broadcast) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Broadcast.Merge(m, src)
+}
+func (m *Broadcast) XXX_Size() int {
+	return m.Size()
+}
+func (m *Broadcast) XXX_DiscardUnknown() {
+	xxx_messageInfo_Broadcast.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Broadcast proto.InternalMessageInfo
+
+func (m *Broadcast) GetContent() string {
+	if m != nil {
+		return m.Content
+	}
+	return ""
+}
+
 func init() {
 	proto.RegisterType((*Register)(nil), "normal_starting.register")
 	proto.RegisterType((*RegisterResp)(nil), "normal_starting.registerResp")
 	proto.RegisterType((*LoginSpec)(nil), "normal_starting.loginSpec")
 	proto.RegisterType((*LoginResp)(nil), "normal_starting.loginResp")
+	proto.RegisterType((*LogoutSpec)(nil), "normal_starting.logoutSpec")
+	proto.RegisterType((*LogoutResp)(nil), "normal_starting.logoutResp")
+	proto.RegisterType((*Broadcast)(nil), "normal_starting.broadcast")
 }
 
 func init() {
@@ -251,23 +384,26 @@ func init() {
 }
 
 var fileDescriptor_07e2b1a4647323e4 = []byte{
-	// 245 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xd2, 0x88, 0x4f, 0xad, 0x48,
-	0xcc, 0x2d, 0xc8, 0x49, 0x2d, 0xd6, 0xcf, 0xcb, 0x2f, 0xca, 0x4d, 0xcc, 0x89, 0x2f, 0x2e, 0x49,
-	0x2c, 0x2a, 0xc9, 0xcc, 0x4b, 0xd7, 0xcf, 0x4d, 0x2d, 0x2e, 0x4e, 0x4c, 0x4f, 0x2d, 0xd6, 0x2b,
-	0x28, 0xca, 0x2f, 0xc9, 0x17, 0xe2, 0x47, 0x93, 0x57, 0x72, 0xe2, 0xe2, 0x28, 0x4a, 0x4d, 0xcf,
-	0x2c, 0x2e, 0x49, 0x2d, 0x12, 0x92, 0xe2, 0xe2, 0x08, 0x2d, 0x4e, 0x2d, 0xf2, 0x4b, 0xcc, 0x4d,
-	0x95, 0x60, 0x54, 0x60, 0xd4, 0xe0, 0x0c, 0x82, 0xf3, 0x41, 0x72, 0x7e, 0x99, 0xc9, 0xd9, 0x79,
-	0x20, 0x39, 0x26, 0x88, 0x1c, 0x8c, 0xaf, 0x14, 0xc1, 0xc5, 0x03, 0x33, 0x23, 0x28, 0xb5, 0xb8,
-	0x40, 0x48, 0x84, 0x8b, 0x35, 0xb5, 0xa8, 0x28, 0xbf, 0x08, 0x6a, 0x08, 0x84, 0x83, 0x62, 0x3a,
-	0x13, 0x9a, 0xe9, 0x62, 0x5c, 0x6c, 0x20, 0xb6, 0x67, 0x8a, 0x04, 0xb3, 0x02, 0xa3, 0x06, 0x4b,
-	0x10, 0x94, 0xa7, 0xa4, 0xce, 0xc5, 0x99, 0x93, 0x9f, 0x9e, 0x99, 0x17, 0x5c, 0x90, 0x9a, 0x8c,
-	0xcf, 0x79, 0x4a, 0xa1, 0x50, 0x85, 0xd4, 0xb5, 0xdf, 0xc9, 0xe4, 0xc2, 0x43, 0x39, 0x86, 0x1b,
-	0x0f, 0xe5, 0x18, 0x3e, 0x3c, 0x94, 0x63, 0x6c, 0x78, 0x24, 0xc7, 0xb8, 0xe2, 0x91, 0x1c, 0xe3,
-	0x89, 0x47, 0x72, 0x8c, 0x17, 0x1e, 0xc9, 0x31, 0x3e, 0x78, 0x24, 0xc7, 0xf8, 0xe2, 0x91, 0x1c,
-	0xc3, 0x87, 0x47, 0x72, 0x8c, 0x13, 0x1e, 0xcb, 0x31, 0x5c, 0x78, 0x2c, 0xc7, 0x70, 0xe3, 0xb1,
-	0x1c, 0x43, 0x12, 0x1b, 0x38, 0xac, 0x8d, 0x01, 0x01, 0x00, 0x00, 0xff, 0xff, 0xa4, 0x5e, 0x41,
-	0x66, 0x97, 0x01, 0x00, 0x00,
+	// 290 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x91, 0xb1, 0x4a, 0xc3, 0x40,
+	0x18, 0xc7, 0xef, 0xaa, 0xd6, 0xf6, 0x10, 0x84, 0x20, 0x12, 0x1c, 0x3e, 0xca, 0x81, 0x98, 0xc9,
+	0x0e, 0xfa, 0x04, 0xdd, 0x5c, 0x3a, 0x44, 0x0a, 0x6e, 0xe5, 0x9a, 0x7e, 0x84, 0x60, 0x72, 0x17,
+	0xee, 0xae, 0xe0, 0xe8, 0x23, 0xf8, 0x18, 0x3e, 0x8a, 0x63, 0xc6, 0x8e, 0xe6, 0xb2, 0x38, 0xf6,
+	0x11, 0x24, 0x36, 0x27, 0x18, 0xd0, 0xc9, 0xed, 0x7e, 0xfc, 0xff, 0xfc, 0xef, 0x07, 0x1f, 0x8b,
+	0x96, 0xf8, 0x24, 0x8a, 0x32, 0x47, 0x33, 0x95, 0x4a, 0x17, 0x22, 0x5f, 0x1a, 0x2b, 0xb4, 0xcd,
+	0x64, 0x3a, 0x2d, 0xd0, 0x18, 0x91, 0xa2, 0xb9, 0x2e, 0xb5, 0xb2, 0x2a, 0x38, 0xed, 0xe5, 0x7c,
+	0xc6, 0x46, 0x1a, 0xd3, 0xcc, 0x58, 0xd4, 0xc1, 0x05, 0x1b, 0x2d, 0x0c, 0xea, 0xb9, 0x28, 0x30,
+	0xa4, 0x13, 0x1a, 0x8d, 0xe3, 0x6f, 0x6e, 0xb3, 0x79, 0x96, 0x3c, 0xca, 0x36, 0x1b, 0xec, 0x33,
+	0xcf, 0xfc, 0x81, 0x9d, 0xf8, 0x8d, 0x18, 0x4d, 0x19, 0x9c, 0xb1, 0x23, 0xd4, 0x5a, 0xe9, 0x6e,
+	0x64, 0x0f, 0x3f, 0xd6, 0x07, 0xbd, 0xf5, 0x73, 0x36, 0x6c, 0xdf, 0x77, 0xeb, 0xf0, 0x60, 0x42,
+	0xa3, 0xc3, 0xb8, 0x23, 0x7e, 0xc5, 0xc6, 0xb9, 0x4a, 0x33, 0x79, 0x5f, 0x62, 0xf2, 0x97, 0x1e,
+	0x5f, 0x74, 0xc5, 0x7f, 0xfe, 0x3f, 0x62, 0x2c, 0x57, 0xa9, 0xda, 0x58, 0x2f, 0xb0, 0xe9, 0x09,
+	0x78, 0xe6, 0xdc, 0x37, 0x7f, 0x37, 0xe0, 0x97, 0x6c, 0xbc, 0xd2, 0x4a, 0xac, 0x13, 0x61, 0x6c,
+	0x10, 0xb2, 0xe3, 0x44, 0x49, 0x8b, 0xd2, 0x76, 0x25, 0x8f, 0xb3, 0xdb, 0xaa, 0x06, 0xb2, 0xad,
+	0x81, 0xec, 0x6a, 0xa0, 0xcf, 0x0e, 0xe8, 0xab, 0x03, 0xfa, 0xe6, 0x80, 0x56, 0x0e, 0xe8, 0xbb,
+	0x03, 0xfa, 0xe1, 0x80, 0xec, 0x1c, 0xd0, 0x97, 0x06, 0x48, 0xd5, 0x00, 0xd9, 0x36, 0x40, 0x56,
+	0xc3, 0xaf, 0x03, 0xdf, 0x7c, 0x06, 0x00, 0x00, 0xff, 0xff, 0x3f, 0xb7, 0xf2, 0xbb, 0x0c, 0x02,
+	0x00, 0x00,
 }
 
 func (this *Register) Equal(that interface{}) bool {
@@ -381,6 +517,78 @@ func (this *LoginResp) Equal(that interface{}) bool {
 	}
 	return true
 }
+func (this *LogoutSpec) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*LogoutSpec)
+	if !ok {
+		that2, ok := that.(LogoutSpec)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.UserName != that1.UserName {
+		return false
+	}
+	return true
+}
+func (this *LogoutResp) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*LogoutResp)
+	if !ok {
+		that2, ok := that.(LogoutResp)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.Error != that1.Error {
+		return false
+	}
+	return true
+}
+func (this *Broadcast) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*Broadcast)
+	if !ok {
+		that2, ok := that.(Broadcast)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.Content != that1.Content {
+		return false
+	}
+	return true
+}
 func (this *Register) GoString() string {
 	if this == nil {
 		return "nil"
@@ -423,6 +631,36 @@ func (this *LoginResp) GoString() string {
 	s = append(s, "Error: "+fmt.Sprintf("%#v", this.Error)+",\n")
 	s = append(s, "UserName: "+fmt.Sprintf("%#v", this.UserName)+",\n")
 	s = append(s, "UserId: "+fmt.Sprintf("%#v", this.UserId)+",\n")
+	s = append(s, "}")
+	return strings.Join(s, "")
+}
+func (this *LogoutSpec) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 5)
+	s = append(s, "&normal_starting.LogoutSpec{")
+	s = append(s, "UserName: "+fmt.Sprintf("%#v", this.UserName)+",\n")
+	s = append(s, "}")
+	return strings.Join(s, "")
+}
+func (this *LogoutResp) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 5)
+	s = append(s, "&normal_starting.LogoutResp{")
+	s = append(s, "Error: "+fmt.Sprintf("%#v", this.Error)+",\n")
+	s = append(s, "}")
+	return strings.Join(s, "")
+}
+func (this *Broadcast) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 5)
+	s = append(s, "&normal_starting.Broadcast{")
+	s = append(s, "Content: "+fmt.Sprintf("%#v", this.Content)+",\n")
 	s = append(s, "}")
 	return strings.Join(s, "")
 }
@@ -558,6 +796,78 @@ func (m *LoginResp) MarshalTo(dAtA []byte) (int, error) {
 	return i, nil
 }
 
+func (m *LogoutSpec) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *LogoutSpec) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.UserName) > 0 {
+		dAtA[i] = 0xa
+		i++
+		i = encodeVarintMessages(dAtA, i, uint64(len(m.UserName)))
+		i += copy(dAtA[i:], m.UserName)
+	}
+	return i, nil
+}
+
+func (m *LogoutResp) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *LogoutResp) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.Error) > 0 {
+		dAtA[i] = 0xa
+		i++
+		i = encodeVarintMessages(dAtA, i, uint64(len(m.Error)))
+		i += copy(dAtA[i:], m.Error)
+	}
+	return i, nil
+}
+
+func (m *Broadcast) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *Broadcast) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.Content) > 0 {
+		dAtA[i] = 0xa
+		i++
+		i = encodeVarintMessages(dAtA, i, uint64(len(m.Content)))
+		i += copy(dAtA[i:], m.Content)
+	}
+	return i, nil
+}
+
 func encodeVarintMessages(dAtA []byte, offset int, v uint64) int {
 	for v >= 1<<7 {
 		dAtA[offset] = uint8(v&0x7f | 0x80)
@@ -637,6 +947,45 @@ func (m *LoginResp) Size() (n int) {
 	return n
 }
 
+func (m *LogoutSpec) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.UserName)
+	if l > 0 {
+		n += 1 + l + sovMessages(uint64(l))
+	}
+	return n
+}
+
+func (m *LogoutResp) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Error)
+	if l > 0 {
+		n += 1 + l + sovMessages(uint64(l))
+	}
+	return n
+}
+
+func (m *Broadcast) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Content)
+	if l > 0 {
+		n += 1 + l + sovMessages(uint64(l))
+	}
+	return n
+}
+
 func sovMessages(x uint64) (n int) {
 	for {
 		n++
@@ -691,6 +1040,36 @@ func (this *LoginResp) String() string {
 		`Error:` + fmt.Sprintf("%v", this.Error) + `,`,
 		`UserName:` + fmt.Sprintf("%v", this.UserName) + `,`,
 		`UserId:` + fmt.Sprintf("%v", this.UserId) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *LogoutSpec) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&LogoutSpec{`,
+		`UserName:` + fmt.Sprintf("%v", this.UserName) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *LogoutResp) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&LogoutResp{`,
+		`Error:` + fmt.Sprintf("%v", this.Error) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *Broadcast) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&Broadcast{`,
+		`Content:` + fmt.Sprintf("%v", this.Content) + `,`,
 		`}`,
 	}, "")
 	return s
@@ -1153,6 +1532,261 @@ func (m *LoginResp) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMessages(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthMessages
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthMessages
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *LogoutSpec) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMessages
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: logoutSpec: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: logoutSpec: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field UserName", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMessages
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthMessages
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.UserName = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMessages(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthMessages
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthMessages
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *LogoutResp) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMessages
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: logoutResp: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: logoutResp: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Error", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMessages
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthMessages
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Error = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMessages(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthMessages
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthMessages
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *Broadcast) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMessages
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: broadcast: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: broadcast: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Content", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMessages
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthMessages
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Content = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipMessages(dAtA[iNdEx:])
