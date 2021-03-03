@@ -26,13 +26,13 @@ func startApplication(id string) (*Application, error) {
 
 // 根据启动规范启动应用
 func startApplicationSpec(spec *SpawnSpec)	(*Application, error)  {
-	return (&Application{}).StartSpec(spec)
+	return (&Application{}).startSpec(spec)
 }
 
 // 根据启动规范和system启动应用
-func startApplicationWithSystem(system *actor.ActorSystem, spec *SpawnSpec) (*Application, error) {
-	return (&Application{Parent: system}).StartSpec(spec)
-}
+//func startApplicationWithSystem(system *actor.ActorSystem, spec *SpawnSpec) (*Application, error) {
+//	return (&Application{Parent: system}).startSpec(spec)
+//}
 
 // 应用
 // ----- Application ------
@@ -44,31 +44,33 @@ type Application struct {
 	initArgs       interface{}
 	receiveTimeout time.Duration
 	childStrategy  actor.SupervisorStrategy
+	isFromConfig bool
 }
 
-func (app *Application)Start(producer ApplicationBehaviourProducer) *Application  {
-	app.Parent = actor.NewActorSystem()
-	cb := producer()
-	props := actor.PropsFromProducer(func() actor.Actor {
-		return &supDelegate{
-			owner: app,
-			callback: cb,
-		}
-	})
-	app.pid = app.Parent.Root.Spawn(props)
-	//cb.SetPid(app.pid)
+//func (app *Application)Start(producer ApplicationBehaviourProducer) *Application  {
+//	app.Parent = actor.NewActorSystem()
+//	cb := producer()
+//	props := actor.PropsFromProducer(func() actor.Actor {
+//		return &supDelegate{
+//			owner: app,
+//			callback: cb,
+//		}
+//	})
+//	app.pid = app.Parent.Root.Spawn(props)
+//	//cb.SetPid(app.pid)
+//
+//	return app
+//}
 
-	return app
-}
-
-func (app *Application)StartSpec(spec *SpawnSpec) (*Application, error) {
+func (app *Application) startSpec(spec *SpawnSpec) (*Application, error) {
 	if info, ok := getRegisterInfo(spec.Id); ok {
 		switch prod := info.producer.(type) {
 		case ApplicationBehaviourProducer:
+			app.isFromConfig = spec.isFromConfig
 			app.initConfig(spec)
 			app.id = spec.Id
 			if app.Parent == nil {
-				app.Parent = actor.NewActorSystem()
+				app.Parent = root
 			}
 			// 准备启动, 会准备好props, 初始化future等
 			props, initFuture := app.prepareSpawn(prod, spec.SpawnTimeout)
@@ -144,9 +146,12 @@ func (app *Application)PoisonFuture() *actor.Future  {
 }
 
 // Interface: supDelegateHolder
-
 func (app *Application) GetId() string {
 	return app.id
+}
+
+func (app *Application) IsFromConfig() bool {
+	return app.isFromConfig
 }
 
 func (app *Application) SetDelegate(delegate *supDelegate) {
@@ -167,7 +172,7 @@ func (app *Application) GetInitArgs() interface{} {
 
 // private
 func (app *Application) initConfig(spec *SpawnSpec)  {
-	if isFromConfig {
+	if spec.isFromConfig {
 		return
 	}
 

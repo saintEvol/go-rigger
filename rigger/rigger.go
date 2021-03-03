@@ -49,6 +49,7 @@ type SpawnSpec struct {
 	SpawnTimeout time.Duration // 超时时间,如果为0表示不等待,也即异步启动
 	// 平静期超时时间,如果在指定时间内没收到任何消息,则会触发TimeroutReceiver回调,此值不为0时,需要实现TimeoutReceiver
 	ReceiveTimeout time.Duration
+	isFromConfig bool // 是否是从配置启动
 }
 
 // 新创建一个默认的SpawnSpec结构

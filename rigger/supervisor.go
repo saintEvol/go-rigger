@@ -147,7 +147,7 @@ type Supervisor struct {
 	// SpawnSpec part
 	initArgs       interface{}
 	receiveTimeout time.Duration
-
+	isFromConfig bool
 	//id string // 内部标识,只有由config启动时才会设置,可以根据ID获取配置值
 }
 
@@ -156,6 +156,7 @@ func (sup *Supervisor) StartSpec(spec *SpawnSpec) (*Supervisor, error) {
 		switch prod := info.producer.(type) {
 		case SupervisorBehaviourProducer:
 			sup.id = spec.Id
+			sup.isFromConfig = spec.isFromConfig
 			//props, initFuture := sup.prepareSpawn(prod, specOrArgs.SpawnTimeout)
 			props, initFuture := sup.prepareSpawn(prod, spec.SpawnTimeout)
 			if spec.ReceiveTimeout <= 0 {
@@ -269,6 +270,10 @@ func (sup *Supervisor) GetId() string {
 	return sup.id
 }
 
+func (sup *Supervisor) IsFromConfig() bool {
+	return sup.isFromConfig
+}
+
 func (sup *Supervisor) SetDelegate(delegate *supDelegate) {
 	sup.delegate = delegate
 }
@@ -380,7 +385,7 @@ func (sup *supDelegate) treateSupFlag(supFlag *SupervisorFlag, childSpecs []*Spa
 }
 
 func (sup *supDelegate) treateConfig(supFlag *SupervisorFlag) {
-	if isFromConfig {
+	if sup.owner.IsFromConfig() {
 		return
 	}
 
@@ -499,7 +504,7 @@ func (sup *supDelegate) spawnBySpec(spec *SpawnSpec) (*actor.PID, error) {
 }
 
 func (sup *supDelegate) getSupFlag(context actor.Context) (supFlag SupervisorFlag, childSpecs []*SpawnSpec) {
-	if isFromConfig {
+	if sup.owner.IsFromConfig() {
 		// 从配置启动,所以要从配置中拿
 		// 根据ID拿取自身的信息
 		if config, ok := getConfigByName(sup.owner.GetId()); ok {
@@ -564,6 +569,7 @@ func makeDefaultSpawnSpec(id string) *SpawnSpec {
 // 可以持有一个supDelegate
 type supDelegateHolder interface {
 	GetId() string
+	IsFromConfig() bool
 	SetDelegate(delegate *supDelegate)
 	GetReceiveTimeout() time.Duration
 	SetChildStrategy(strategy actor.SupervisorStrategy)

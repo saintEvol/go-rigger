@@ -217,36 +217,145 @@ func (m *SpawnResponse) GetError() string {
 	return ""
 }
 
+type SpawnLoacalApplicationSpec struct {
+	LaunchConfigPath      string `protobuf:"bytes,1,opt,name=launchConfigPath,proto3" json:"launchConfigPath,omitempty"`
+	ApplicationConfigPath string `protobuf:"bytes,2,opt,name=applicationConfigPath,proto3" json:"applicationConfigPath,omitempty"`
+	ApplicationId         string `protobuf:"bytes,3,opt,name=applicationId,proto3" json:"applicationId,omitempty"`
+}
+
+func (m *SpawnLoacalApplicationSpec) Reset()      { *m = SpawnLoacalApplicationSpec{} }
+func (*SpawnLoacalApplicationSpec) ProtoMessage() {}
+func (*SpawnLoacalApplicationSpec) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f5a1f10097eb08ff, []int{4}
+}
+func (m *SpawnLoacalApplicationSpec) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *SpawnLoacalApplicationSpec) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_SpawnLoacalApplicationSpec.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *SpawnLoacalApplicationSpec) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SpawnLoacalApplicationSpec.Merge(m, src)
+}
+func (m *SpawnLoacalApplicationSpec) XXX_Size() int {
+	return m.Size()
+}
+func (m *SpawnLoacalApplicationSpec) XXX_DiscardUnknown() {
+	xxx_messageInfo_SpawnLoacalApplicationSpec.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SpawnLoacalApplicationSpec proto.InternalMessageInfo
+
+func (m *SpawnLoacalApplicationSpec) GetLaunchConfigPath() string {
+	if m != nil {
+		return m.LaunchConfigPath
+	}
+	return ""
+}
+
+func (m *SpawnLoacalApplicationSpec) GetApplicationConfigPath() string {
+	if m != nil {
+		return m.ApplicationConfigPath
+	}
+	return ""
+}
+
+func (m *SpawnLoacalApplicationSpec) GetApplicationId() string {
+	if m != nil {
+		return m.ApplicationId
+	}
+	return ""
+}
+
+type SpawnLocalApplicationResp struct {
+	Error string `protobuf:"bytes,1,opt,name=error,proto3" json:"error,omitempty"`
+}
+
+func (m *SpawnLocalApplicationResp) Reset()      { *m = SpawnLocalApplicationResp{} }
+func (*SpawnLocalApplicationResp) ProtoMessage() {}
+func (*SpawnLocalApplicationResp) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f5a1f10097eb08ff, []int{5}
+}
+func (m *SpawnLocalApplicationResp) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *SpawnLocalApplicationResp) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_SpawnLocalApplicationResp.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *SpawnLocalApplicationResp) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SpawnLocalApplicationResp.Merge(m, src)
+}
+func (m *SpawnLocalApplicationResp) XXX_Size() int {
+	return m.Size()
+}
+func (m *SpawnLocalApplicationResp) XXX_DiscardUnknown() {
+	xxx_messageInfo_SpawnLocalApplicationResp.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SpawnLocalApplicationResp proto.InternalMessageInfo
+
+func (m *SpawnLocalApplicationResp) GetError() string {
+	if m != nil {
+		return m.Error
+	}
+	return ""
+}
+
 func init() {
 	proto.RegisterType((*RemoteStartChildCmd)(nil), "rigger.RemoteStartChildCmd")
 	proto.RegisterType((*OkResp)(nil), "rigger.OkResp")
 	proto.RegisterType((*ErrorResp)(nil), "rigger.ErrorResp")
 	proto.RegisterType((*SpawnResponse)(nil), "rigger.SpawnResponse")
+	proto.RegisterType((*SpawnLoacalApplicationSpec)(nil), "rigger.SpawnLoacalApplicationSpec")
+	proto.RegisterType((*SpawnLocalApplicationResp)(nil), "rigger.SpawnLocalApplicationResp")
 }
 
 func init() { proto.RegisterFile("rigger/protos.proto", fileDescriptor_f5a1f10097eb08ff) }
 
 var fileDescriptor_f5a1f10097eb08ff = []byte{
-	// 294 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x64, 0x90, 0xbf, 0x4e, 0xf3, 0x30,
-	0x14, 0xc5, 0xed, 0xaf, 0x1f, 0x11, 0x35, 0xb0, 0xa4, 0x0c, 0x11, 0x42, 0x57, 0x90, 0x89, 0x85,
-	0x44, 0xe2, 0xdf, 0x5e, 0x0a, 0x43, 0xa7, 0xa2, 0x94, 0x17, 0x48, 0x13, 0x2b, 0x8d, 0x4a, 0x6c,
-	0xeb, 0xda, 0x08, 0xb1, 0xb1, 0xb3, 0xf0, 0x18, 0x3c, 0x0a, 0x63, 0xc6, 0x8e, 0xc4, 0x59, 0x18,
-	0xfb, 0x08, 0x28, 0x09, 0x12, 0x45, 0x9d, 0xec, 0x73, 0xce, 0xef, 0x48, 0x47, 0x97, 0x0d, 0x30,
-	0xcf, 0x32, 0x8e, 0xa1, 0x42, 0x69, 0xa4, 0x0e, 0xda, 0xc7, 0x75, 0x3a, 0xf3, 0xe0, 0x2a, 0xcb,
-	0xcd, 0xfc, 0x71, 0x16, 0x24, 0xb2, 0x08, 0x87, 0xfa, 0x59, 0x2c, 0x50, 0x8a, 0xf1, 0x7d, 0xc7,
-	0xc6, 0x89, 0x91, 0x78, 0x9a, 0xc9, 0xb0, 0xfd, 0xfc, 0xe9, 0xfb, 0x97, 0x6c, 0x10, 0xf1, 0x42,
-	0x1a, 0x3e, 0x35, 0x31, 0x9a, 0xd1, 0x3c, 0x7f, 0x48, 0x47, 0x45, 0xea, 0x02, 0x63, 0x5a, 0xf1,
-	0x64, 0x82, 0x43, 0xcc, 0xb4, 0x47, 0x8f, 0xe8, 0xc9, 0x6e, 0xb4, 0xe6, 0xf8, 0xdb, 0xcc, 0x99,
-	0x2c, 0x22, 0xae, 0x95, 0x7f, 0xcc, 0xfa, 0xb7, 0x88, 0x12, 0x1b, 0xe1, 0xee, 0xb3, 0x2d, 0xde,
-	0x88, 0xb6, 0xd1, 0x8f, 0x3a, 0xe1, 0xbf, 0x52, 0xb6, 0x37, 0x55, 0xf1, 0x93, 0x68, 0x18, 0x29,
-	0x34, 0x77, 0x7d, 0xe6, 0x68, 0x2e, 0x52, 0xde, 0x81, 0x3b, 0x67, 0x2c, 0x68, 0xa7, 0x05, 0x77,
-	0xe3, 0x9b, 0xe8, 0x27, 0x69, 0x18, 0x15, 0x23, 0x17, 0xc6, 0xfb, 0xb7, 0xc9, 0x74, 0x89, 0x7b,
-	0xc8, 0x7a, 0x2a, 0x4f, 0xbd, 0xde, 0x06, 0xd0, 0xd8, 0xbf, 0x6b, 0xfe, 0xaf, 0xad, 0xb9, 0xbe,
-	0x28, 0x2b, 0x20, 0xcb, 0x0a, 0xc8, 0xaa, 0x02, 0xfa, 0x62, 0x81, 0xbe, 0x5b, 0xa0, 0x1f, 0x16,
-	0x68, 0x69, 0x81, 0x7e, 0x5a, 0xa0, 0x5f, 0x16, 0xc8, 0xca, 0x02, 0x7d, 0xab, 0x81, 0x94, 0x35,
-	0x90, 0x65, 0x0d, 0x64, 0xe6, 0xb4, 0xe7, 0x3a, 0xff, 0x0e, 0x00, 0x00, 0xff, 0xff, 0xc0, 0x4c,
-	0x66, 0x2c, 0x85, 0x01, 0x00, 0x00,
+	// 375 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x74, 0x92, 0xcf, 0x4a, 0xe3, 0x40,
+	0x1c, 0xc7, 0x33, 0xed, 0x6e, 0xd8, 0xfe, 0x76, 0x0b, 0xcb, 0x74, 0x17, 0x6a, 0x91, 0x41, 0x83,
+	0x07, 0x11, 0x4c, 0x51, 0xab, 0xf7, 0x5a, 0x3d, 0x14, 0x84, 0x96, 0xd4, 0x17, 0x98, 0x26, 0x63,
+	0x12, 0x9a, 0xce, 0x0c, 0x93, 0x29, 0xe2, 0xcd, 0xbb, 0x17, 0x1f, 0xc2, 0x83, 0x8f, 0xe2, 0xb1,
+	0xc7, 0x1e, 0x6d, 0x7a, 0xf1, 0xd8, 0x47, 0x90, 0x24, 0x85, 0xa6, 0x54, 0x4f, 0xc9, 0xf7, 0x1f,
+	0x7c, 0x66, 0x18, 0xa8, 0xa9, 0xd0, 0xf7, 0x99, 0x6a, 0x4a, 0x25, 0xb4, 0x88, 0xed, 0xec, 0x83,
+	0xcd, 0xdc, 0x6c, 0x5c, 0xf8, 0xa1, 0x0e, 0x26, 0x43, 0xdb, 0x15, 0xe3, 0x66, 0x3b, 0x7e, 0xe0,
+	0x23, 0x25, 0x78, 0xf7, 0x36, 0xef, 0x52, 0x57, 0x0b, 0x75, 0xec, 0x8b, 0x66, 0xf6, 0xb3, 0xb1,
+	0xb7, 0xce, 0xa1, 0xe6, 0xb0, 0xb1, 0xd0, 0x6c, 0xa0, 0xa9, 0xd2, 0x9d, 0x20, 0x8c, 0xbc, 0xce,
+	0xd8, 0xc3, 0x04, 0x20, 0x96, 0xcc, 0xed, 0xa9, 0xb6, 0xf2, 0xe3, 0x3a, 0xda, 0x43, 0x87, 0x7f,
+	0x9c, 0x82, 0x63, 0xfd, 0x02, 0xb3, 0x37, 0x72, 0x58, 0x2c, 0xad, 0x7d, 0xa8, 0x5c, 0x2b, 0x25,
+	0x54, 0x2a, 0xf0, 0x3f, 0xf8, 0xc9, 0x52, 0x91, 0x2d, 0x2a, 0x4e, 0x2e, 0xac, 0x27, 0x04, 0xd5,
+	0x81, 0xa4, 0xf7, 0x3c, 0xed, 0x08, 0x1e, 0x33, 0x6c, 0x81, 0x19, 0x33, 0xee, 0xb1, 0xbc, 0xf8,
+	0xfb, 0x14, 0xec, 0x0c, 0xcd, 0xee, 0x77, 0xaf, 0x9c, 0x55, 0x92, 0x76, 0x24, 0x55, 0x8c, 0xeb,
+	0x7a, 0x69, 0xbb, 0x93, 0x27, 0x78, 0x17, 0xca, 0x32, 0xf4, 0xea, 0xe5, 0xad, 0x42, 0x6a, 0xaf,
+	0x69, 0x7e, 0x14, 0x69, 0x5e, 0x10, 0x34, 0x32, 0x9a, 0x1b, 0x41, 0x5d, 0x1a, 0xb5, 0xa5, 0x8c,
+	0x42, 0x97, 0xea, 0x50, 0xf0, 0x81, 0x64, 0x2e, 0x3e, 0x82, 0xbf, 0x11, 0x9d, 0x70, 0x37, 0xe8,
+	0x08, 0x7e, 0x17, 0xfa, 0x7d, 0xaa, 0x83, 0xd5, 0x69, 0xb6, 0x7c, 0xdc, 0x82, 0xff, 0x74, 0x3d,
+	0x2f, 0x0c, 0x4a, 0xd9, 0xe0, 0xeb, 0x10, 0x1f, 0x40, 0xb5, 0x10, 0x74, 0x73, 0xfc, 0x8a, 0xb3,
+	0x69, 0x5a, 0x27, 0xb0, 0xb3, 0xa2, 0xdc, 0x84, 0xfc, 0xfe, 0x9e, 0x2f, 0x5b, 0xd3, 0x39, 0x31,
+	0x66, 0x73, 0x62, 0x2c, 0xe7, 0x04, 0x3d, 0x26, 0x04, 0xbd, 0x26, 0x04, 0xbd, 0x25, 0x04, 0x4d,
+	0x13, 0x82, 0xde, 0x13, 0x82, 0x3e, 0x12, 0x62, 0x2c, 0x13, 0x82, 0x9e, 0x17, 0xc4, 0x98, 0x2e,
+	0x88, 0x31, 0x5b, 0x10, 0x63, 0x68, 0x66, 0x0f, 0xe1, 0xec, 0x33, 0x00, 0x00, 0xff, 0xff, 0xfb,
+	0xe8, 0xc7, 0x31, 0x5f, 0x02, 0x00, 0x00,
 }
 
 func (this *RemoteStartChildCmd) Equal(that interface{}) bool {
@@ -351,6 +460,60 @@ func (this *SpawnResponse) Equal(that interface{}) bool {
 	}
 	return true
 }
+func (this *SpawnLoacalApplicationSpec) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*SpawnLoacalApplicationSpec)
+	if !ok {
+		that2, ok := that.(SpawnLoacalApplicationSpec)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.LaunchConfigPath != that1.LaunchConfigPath {
+		return false
+	}
+	if this.ApplicationConfigPath != that1.ApplicationConfigPath {
+		return false
+	}
+	if this.ApplicationId != that1.ApplicationId {
+		return false
+	}
+	return true
+}
+func (this *SpawnLocalApplicationResp) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*SpawnLocalApplicationResp)
+	if !ok {
+		that2, ok := that.(SpawnLocalApplicationResp)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.Error != that1.Error {
+		return false
+	}
+	return true
+}
 func (this *RemoteStartChildCmd) GoString() string {
 	if this == nil {
 		return "nil"
@@ -393,8 +556,30 @@ func (this *SpawnResponse) GoString() string {
 		s = append(s, "Parent: "+fmt.Sprintf("%#v", this.Parent)+",\n")
 	}
 	if this.Pid != nil {
-		s = append(s, "pid: "+fmt.Sprintf("%#v", this.Pid)+",\n")
+		s = append(s, "Pid: "+fmt.Sprintf("%#v", this.Pid)+",\n")
 	}
+	s = append(s, "Error: "+fmt.Sprintf("%#v", this.Error)+",\n")
+	s = append(s, "}")
+	return strings.Join(s, "")
+}
+func (this *SpawnLoacalApplicationSpec) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 7)
+	s = append(s, "&rigger.SpawnLoacalApplicationSpec{")
+	s = append(s, "LaunchConfigPath: "+fmt.Sprintf("%#v", this.LaunchConfigPath)+",\n")
+	s = append(s, "ApplicationConfigPath: "+fmt.Sprintf("%#v", this.ApplicationConfigPath)+",\n")
+	s = append(s, "ApplicationId: "+fmt.Sprintf("%#v", this.ApplicationId)+",\n")
+	s = append(s, "}")
+	return strings.Join(s, "")
+}
+func (this *SpawnLocalApplicationResp) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 5)
+	s = append(s, "&rigger.SpawnLocalApplicationResp{")
 	s = append(s, "Error: "+fmt.Sprintf("%#v", this.Error)+",\n")
 	s = append(s, "}")
 	return strings.Join(s, "")
@@ -527,6 +712,66 @@ func (m *SpawnResponse) MarshalTo(dAtA []byte) (int, error) {
 	return i, nil
 }
 
+func (m *SpawnLoacalApplicationSpec) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *SpawnLoacalApplicationSpec) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.LaunchConfigPath) > 0 {
+		dAtA[i] = 0xa
+		i++
+		i = encodeVarintProtos(dAtA, i, uint64(len(m.LaunchConfigPath)))
+		i += copy(dAtA[i:], m.LaunchConfigPath)
+	}
+	if len(m.ApplicationConfigPath) > 0 {
+		dAtA[i] = 0x12
+		i++
+		i = encodeVarintProtos(dAtA, i, uint64(len(m.ApplicationConfigPath)))
+		i += copy(dAtA[i:], m.ApplicationConfigPath)
+	}
+	if len(m.ApplicationId) > 0 {
+		dAtA[i] = 0x1a
+		i++
+		i = encodeVarintProtos(dAtA, i, uint64(len(m.ApplicationId)))
+		i += copy(dAtA[i:], m.ApplicationId)
+	}
+	return i, nil
+}
+
+func (m *SpawnLocalApplicationResp) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *SpawnLocalApplicationResp) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.Error) > 0 {
+		dAtA[i] = 0xa
+		i++
+		i = encodeVarintProtos(dAtA, i, uint64(len(m.Error)))
+		i += copy(dAtA[i:], m.Error)
+	}
+	return i, nil
+}
+
 func encodeVarintProtos(dAtA []byte, offset int, v uint64) int {
 	for v >= 1<<7 {
 		dAtA[offset] = uint8(v&0x7f | 0x80)
@@ -596,6 +841,40 @@ func (m *SpawnResponse) Size() (n int) {
 	return n
 }
 
+func (m *SpawnLoacalApplicationSpec) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.LaunchConfigPath)
+	if l > 0 {
+		n += 1 + l + sovProtos(uint64(l))
+	}
+	l = len(m.ApplicationConfigPath)
+	if l > 0 {
+		n += 1 + l + sovProtos(uint64(l))
+	}
+	l = len(m.ApplicationId)
+	if l > 0 {
+		n += 1 + l + sovProtos(uint64(l))
+	}
+	return n
+}
+
+func (m *SpawnLocalApplicationResp) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Error)
+	if l > 0 {
+		n += 1 + l + sovProtos(uint64(l))
+	}
+	return n
+}
+
 func sovProtos(x uint64) (n int) {
 	for {
 		n++
@@ -643,9 +922,31 @@ func (this *SpawnResponse) String() string {
 		return "nil"
 	}
 	s := strings.Join([]string{`&SpawnResponse{`,
-		`Sender:` + strings.Replace(fmt.Sprintf("%v", this.Sender), "pid", "actor.pid", 1) + `,`,
-		`Parent:` + strings.Replace(fmt.Sprintf("%v", this.Parent), "pid", "actor.pid", 1) + `,`,
-		`pid:` + strings.Replace(fmt.Sprintf("%v", this.Pid), "pid", "actor.pid", 1) + `,`,
+		`Sender:` + strings.Replace(fmt.Sprintf("%v", this.Sender), "PID", "actor.PID", 1) + `,`,
+		`Parent:` + strings.Replace(fmt.Sprintf("%v", this.Parent), "PID", "actor.PID", 1) + `,`,
+		`Pid:` + strings.Replace(fmt.Sprintf("%v", this.Pid), "PID", "actor.PID", 1) + `,`,
+		`Error:` + fmt.Sprintf("%v", this.Error) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *SpawnLoacalApplicationSpec) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&SpawnLoacalApplicationSpec{`,
+		`LaunchConfigPath:` + fmt.Sprintf("%v", this.LaunchConfigPath) + `,`,
+		`ApplicationConfigPath:` + fmt.Sprintf("%v", this.ApplicationConfigPath) + `,`,
+		`ApplicationId:` + fmt.Sprintf("%v", this.ApplicationId) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *SpawnLocalApplicationResp) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&SpawnLocalApplicationResp{`,
 		`Error:` + fmt.Sprintf("%v", this.Error) + `,`,
 		`}`,
 	}, "")
@@ -987,7 +1288,7 @@ func (m *SpawnResponse) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 3:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field pid", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Pid", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -1022,6 +1323,240 @@ func (m *SpawnResponse) Unmarshal(dAtA []byte) error {
 			}
 			iNdEx = postIndex
 		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Error", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProtos
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthProtos
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthProtos
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Error = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipProtos(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthProtos
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthProtos
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *SpawnLoacalApplicationSpec) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowProtos
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: SpawnLoacalApplicationSpec: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: SpawnLoacalApplicationSpec: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field LaunchConfigPath", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProtos
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthProtos
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthProtos
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.LaunchConfigPath = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ApplicationConfigPath", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProtos
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthProtos
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthProtos
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ApplicationConfigPath = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ApplicationId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProtos
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthProtos
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthProtos
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ApplicationId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipProtos(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthProtos
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthProtos
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *SpawnLocalApplicationResp) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowProtos
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: SpawnLocalApplicationResp: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: SpawnLocalApplicationResp: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Error", wireType)
 			}

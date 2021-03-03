@@ -23,3 +23,13 @@ message SpawnResponse {
     actor.PID pid = 3;
     string error = 4;
 }
+
+message SpawnLoacalApplicationSpec {
+    string launchConfigPath = 1;
+    string applicationConfigPath = 2;
+    string applicationId = 3;
+}
+
+message SpawnLocalApplicationResp {
+    string error = 1;
+}
