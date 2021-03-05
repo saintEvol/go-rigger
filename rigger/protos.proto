@@ -33,3 +33,7 @@ message SpawnLoacalApplicationSpec {
 message SpawnLocalApplicationResp {
     string error = 1;
 }
+
+message hotUpdateSpec {
+
+}
