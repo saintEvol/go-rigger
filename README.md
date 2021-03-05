@@ -259,4 +259,21 @@ go-rigger基于actor框架 protoactor,  因此,天然的, go-rigger也拥有了a
 +  无锁
 
 
+## go-rigger应用启动
+目前,go-rigger提供了三种启动方式:
++ 直接指定应用名称进行启动:
+    ```rigger.Start(applicationName, applicationPath)```  
+   上面的代码将直接启动对应的应用及其下所有服务,并自动加载applicationPath路径上的配置文件  
+  如,要启动示例中的应用(_examples/normal_starting),可以在main函数中调用:```rigger.Start(gameAppName, "")```
++ 通过配置启动:```rigger.StartWithConfig("launchConfigPath", "applicationConfigPath")```
++ 通过命令行启动: ```rigger.StartFromCli()```  
+ 这是最常用也是最推荐的启动方式,使用此方式启动应用时, 支持以下命令行选项:
+  + -l launchConfigPath 指定启动配置文件的路径
+  + -c applicationConfigPath 指定应用的配置文件路径
+  + -n 直接指定要起动的应用的名称
+
+   如果使用这种方式启动应用,-l与-n选项,必须指定一个
+
+   如: ```go run ./main.go -l xxx.yml -c app.toml``` ```go run ./main.go -n myApp```
+
 
