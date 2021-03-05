@@ -3,9 +3,19 @@
 go-rigger基于actor框架[protoactor-go](https://github.com/AsynkronIT/protoactor-go),[官网地址](https://proto.actor)  
 go-rigger对protoactor-go进行了轻度包装,以使框架更符合Erlang开发者的习惯
 同时go-rigger配置化了应用的启动,使得应用在开发时可以在单节点上运行,以方便调试,而在发布时又可以根据配置将应用中的各个进程分布到不同的节点上去运行
+
 ## 安装
 ```shell script
 go get github.com/saintEvol/go-rigger
+```
+
+因为go-rigger推荐服务之前使用protobuffer消息进行通信(为保证跨节点),因此还需要安装protobuf插件, 请注意版本:
+```shell script
+go get github.com/gogo/protobuf/protoc-gen-gogoslick@v1.2.1
+```
+使用示例:
+```
+protoc -I=. --gogoslick_out=plugins=grpc:. -I=./vendor ./rigger/protos.proto
 ```
 
 ## 相关术语
