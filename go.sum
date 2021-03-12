@@ -11,10 +11,11 @@ cloud.google.com/go/firestore v1.1.0/go.mod h1:ulACoGHTpvq5r8rxGJ4ddJZBZqakUQqCl
 cloud.google.com/go/pubsub v1.0.1/go.mod h1:R0Gpsv3s54REJCy4fxDixWD93lHJMoZTyQ2kNxGRt3I=
 cloud.google.com/go/storage v1.0.0/go.mod h1:IhtSnM/ZTZV8YYJWCY8RULGVqBDmpoyjwiyrjsg+URw=
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=
+github.com/AsynkronIT/goconsole v0.0.0-20160504192649-bfa12eebf716 h1:Pk/Kzi5O0T4QxfqvbaUsh8UklbJ9BklZ/ClZBptX5WU=
 github.com/AsynkronIT/goconsole v0.0.0-20160504192649-bfa12eebf716/go.mod h1:2wH9LwjNrSqVmCIi35aqCJ0OGTE4DZ53LCRaGQESBp8=
 github.com/AsynkronIT/gonet v0.0.0-20161127091928-0553637be225/go.mod h1:RwIiSK8AJBCPP7hBBfXD1iferErYAmGbqv/Lu84ZFIA=
-github.com/AsynkronIT/protoactor-go v0.0.0-20210125121722-bab29b9c335d h1:/MzMeP6RMAyc0XksyJqpa6ay5m8atU5NBSJr7D6WTSE=
-github.com/AsynkronIT/protoactor-go v0.0.0-20210125121722-bab29b9c335d/go.mod h1:LCTo3NKViof7n5VQYZVkZ7gAWwabuTWpVYVvUiMF5cY=
+github.com/AsynkronIT/protoactor-go v0.0.0-20210225065513-0de6c44ed540 h1:Sm4wkXS6GUKlx4xkkIchQlchkz5k1lRqocD8l7diPeE=
+github.com/AsynkronIT/protoactor-go v0.0.0-20210225065513-0de6c44ed540/go.mod h1:LCTo3NKViof7n5VQYZVkZ7gAWwabuTWpVYVvUiMF5cY=
 github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
@@ -424,8 +425,6 @@ google.golang.org/grpc v1.20.1/go.mod h1:10oTOabMzJvdu6/UiuZezV6QK5dSlG84ov/aaiq
 google.golang.org/grpc v1.21.1/go.mod h1:oYelfM1adQP15Ek0mdvEgi9Df8B9CZIaU1084ijfRaM=
 google.golang.org/grpc v1.23.0/go.mod h1:Y5yQAOtifL1yxbo5wqy6BxZv8vAUGQwXBOALyacEbxg=
 google.golang.org/grpc v1.25.1/go.mod h1:c3i+UQWmh7LiEpx4sFZnkU36qjEYZ0imhYfXVyQciAY=
-google.golang.org/grpc v1.26.0 h1:2dTRdpdFEEhJYQD8EMLB61nnrzSCTbG38PhqdhvOltg=
-google.golang.org/grpc v1.26.0/go.mod h1:qbnxyOmOxrQa7FizSgH+ReBfzJrCY1pSN7KXBS8abTk=
 google.golang.org/grpc v1.27.0/go.mod h1:qbnxyOmOxrQa7FizSgH+ReBfzJrCY1pSN7KXBS8abTk=
 google.golang.org/grpc v1.34.0 h1:raiipEjMOIC/TO2AvyTxP25XFdLxNIBwzDh3FM3XztI=
 google.golang.org/grpc v1.34.0/go.mod h1:WotjhfgOW/POjDeRt8vscBtXq+2VjORFy659qA51WJ8=
