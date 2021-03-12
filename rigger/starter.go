@@ -9,14 +9,21 @@ import (
 	"os"
 	"os/signal"
 	"strings"
+	"sync"
 	"time"
 )
+// 所有rigger应用的根
+var root *actor.ActorSystem = actor.NewActorSystem()
+// 获取所有rigger应用的根应用
+func Root() *actor.ActorSystem {
+	return root
+}
 
 // 默认启动超时时间
 const startTimeOut = 10_000_000_000
 
 var (
-	isFromConfig bool = false	// 是否是从配置启动
+	//isFromConfig bool = false	// 是否是从配置启动
 	serversMap = make(map[string]*StartingNode) // 记录已经parse过的server,防止重复
 	pidSets = make(map[string]*actor.PID)
 	// 所有注册过的producer
@@ -54,13 +61,16 @@ applicationId: 应用标识, 需要是一个已经注册的应用标识
 configPath: 应用配置文件路径, 路径可以指向一个有效的yml文件, toml文件, ini文件, json文件等
  */
 func Start(applicationId string, configPath string) error  {
-	isFromConfig = false
-	// 读取应用配置
-	readAppConfig(configPath)
-	if app, err := startApplication(applicationId); err == nil {
-		setRunningApplication(applicationId, app)
-	} else {
+	startRiggerApp()
+	if ret, err := spawnLocalApplications(
+		&SpawnLoacalApplicationSpec{
+			ApplicationId: applicationId,
+			ApplicationConfigPath: configPath}); err != nil {
+		log.Errorf("failed to spawn application: %s", err.Error())
 		return err
+	} else if ret.Error != "" {
+		log.Errorf("failed to spawn application: %s", ret.Error)
+		return ErrSpawn(ret.Error)
 	}
 	waitInterupt()
 	return nil
@@ -75,6 +85,7 @@ func Start(applicationId string, configPath string) error  {
 -c 应用配置文件路径, 路径可以指向一个有效的yml文件, toml文件, ini文件, json文件等, 可选项
  */
 func StartFromCli()  {
+	startRiggerApp()
 	l, n, c := parseCl()
 	// l与n必须有一个
 	if l == nil && n == nil {
@@ -109,19 +120,14 @@ launchConfigPath 启动配置文件,目前为yum 文件, 里面描述了应该�
 appConfigPath 运行时环境配置文件, go-rigger不关心里面的内容, 此配置文件供用户自己使用,用户可以使用viper相关函数获取其中的数据
 */
 func StartWithConfig(launchConfigPath string/*应用启动配置文件*/, appConfigPath string/*应用配置文件*/)  {
-	isFromConfig = true
-
+	startRiggerApp()
 	// 先设为最高级
 	log.SetLevel(6)
-	// 读取配置文件
-	readLaunchConfig(launchConfigPath)
-	// 生成启动树
-	parseConfig()
-	printProcessTree(startingTasks)
-	// 读取应用配置
-	readAppConfig(appConfigPath)
-	startApplications()
-
+	if _, err := spawnLocalApplications(&SpawnLoacalApplicationSpec{
+		LaunchConfigPath: launchConfigPath,
+		ApplicationConfigPath: appConfigPath}); err != nil {
+		log.Panicf("spawn local application failed, reason: %s", err.Error())
+	}
 	waitInterupt()
 }
 
@@ -280,35 +286,6 @@ func filterLocalNode(nodes []*StartingNode) (n []*StartingNode)  {
 	return n
 }
 
-//func startRest(app *Application, children []*StartingNode)  {
-//	if len(children) <= 0 {
-//		return
-//	}
-//
-//	for _, child := range children {
-//		// 只启动本地进程
-//		if child.location == nil {
-//			if info, ok := getRegisterInfo(child.spawnSpec.Id); ok {
-//				switch info.producer.(type) {
-//				case SupervisorBehaviourProducer:
-//					if _, err := StartSupervisorSpec(app, child.spawnSpec); err != nil {
-//						log.Panicf("faild to start %s, reason: %s", child.name, err.Error())
-//					}
-//				case GeneralServerBehaviourProducer:
-//					if _, err := startGeneralServerSpec(app, child.spawnSpec); err != nil {
-//						log.Panicf("faild to start %s, reason: %s", child.name, err.Error())
-//					}
-//				default:
-//					log.Panicf("faild to start %s, reason: unexpected producer type: %s", child.name, reflect.TypeOf(info.producer).Name())
-//				}
-//
-//			} else {
-//				log.Panicf("not register: %s", child.spawnSpec.Id)
-//			}
-//		}
-//	}
-//}
-
 func startApplicationNode(node *StartingNode) (*Application, error) {
 	if node.parent != nil {
 		log.Panicf("application should not have Parent:%s", node.name)
@@ -319,10 +296,9 @@ func startApplicationNode(node *StartingNode) (*Application, error) {
 	if node.remote == nil {
 		return startApplicationSpec(spawnSpec)
 	} else {
-		system := actor.NewActorSystem()
-		r := remote.NewRemote(system, remote.Configure(node.remote.host, node.remote.port))
+		r := remote.NewRemote(root, remote.Configure(node.remote.host, node.remote.port))
 		r.Start()
-		return startApplicationWithSystem(system, node.spawnSpec)
+		return startApplicationSpec(node.spawnSpec)
 	}
 }
 
@@ -597,6 +573,7 @@ func getNodeSpawnSpec(parent *StartingNode, nodeMap map[interface{}]interface{})
 		spec.ReceiveTimeout = rtimeout.(time.Duration)
 	}
 	spec.Id = name
+	spec.isFromConfig = true
 	return spec
 }
 
@@ -726,5 +703,25 @@ func readAppConfig(appConfigPath string)  {
 		if err := viper.ReadInConfig(); err != nil {
 			log.Panicf("error when reading config: %s, reason: %s", appConfigPath, err.Error())
 		}
+	}
+}
+
+var (
+	ifRiggerStarted = false
+	riggerAppLock sync.Mutex
+)
+
+// 启动rigger应用
+func startRiggerApp()  {
+	riggerAppLock.Lock()
+	defer riggerAppLock.Unlock()
+	if ifRiggerStarted {
+		return
+	}
+	if app, err := startApplication(riggerAppName); err != nil {
+		log.Panicf("failed to start rigger application, reason: %s", err.Error())
+	} else {
+		ifRiggerStarted = true
+		setRunningApplication(riggerAppName, app)
 	}
 }
