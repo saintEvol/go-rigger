@@ -22,7 +22,8 @@ type playerServerSup struct {
 func (p *playerServerSup) OnRestarting(ctx actor.Context) {
 }
 
-func (p *playerServerSup) OnStarted(ctx actor.Context, args interface{}) {
+func (p *playerServerSup) OnStarted(ctx actor.Context, args interface{}) error {
+	return nil
 }
 
 func (p *playerServerSup) OnPostStarted(ctx actor.Context, args interface{}) {

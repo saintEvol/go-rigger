@@ -122,8 +122,13 @@ type Stoppable interface {
 // 所有的go-rigger进程行为模式,都需要实现此接口
 type LifeCyclePart interface {
 	OnRestarting(ctx actor.Context)
-	// 启动时的回调,应该在此回调中进行初始化,不管是正常启动或是重启,都会调用此事件
-	OnStarted(ctx actor.Context, args interface{})
+	/*
+	启动时的回调,应该在此回调中进行初始化,不管是正常启动或是重启,都会调用此事件
+	如果返回的错误不为空,则认为进程初始化失败,此时:
+	1. 监控进程会停止启动其后的所有进程
+	2. 会马上停止初始化失败的进程
+	*/
+	OnStarted(ctx actor.Context, args interface{}) error
 	/*
 	初始化完成后执行,在调用前会先通知调用者初始化完成,建议将比较费时的初始化操作放在此回调中进行
 	以防止初始化太久而导致超时, 对于Supervisro进程来说,调用此方法时,会保证所有子进程都已经启动完成

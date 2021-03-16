@@ -61,8 +61,8 @@ func (m mainApplication) OnRestarting(ctx actor.Context) {
 	return
 }
 
-func (m mainApplication) OnStarted(ctx actor.Context, args interface{}) {
-	return
+func (m mainApplication) OnStarted(ctx actor.Context, args interface{}) error {
+	return nil
 }
 
 func (m mainApplication) OnPostStarted(ctx actor.Context, args interface{}) {
@@ -89,8 +89,8 @@ func (m mainApplicationSup) OnRestarting(ctx actor.Context) {
 	return
 }
 
-func (m mainApplicationSup) OnStarted(ctx actor.Context, args interface{}) {
-	return
+func (m mainApplicationSup) OnStarted(ctx actor.Context, args interface{}) error {
+	return nil
 }
 
 func (m mainApplicationSup) OnPostStarted(ctx actor.Context, args interface{}) {
@@ -117,8 +117,8 @@ func (u userManagerSup) OnRestarting(ctx actor.Context) {
 	return
 }
 
-func (u userManagerSup) OnStarted(ctx actor.Context, args interface{}) {
-	return
+func (u userManagerSup) OnStarted(ctx actor.Context, args interface{}) error {
+	return nil
 }
 
 func (u userManagerSup) OnPostStarted(ctx actor.Context, args interface{}) {
@@ -145,8 +145,8 @@ func (u userManagerServer) OnRestarting(ctx actor.Context) {
 	return
 }
 
-func (u userManagerServer) OnStarted(ctx actor.Context, args interface{}) {
-	return
+func (u userManagerServer) OnStarted(ctx actor.Context, args interface{}) error {
+	return nil
 }
 
 func (u userManagerServer) OnPostStarted(ctx actor.Context, args interface{}) {
@@ -173,8 +173,8 @@ func (u userSup) OnRestarting(ctx actor.Context) {
 	return
 }
 
-func (u userSup) OnStarted(ctx actor.Context, args interface{}) {
-	return
+func (u userSup) OnStarted(ctx actor.Context, args interface{}) error {
+	return nil
 }
 
 func (u userSup) OnPostStarted(ctx actor.Context, args interface{}) {
@@ -201,8 +201,8 @@ func (u userServer) OnRestarting(ctx actor.Context) {
 	return
 }
 
-func (u userServer) OnStarted(ctx actor.Context, args interface{}) {
-	return
+func (u userServer) OnStarted(ctx actor.Context, args interface{}) error {
+	return nil
 }
 
 func (u userServer) OnPostStarted(ctx actor.Context, args interface{}) {
@@ -229,8 +229,8 @@ func (u userLoginServer) OnRestarting(ctx actor.Context) {
 	return
 }
 
-func (u userLoginServer) OnStarted(ctx actor.Context, args interface{}) {
-	return
+func (u userLoginServer) OnStarted(ctx actor.Context, args interface{}) error {
+	return nil
 }
 
 func (u userLoginServer) OnPostStarted(ctx actor.Context, args interface{}) {
@@ -257,8 +257,8 @@ func (m missionServerSup) OnRestarting(ctx actor.Context) {
 	return
 }
 
-func (m missionServerSup) OnStarted(ctx actor.Context, args interface{}) {
-	return
+func (m missionServerSup) OnStarted(ctx actor.Context, args interface{}) error {
+	return nil
 }
 
 func (m missionServerSup) OnPostStarted(ctx actor.Context, args interface{}) {
@@ -285,8 +285,8 @@ func (m missionServer) OnRestarting(ctx actor.Context) {
 	return
 }
 
-func (m missionServer) OnStarted(ctx actor.Context, args interface{}) {
-	return
+func (m missionServer) OnStarted(ctx actor.Context, args interface{}) error {
+	return nil
 }
 
 func (m missionServer) OnPostStarted(ctx actor.Context, args interface{}) {
@@ -313,8 +313,8 @@ func (r restServerSup) OnRestarting(ctx actor.Context) {
 	return
 }
 
-func (r restServerSup) OnStarted(ctx actor.Context, args interface{}) {
-	return
+func (r restServerSup) OnStarted(ctx actor.Context, args interface{}) error {
+	return nil
 }
 
 func (r restServerSup) OnPostStarted(ctx actor.Context, args interface{}) {
@@ -341,8 +341,8 @@ func (r restServer) OnRestarting(ctx actor.Context) {
 	return
 }
 
-func (r restServer) OnStarted(ctx actor.Context, args interface{}) {
-	return
+func (r restServer) OnStarted(ctx actor.Context, args interface{}) error {
+	return nil
 }
 
 func (r restServer) OnPostStarted(ctx actor.Context, args interface{}) {

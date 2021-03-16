@@ -35,7 +35,8 @@ type riggerManagingServer struct {
 func (r *riggerManagingServer) OnRestarting(ctx actor.Context) {
 }
 
-func (r *riggerManagingServer) OnStarted(ctx actor.Context, args interface{}) {
+func (r *riggerManagingServer) OnStarted(ctx actor.Context, args interface{}) error {
+	return nil
 }
 
 func (r *riggerManagingServer) OnPostStarted(ctx actor.Context, args interface{}) {

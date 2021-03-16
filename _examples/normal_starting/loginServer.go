@@ -22,7 +22,8 @@ type loginServer struct {
 func (l *loginServer) OnRestarting(ctx actor.Context) {
 }
 
-func (l *loginServer) OnStarted(ctx actor.Context, args interface{}) {
+func (l *loginServer) OnStarted(ctx actor.Context, args interface{}) error {
+	return nil
 }
 
 func (l *loginServer) OnPostStarted(ctx actor.Context, args interface{}) {

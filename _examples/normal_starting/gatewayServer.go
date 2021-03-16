@@ -23,7 +23,8 @@ type gatewayServer struct {
 func (g *gatewayServer) OnRestarting(ctx actor.Context) {
 }
 
-func (g *gatewayServer) OnStarted(ctx actor.Context, args interface{}) {
+func (g *gatewayServer) OnStarted(ctx actor.Context, args interface{}) error {
+	return nil
 }
 
 func (g *gatewayServer) OnPostStarted(ctx actor.Context, args interface{}) {

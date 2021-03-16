@@ -3,6 +3,7 @@ package rigger
 import (
 	"bytes"
 	"encoding/gob"
+	"errors"
 	"fmt"
 	"github.com/AsynkronIT/protoactor-go/actor"
 	log "github.com/sirupsen/logrus"
@@ -171,12 +172,20 @@ func (sup *Supervisor) StartSpec(spec *SpawnSpec) (*Supervisor, error) {
 				log.Errorf("error when start supervisor, reason:%s", err.Error())
 				return sup, err
 			} else {
-				sup.pid = pid
 				// 等待
 				if initFuture != nil {
-					if err = initFuture.Wait(); err != nil {
+					if ret, err := initFuture.Result(); err != nil {
 						log.Errorf("error when wait start supervisor reason:%s", err)
 						return sup, err
+					} else {
+						r := ret.(*SpawnResponse)
+						if r.Error == "" {
+							sup.pid = pid
+							return sup, nil
+						} else {
+							log.Errorf("error when wait start supervisor reason:%s", err)
+							return sup, errors.New(r.Error)
+						}
 					}
 				}
 			}
@@ -304,7 +313,8 @@ type supDelegate struct {
 func (sup *supDelegate) Receive(context actor.Context) {
 	switch msg := context.Message().(type) {
 	case *actor.Started:
-		defer sup.notifyInitComplete(context)
+		var err error = nil
+		defer sup.notifyInitComplete(context, err)
 		sup.context = context
 		sup.owner.SetDelegate(sup)
 		//sup.callback.SetPid(context.RespondSelf())
@@ -314,13 +324,20 @@ func (sup *supDelegate) Receive(context actor.Context) {
 			context.SetReceiveTimeout(receiveTimeout)
 		}
 		initArgs := sup.owner.GetInitArgs()
-		sup.callback.OnStarted(context, initArgs)
-		// 启动子进程
-		flag, specs := sup.getSupFlag(context)
-		sup.treateSupFlag(&flag, specs)
-		// 初始化完成,通知后再继续进行后续的初始化
-		sup.notifyInitComplete(context)
-		sup.callback.OnPostStarted(context, initArgs)
+		err = sup.callback.OnStarted(context, initArgs)
+		if err == nil {
+			// 启动子进程
+			flag, specs := sup.getSupFlag(context)
+			sup.treateSupFlag(&flag, specs)
+			// 初始化完成,通知后再继续进行后续的初始化
+			sup.notifyInitComplete(context, nil)
+			sup.callback.OnPostStarted(context, initArgs)
+		} else {
+			sup.notifyInitComplete(context, err)
+			// 停止进程
+			context.Stop(context.Self())
+			//context.Stop(context.Self())
+		}
 	case *actor.Restarting:
 		sup.callback.OnRestarting(context)
 	case *actor.Stopping:
@@ -346,9 +363,20 @@ func (sup *supDelegate) Receive(context actor.Context) {
 	}
 }
 
-func (sup *supDelegate) notifyInitComplete(context actor.Context) {
+func (sup *supDelegate) notifyInitComplete(context actor.Context, err error) {
+	var errStr string
+	if err == nil {
+		errStr = ""
+	} else {
+		errStr = err.Error()
+	}
 	if sup.initFuture != nil {
-		context.Send(sup.initFuture.PID(), context.Self())
+		context.Send(sup.initFuture.PID(), &SpawnResponse{
+			Sender: context.Sender(),
+			Parent: context.Parent(),
+			Pid: context.Self(),
+			Error: errStr,
+		})
 		sup.initFuture = nil
 	}
 }
@@ -477,7 +505,6 @@ func (sup *supDelegate) spawnBySpec(spec *SpawnSpec) (*actor.PID, error) {
 				return nil, err
 			} else {
 				// 如果不是从配置启动,且不是sample设置进程ID
-
 				return server.pid, nil
 			}
 		case SupervisorBehaviourProducer:
@@ -532,7 +559,7 @@ func (sup *supDelegate) responseStartChild(context actor.Context, pid *actor.PID
 		if err != nil {
 			errStr = err.Error()
 		}
-		context.Respond(&SpawnResponse{Sender: context.Sender(), Parent: context.Self(), Pid: pid, Error: errStr})
+		context.Respond(&SpawnResponse{Sender: sender, Parent: context.Self(), Pid: pid, Error: errStr})
 	}
 }
 

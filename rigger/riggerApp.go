@@ -20,7 +20,8 @@ type riggerApp struct {
 func (r riggerApp) OnRestarting(ctx actor.Context) {
 }
 
-func (r riggerApp) OnStarted(ctx actor.Context, args interface{}) {
+func (r riggerApp) OnStarted(ctx actor.Context, args interface{}) error {
+	return nil
 }
 
 func (r riggerApp) OnPostStarted(ctx actor.Context, args interface{}) {

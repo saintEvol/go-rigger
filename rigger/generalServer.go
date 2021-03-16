@@ -1,6 +1,7 @@
 package rigger
 
 import (
+	"errors"
 	"github.com/AsynkronIT/protoactor-go/actor"
 	"github.com/golang/protobuf/proto"
 	log "github.com/sirupsen/logrus"
@@ -101,9 +102,17 @@ func (server *GeneralServer)StartSpec(spec *SpawnSpec) (*GeneralServer, error){
 				}
 				// 等待
 				if initFuture != nil {
-					if err = initFuture.Wait(); err != nil {
+					if ret, err := initFuture.Result(); err != nil {
 						log.Errorf("error when wait start actor reason:%s", err)
 						return server, err
+					} else {
+						r := ret.(*SpawnResponse)
+						if r.Error == "" {
+							server.pid = pid
+							return server, nil
+						} else {
+							return server, errors.New(r.Error)
+						}
 					}
 				}
 				server.pid = pid
@@ -210,8 +219,9 @@ type genServerDelegate struct {
 func (server *genServerDelegate) Receive(context actor.Context) {
 	switch msg := context.Message().(type) {
 	case *actor.Started:
+		var err error = nil
 		// TODO 如果是这里通知的应该是有异常了
-		defer server.notifyIninComplete(context)
+		defer server.notifyInitComplete(context, err)
 
 		// 设置GeneralServer中的代理指针
 		server.owner.delegate = server
@@ -220,11 +230,16 @@ func (server *genServerDelegate) Receive(context actor.Context) {
 		if server.owner.receiveTimeout > 0 {
 			context.SetReceiveTimeout(server.owner.receiveTimeout)
 		}
-		server.callback.OnStarted(context, server.owner.initArgs)
-		// 初始化完成了,通知后,继续进行后面的初始化
-		server.notifyIninComplete(context)
-		server.callback.OnPostStarted(context, server.owner.initArgs)
-		server.context = context
+		err = server.callback.OnStarted(context, server.owner.initArgs)
+		if err == nil {
+			// 初始化完成了,通知后,继续进行后面的初始化
+			server.notifyInitComplete(context, nil)
+			server.callback.OnPostStarted(context, server.owner.initArgs)
+			server.context = context
+		} else {
+			server.notifyInitComplete(context, err)
+			context.Stop(context.Self())
+		}
 	case *actor.Restarting:
 		server.callback.OnRestarting(context)
 	case *actor.Stopping:
@@ -252,9 +267,20 @@ func (server *genServerDelegate) Receive(context actor.Context) {
 	}
 }
 
-func (server *genServerDelegate)notifyIninComplete(context actor.Context)  {
+func (server *genServerDelegate) notifyInitComplete(context actor.Context, err error)  {
 	if server.initFuture != nil {
-		context.Send(server.initFuture.PID(), context.Self())
+		var errStr string
+		if err != nil {
+			errStr = err.Error()
+		} else {
+			errStr = ""
+		}
+		context.Send(server.initFuture.PID(), &SpawnResponse{
+			Sender: context.Sender(),
+			Parent: context.Parent(),
+			Pid:    context.Self(),
+			Error:  errStr,
+		})
 		server.initFuture = nil
 	}
 }

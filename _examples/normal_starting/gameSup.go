@@ -23,7 +23,8 @@ type gameSup struct {
 func (g *gameSup) OnRestarting(ctx actor.Context) {
 }
 
-func (g *gameSup) OnStarted(ctx actor.Context, args interface{}) {
+func (g *gameSup) OnStarted(ctx actor.Context, args interface{}) error {
+	return nil
 }
 
 func (g *gameSup) OnPostStarted(ctx actor.Context, args interface{}) {

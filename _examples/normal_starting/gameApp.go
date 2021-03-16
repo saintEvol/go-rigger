@@ -25,8 +25,9 @@ func (g *gameApp) OnRestarting(ctx actor.Context) {
 }
 
 // 进程启动时的回调, 此回调成功返回后,监控进程才会认为此进程已经成功启动,因此不宜在此回调中进行较费时的操作
-func (g *gameApp) OnStarted(ctx actor.Context, args interface{}) {
+func (g *gameApp) OnStarted(ctx actor.Context, args interface{}) error {
 	fmt.Printf("%s Started\r\n", gameAppName)
+	return nil
 }
 
 // 进程启动时回调, 不过在OnStarted之后,可以在此进行一些比较耗时的初始化工作

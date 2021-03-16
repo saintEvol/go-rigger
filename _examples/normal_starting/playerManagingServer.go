@@ -25,12 +25,13 @@ type playerManagingServer struct {
 func (p *playerManagingServer) OnRestarting(ctx actor.Context) {
 }
 
-func (p *playerManagingServer) OnStarted(ctx actor.Context, args interface{}) {
+func (p *playerManagingServer) OnStarted(ctx actor.Context, args interface{}) error {
 	// 初始化玩家ID
 	p.nextPlayerId = 1
 	p.allPlayers = make(map[string]*player)
 	p.onlinePlayers = make(map[uint64]*player)
 	fmt.Printf("%s started!, all players: %v, onlines: %v\r\n", playerManagingServerName, p.allPlayers, p.onlinePlayers)
+	return nil
 }
 
 func (p *playerManagingServer) OnPostStarted(ctx actor.Context, args interface{}) {

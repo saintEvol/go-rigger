@@ -32,13 +32,15 @@ type playerServer struct {
 func (p *playerServer) OnRestarting(ctx actor.Context) {
 }
 
-func (p *playerServer) OnStarted(ctx actor.Context, args interface{}) {
+func (p *playerServer) OnStarted(ctx actor.Context, args interface{}) error {
 	fmt.Printf("player started: %d\r\n", args)
 	// 将自己加入广播
 	if pid, ok := rigger.GetPid(playerBroadcastServerName); ok {
 		p.broadcastPid = pid
 		rigger.AddRoutee(ctx, pid, ctx.Self())
 	}
+
+	return nil
 }
 
 func (p *playerServer) OnPostStarted(ctx actor.Context, args interface{}) {
