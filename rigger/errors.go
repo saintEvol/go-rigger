@@ -9,6 +9,9 @@ func (err *Error) Error() string {
 
 // 根据error生成一个rigger.Error
 func FromError(err error) *Error {
+	if err == nil {
+		return nil
+	}
 	return &Error{ErrStr: err.Error()}
 }
 
