@@ -1,6 +1,7 @@
 package normal_starting
 
 import (
+	"errors"
 	"fmt"
 	"github.com/AsynkronIT/protoactor-go/actor"
 	"github.com/golang/protobuf/proto"
@@ -31,7 +32,7 @@ func (p *playerManagingServer) OnStarted(ctx actor.Context, args interface{}) er
 	p.allPlayers = make(map[string]*player)
 	p.onlinePlayers = make(map[uint64]*player)
 	fmt.Printf("%s started!, all players: %v, onlines: %v\r\n", playerManagingServerName, p.allPlayers, p.onlinePlayers)
-	return nil
+	return errors.New("test error")
 }
 
 func (p *playerManagingServer) OnPostStarted(ctx actor.Context, args interface{}) {

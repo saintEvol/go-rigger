@@ -358,6 +358,8 @@ func (sup *supDelegate) Receive(context actor.Context) {
 		if data, err := decodeMsg(msg.SpecOrArgs); err == nil {
 			sup.startChild(context, data)
 		}
+	case *actor.Terminated:
+
 	default:
 		log.Errorf("unexpected msg:%s", msg)
 	}
@@ -554,7 +556,7 @@ func (sup *supDelegate) responseStartChild(context actor.Context, pid *actor.PID
 	sender := context.Sender()
 	if sender != nil {
 		// 有发送者,进行回应
-		log.Tracef("send back spawn resp:", sender)
+		log.Tracef("send back spawn resp: %v", sender)
 		var errStr string
 		if err != nil {
 			errStr = err.Error()

@@ -2,6 +2,21 @@ package rigger
 
 import "fmt"
 
+// implment: error
+func (err *Error) Error() string {
+	return err.ErrStr
+}
+
+// 根据error生成一个rigger.Error
+func FromError(err error) *Error {
+	return &Error{ErrStr: err.Error()}
+}
+
+// 根据字符串生成一个rigger.Error
+func FromString(str string) *Error {
+	return &Error{ErrStr: str}
+}
+
 type ErrDefault string
 
 func (e ErrDefault) Error() string {

@@ -1,6 +1,12 @@
 syntax = "proto3";
 import "github.com/AsynkronIT/protoactor-go/actor/protos.proto";
 package rigger;
+
+// 表示Rigger通用错误, 可以跨节点传递,因此可以用来表示进程间消息处理的错误
+message Error {
+    string errStr = 1;
+}
+
 // 用于远程启动子进程的命令
 message RemoteStartChildCmd {
     bytes specOrArgs = 1;

@@ -25,6 +25,50 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion2 // please upgrade the proto package
 
+// 表示Rigger通用错误, 可以跨节点传递,因此可以用来表示进程间消息处理的错误
+type Error struct {
+	ErrStr string `protobuf:"bytes,1,opt,name=errStr,proto3" json:"errStr,omitempty"`
+}
+
+func (m *Error) Reset()      { *m = Error{} }
+func (*Error) ProtoMessage() {}
+func (*Error) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f5a1f10097eb08ff, []int{0}
+}
+func (m *Error) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *Error) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_Error.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *Error) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Error.Merge(m, src)
+}
+func (m *Error) XXX_Size() int {
+	return m.Size()
+}
+func (m *Error) XXX_DiscardUnknown() {
+	xxx_messageInfo_Error.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Error proto.InternalMessageInfo
+
+func (m *Error) GetErrStr() string {
+	if m != nil {
+		return m.ErrStr
+	}
+	return ""
+}
+
 // 用于远程启动子进程的命令
 type RemoteStartChildCmd struct {
 	SpecOrArgs []byte `protobuf:"bytes,1,opt,name=specOrArgs,proto3" json:"specOrArgs,omitempty"`
@@ -33,7 +77,7 @@ type RemoteStartChildCmd struct {
 func (m *RemoteStartChildCmd) Reset()      { *m = RemoteStartChildCmd{} }
 func (*RemoteStartChildCmd) ProtoMessage() {}
 func (*RemoteStartChildCmd) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f5a1f10097eb08ff, []int{0}
+	return fileDescriptor_f5a1f10097eb08ff, []int{1}
 }
 func (m *RemoteStartChildCmd) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -76,7 +120,7 @@ type OkResp struct {
 func (m *OkResp) Reset()      { *m = OkResp{} }
 func (*OkResp) ProtoMessage() {}
 func (*OkResp) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f5a1f10097eb08ff, []int{1}
+	return fileDescriptor_f5a1f10097eb08ff, []int{2}
 }
 func (m *OkResp) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -113,7 +157,7 @@ type ErrorResp struct {
 func (m *ErrorResp) Reset()      { *m = ErrorResp{} }
 func (*ErrorResp) ProtoMessage() {}
 func (*ErrorResp) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f5a1f10097eb08ff, []int{2}
+	return fileDescriptor_f5a1f10097eb08ff, []int{3}
 }
 func (m *ErrorResp) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -160,7 +204,7 @@ type SpawnResponse struct {
 func (m *SpawnResponse) Reset()      { *m = SpawnResponse{} }
 func (*SpawnResponse) ProtoMessage() {}
 func (*SpawnResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f5a1f10097eb08ff, []int{3}
+	return fileDescriptor_f5a1f10097eb08ff, []int{4}
 }
 func (m *SpawnResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -226,7 +270,7 @@ type SpawnLoacalApplicationSpec struct {
 func (m *SpawnLoacalApplicationSpec) Reset()      { *m = SpawnLoacalApplicationSpec{} }
 func (*SpawnLoacalApplicationSpec) ProtoMessage() {}
 func (*SpawnLoacalApplicationSpec) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f5a1f10097eb08ff, []int{4}
+	return fileDescriptor_f5a1f10097eb08ff, []int{5}
 }
 func (m *SpawnLoacalApplicationSpec) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -283,7 +327,7 @@ type SpawnLocalApplicationResp struct {
 func (m *SpawnLocalApplicationResp) Reset()      { *m = SpawnLocalApplicationResp{} }
 func (*SpawnLocalApplicationResp) ProtoMessage() {}
 func (*SpawnLocalApplicationResp) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f5a1f10097eb08ff, []int{5}
+	return fileDescriptor_f5a1f10097eb08ff, []int{6}
 }
 func (m *SpawnLocalApplicationResp) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -319,45 +363,108 @@ func (m *SpawnLocalApplicationResp) GetError() string {
 	return ""
 }
 
+type HotUpdateSpec struct {
+}
+
+func (m *HotUpdateSpec) Reset()      { *m = HotUpdateSpec{} }
+func (*HotUpdateSpec) ProtoMessage() {}
+func (*HotUpdateSpec) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f5a1f10097eb08ff, []int{7}
+}
+func (m *HotUpdateSpec) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *HotUpdateSpec) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_HotUpdateSpec.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *HotUpdateSpec) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_HotUpdateSpec.Merge(m, src)
+}
+func (m *HotUpdateSpec) XXX_Size() int {
+	return m.Size()
+}
+func (m *HotUpdateSpec) XXX_DiscardUnknown() {
+	xxx_messageInfo_HotUpdateSpec.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_HotUpdateSpec proto.InternalMessageInfo
+
 func init() {
+	proto.RegisterType((*Error)(nil), "rigger.Error")
 	proto.RegisterType((*RemoteStartChildCmd)(nil), "rigger.RemoteStartChildCmd")
 	proto.RegisterType((*OkResp)(nil), "rigger.OkResp")
 	proto.RegisterType((*ErrorResp)(nil), "rigger.ErrorResp")
 	proto.RegisterType((*SpawnResponse)(nil), "rigger.SpawnResponse")
 	proto.RegisterType((*SpawnLoacalApplicationSpec)(nil), "rigger.SpawnLoacalApplicationSpec")
 	proto.RegisterType((*SpawnLocalApplicationResp)(nil), "rigger.SpawnLocalApplicationResp")
+	proto.RegisterType((*HotUpdateSpec)(nil), "rigger.hotUpdateSpec")
 }
 
 func init() { proto.RegisterFile("rigger/protos.proto", fileDescriptor_f5a1f10097eb08ff) }
 
 var fileDescriptor_f5a1f10097eb08ff = []byte{
-	// 375 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x74, 0x92, 0xcf, 0x4a, 0xe3, 0x40,
-	0x1c, 0xc7, 0x33, 0xed, 0x6e, 0xd8, 0xfe, 0x76, 0x0b, 0xcb, 0x74, 0x17, 0x6a, 0x91, 0x41, 0x83,
-	0x07, 0x11, 0x4c, 0x51, 0xab, 0xf7, 0x5a, 0x3d, 0x14, 0x84, 0x96, 0xd4, 0x17, 0x98, 0x26, 0x63,
-	0x12, 0x9a, 0xce, 0x0c, 0x93, 0x29, 0xe2, 0xcd, 0xbb, 0x17, 0x1f, 0xc2, 0x83, 0x8f, 0xe2, 0xb1,
-	0xc7, 0x1e, 0x6d, 0x7a, 0xf1, 0xd8, 0x47, 0x90, 0x24, 0x85, 0xa6, 0x54, 0x4f, 0xc9, 0xf7, 0x1f,
-	0x7c, 0x66, 0x18, 0xa8, 0xa9, 0xd0, 0xf7, 0x99, 0x6a, 0x4a, 0x25, 0xb4, 0x88, 0xed, 0xec, 0x83,
-	0xcd, 0xdc, 0x6c, 0x5c, 0xf8, 0xa1, 0x0e, 0x26, 0x43, 0xdb, 0x15, 0xe3, 0x66, 0x3b, 0x7e, 0xe0,
-	0x23, 0x25, 0x78, 0xf7, 0x36, 0xef, 0x52, 0x57, 0x0b, 0x75, 0xec, 0x8b, 0x66, 0xf6, 0xb3, 0xb1,
-	0xb7, 0xce, 0xa1, 0xe6, 0xb0, 0xb1, 0xd0, 0x6c, 0xa0, 0xa9, 0xd2, 0x9d, 0x20, 0x8c, 0xbc, 0xce,
-	0xd8, 0xc3, 0x04, 0x20, 0x96, 0xcc, 0xed, 0xa9, 0xb6, 0xf2, 0xe3, 0x3a, 0xda, 0x43, 0x87, 0x7f,
-	0x9c, 0x82, 0x63, 0xfd, 0x02, 0xb3, 0x37, 0x72, 0x58, 0x2c, 0xad, 0x7d, 0xa8, 0x5c, 0x2b, 0x25,
-	0x54, 0x2a, 0xf0, 0x3f, 0xf8, 0xc9, 0x52, 0x91, 0x2d, 0x2a, 0x4e, 0x2e, 0xac, 0x27, 0x04, 0xd5,
-	0x81, 0xa4, 0xf7, 0x3c, 0xed, 0x08, 0x1e, 0x33, 0x6c, 0x81, 0x19, 0x33, 0xee, 0xb1, 0xbc, 0xf8,
-	0xfb, 0x14, 0xec, 0x0c, 0xcd, 0xee, 0x77, 0xaf, 0x9c, 0x55, 0x92, 0x76, 0x24, 0x55, 0x8c, 0xeb,
-	0x7a, 0x69, 0xbb, 0x93, 0x27, 0x78, 0x17, 0xca, 0x32, 0xf4, 0xea, 0xe5, 0xad, 0x42, 0x6a, 0xaf,
-	0x69, 0x7e, 0x14, 0x69, 0x5e, 0x10, 0x34, 0x32, 0x9a, 0x1b, 0x41, 0x5d, 0x1a, 0xb5, 0xa5, 0x8c,
-	0x42, 0x97, 0xea, 0x50, 0xf0, 0x81, 0x64, 0x2e, 0x3e, 0x82, 0xbf, 0x11, 0x9d, 0x70, 0x37, 0xe8,
-	0x08, 0x7e, 0x17, 0xfa, 0x7d, 0xaa, 0x83, 0xd5, 0x69, 0xb6, 0x7c, 0xdc, 0x82, 0xff, 0x74, 0x3d,
-	0x2f, 0x0c, 0x4a, 0xd9, 0xe0, 0xeb, 0x10, 0x1f, 0x40, 0xb5, 0x10, 0x74, 0x73, 0xfc, 0x8a, 0xb3,
-	0x69, 0x5a, 0x27, 0xb0, 0xb3, 0xa2, 0xdc, 0x84, 0xfc, 0xfe, 0x9e, 0x2f, 0x5b, 0xd3, 0x39, 0x31,
-	0x66, 0x73, 0x62, 0x2c, 0xe7, 0x04, 0x3d, 0x26, 0x04, 0xbd, 0x26, 0x04, 0xbd, 0x25, 0x04, 0x4d,
-	0x13, 0x82, 0xde, 0x13, 0x82, 0x3e, 0x12, 0x62, 0x2c, 0x13, 0x82, 0x9e, 0x17, 0xc4, 0x98, 0x2e,
-	0x88, 0x31, 0x5b, 0x10, 0x63, 0x68, 0x66, 0x0f, 0xe1, 0xec, 0x33, 0x00, 0x00, 0xff, 0xff, 0xfb,
-	0xe8, 0xc7, 0x31, 0x5f, 0x02, 0x00, 0x00,
+	// 404 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x7c, 0x52, 0xbf, 0x8e, 0xd3, 0x30,
+	0x18, 0x8f, 0x5b, 0x1a, 0xd1, 0x0f, 0x2a, 0x90, 0x0b, 0xa8, 0x54, 0xc8, 0x40, 0xc4, 0x80, 0x90,
+	0x48, 0x05, 0x14, 0xf6, 0x52, 0x18, 0x2a, 0x21, 0xb5, 0x4a, 0xe0, 0x01, 0xdc, 0xc4, 0x24, 0x51,
+	0x53, 0xdb, 0x72, 0x5c, 0x21, 0x36, 0x76, 0x96, 0x7b, 0x88, 0x1b, 0xee, 0x51, 0x6e, 0xec, 0xd8,
+	0xf1, 0x9a, 0x2e, 0x37, 0xf6, 0x11, 0x4e, 0x71, 0x22, 0x35, 0x55, 0x4f, 0x37, 0xd9, 0xbf, 0x7f,
+	0xfa, 0x7e, 0x9f, 0x65, 0xe8, 0xaa, 0x24, 0x8a, 0x98, 0x1a, 0x48, 0x25, 0xb4, 0xc8, 0x5c, 0x73,
+	0x60, 0xbb, 0x24, 0xfb, 0x5f, 0xa2, 0x44, 0xc7, 0xab, 0xb9, 0x1b, 0x88, 0xe5, 0x60, 0x94, 0xfd,
+	0xe5, 0x0b, 0x25, 0xf8, 0xe4, 0x67, 0xe9, 0xa5, 0x81, 0x16, 0xea, 0x7d, 0x24, 0x06, 0xe6, 0x72,
+	0x94, 0x77, 0x5e, 0x42, 0xeb, 0xbb, 0x52, 0x42, 0xe1, 0x67, 0x60, 0x33, 0xa5, 0x7c, 0xad, 0x7a,
+	0xe8, 0x15, 0x7a, 0xdb, 0xf6, 0x2a, 0xe4, 0x7c, 0x86, 0xae, 0xc7, 0x96, 0x42, 0x33, 0x5f, 0x53,
+	0xa5, 0xc7, 0x71, 0x92, 0x86, 0xe3, 0x65, 0x88, 0x09, 0x40, 0x26, 0x59, 0x30, 0x55, 0x23, 0x15,
+	0x65, 0x26, 0xf2, 0xd0, 0xab, 0x31, 0xce, 0x7d, 0xb0, 0xa7, 0x0b, 0x8f, 0x65, 0xd2, 0x79, 0x0d,
+	0x6d, 0x33, 0xa1, 0x00, 0xf8, 0x09, 0xb4, 0x58, 0x01, 0xaa, 0x21, 0x25, 0x70, 0xfe, 0x23, 0xe8,
+	0xf8, 0x92, 0xfe, 0xe1, 0x85, 0x47, 0xf0, 0x8c, 0x61, 0x07, 0xec, 0x8c, 0xf1, 0x90, 0x95, 0xc6,
+	0x07, 0x1f, 0xc1, 0x35, 0xdd, 0xdd, 0xd9, 0xe4, 0x9b, 0x57, 0x29, 0x85, 0x47, 0x52, 0xc5, 0xb8,
+	0xee, 0x35, 0x4e, 0x3d, 0xa5, 0x82, 0x5f, 0x40, 0x53, 0x26, 0x61, 0xaf, 0x79, 0x62, 0x28, 0xe8,
+	0x43, 0x9b, 0x7b, 0xf5, 0x36, 0xe7, 0x08, 0xfa, 0xa6, 0xcd, 0x0f, 0x41, 0x03, 0x9a, 0x8e, 0xa4,
+	0x4c, 0x93, 0x80, 0xea, 0x44, 0x70, 0x5f, 0xb2, 0x00, 0xbf, 0x83, 0xc7, 0x29, 0x5d, 0xf1, 0x20,
+	0x1e, 0x0b, 0xfe, 0x3b, 0x89, 0x66, 0x54, 0xc7, 0xd5, 0x36, 0x27, 0x3c, 0x1e, 0xc2, 0x53, 0x7a,
+	0x88, 0xd7, 0x02, 0x0d, 0x13, 0xb8, 0x5d, 0xc4, 0x6f, 0xa0, 0x53, 0x13, 0x26, 0x65, 0xfd, 0xb6,
+	0x77, 0x4c, 0x3a, 0x1f, 0xe0, 0x79, 0xd5, 0xf2, 0xb8, 0xe4, 0x1d, 0xef, 0xfc, 0x08, 0x3a, 0xb1,
+	0xd0, 0xbf, 0x64, 0x48, 0x35, 0x2b, 0x76, 0xf9, 0x3a, 0x5c, 0x6f, 0x89, 0xb5, 0xd9, 0x12, 0x6b,
+	0xbf, 0x25, 0xe8, 0x5f, 0x4e, 0xd0, 0x45, 0x4e, 0xd0, 0x65, 0x4e, 0xd0, 0x3a, 0x27, 0xe8, 0x2a,
+	0x27, 0xe8, 0x3a, 0x27, 0xd6, 0x3e, 0x27, 0xe8, 0x6c, 0x47, 0xac, 0xf5, 0x8e, 0x58, 0x9b, 0x1d,
+	0xb1, 0xe6, 0xb6, 0xf9, 0x3a, 0x9f, 0x6e, 0x02, 0x00, 0x00, 0xff, 0xff, 0x48, 0x4d, 0x15, 0x46,
+	0x91, 0x02, 0x00, 0x00,
 }
 
+func (this *Error) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*Error)
+	if !ok {
+		that2, ok := that.(Error)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.ErrStr != that1.ErrStr {
+		return false
+	}
+	return true
+}
 func (this *RemoteStartChildCmd) Equal(that interface{}) bool {
 	if that == nil {
 		return this == nil
@@ -514,6 +621,37 @@ func (this *SpawnLocalApplicationResp) Equal(that interface{}) bool {
 	}
 	return true
 }
+func (this *HotUpdateSpec) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*HotUpdateSpec)
+	if !ok {
+		that2, ok := that.(HotUpdateSpec)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	return true
+}
+func (this *Error) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 5)
+	s = append(s, "&rigger.Error{")
+	s = append(s, "ErrStr: "+fmt.Sprintf("%#v", this.ErrStr)+",\n")
+	s = append(s, "}")
+	return strings.Join(s, "")
+}
 func (this *RemoteStartChildCmd) GoString() string {
 	if this == nil {
 		return "nil"
@@ -584,6 +722,15 @@ func (this *SpawnLocalApplicationResp) GoString() string {
 	s = append(s, "}")
 	return strings.Join(s, "")
 }
+func (this *HotUpdateSpec) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 4)
+	s = append(s, "&rigger.HotUpdateSpec{")
+	s = append(s, "}")
+	return strings.Join(s, "")
+}
 func valueToGoStringProtos(v interface{}, typ string) string {
 	rv := reflect.ValueOf(v)
 	if rv.IsNil() {
@@ -592,6 +739,30 @@ func valueToGoStringProtos(v interface{}, typ string) string {
 	pv := reflect.Indirect(rv).Interface()
 	return fmt.Sprintf("func(v %v) *%v { return &v } ( %#v )", typ, typ, pv)
 }
+func (m *Error) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *Error) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.ErrStr) > 0 {
+		dAtA[i] = 0xa
+		i++
+		i = encodeVarintProtos(dAtA, i, uint64(len(m.ErrStr)))
+		i += copy(dAtA[i:], m.ErrStr)
+	}
+	return i, nil
+}
+
 func (m *RemoteStartChildCmd) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -772,6 +943,24 @@ func (m *SpawnLocalApplicationResp) MarshalTo(dAtA []byte) (int, error) {
 	return i, nil
 }
 
+func (m *HotUpdateSpec) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *HotUpdateSpec) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	return i, nil
+}
+
 func encodeVarintProtos(dAtA []byte, offset int, v uint64) int {
 	for v >= 1<<7 {
 		dAtA[offset] = uint8(v&0x7f | 0x80)
@@ -781,6 +970,19 @@ func encodeVarintProtos(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return offset + 1
 }
+func (m *Error) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.ErrStr)
+	if l > 0 {
+		n += 1 + l + sovProtos(uint64(l))
+	}
+	return n
+}
+
 func (m *RemoteStartChildCmd) Size() (n int) {
 	if m == nil {
 		return 0
@@ -875,6 +1077,15 @@ func (m *SpawnLocalApplicationResp) Size() (n int) {
 	return n
 }
 
+func (m *HotUpdateSpec) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
 func sovProtos(x uint64) (n int) {
 	for {
 		n++
@@ -887,6 +1098,16 @@ func sovProtos(x uint64) (n int) {
 }
 func sozProtos(x uint64) (n int) {
 	return sovProtos(uint64((x << 1) ^ uint64((int64(x) >> 63))))
+}
+func (this *Error) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&Error{`,
+		`ErrStr:` + fmt.Sprintf("%v", this.ErrStr) + `,`,
+		`}`,
+	}, "")
+	return s
 }
 func (this *RemoteStartChildCmd) String() string {
 	if this == nil {
@@ -952,6 +1173,15 @@ func (this *SpawnLocalApplicationResp) String() string {
 	}, "")
 	return s
 }
+func (this *HotUpdateSpec) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&HotUpdateSpec{`,
+		`}`,
+	}, "")
+	return s
+}
 func valueToStringProtos(v interface{}) string {
 	rv := reflect.ValueOf(v)
 	if rv.IsNil() {
@@ -959,6 +1189,91 @@ func valueToStringProtos(v interface{}) string {
 	}
 	pv := reflect.Indirect(rv).Interface()
 	return fmt.Sprintf("*%v", pv)
+}
+func (m *Error) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowProtos
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: Error: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: Error: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ErrStr", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProtos
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthProtos
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthProtos
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ErrStr = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipProtos(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthProtos
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthProtos
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
 }
 func (m *RemoteStartChildCmd) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
@@ -1588,6 +1903,59 @@ func (m *SpawnLocalApplicationResp) Unmarshal(dAtA []byte) error {
 			}
 			m.Error = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipProtos(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthProtos
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthProtos
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *HotUpdateSpec) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowProtos
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: hotUpdateSpec: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: hotUpdateSpec: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
 		default:
 			iNdEx = preIndex
 			skippy, err := skipProtos(dAtA[iNdEx:])
