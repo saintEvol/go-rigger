@@ -475,7 +475,11 @@ func (sup *supDelegate) startChild(context actor.Context, specOrArgs interface{}
 		})
 		sup.responseStartChild(context, pid, err)
 	} else {
-		pid, err := sup.spawnBySpec(unifySpawnSpec(specOrArgs))
+		spec :=  unifySpawnSpec(specOrArgs)
+		// 初始化子进程的配置
+		node, _ := getConfigByName(sup.owner.GetId())
+		sup.initChildrenConfigs(node, []*SpawnSpec{spec})
+		pid, err := sup.spawnBySpec(spec)
 		sup.responseStartChild(context, pid, err)
 	}
 }
@@ -520,6 +524,18 @@ func (sup *supDelegate) spawnBySpec(spec *SpawnSpec) (*actor.PID, error) {
 				return nil, err
 			} else {
 				return group.pid, nil
+			}
+		case ApplicationBehaviourProducer:
+			// TODO 应用特殊处理,应用的父进程只能为rigger内部的超级监控进程
+			if sup.owner.GetId() ==  allApplicationTopSupName{
+				if app, err := startApplicationSpec(sup.context, spec); err == nil {
+					return app.pid, err
+				} else {
+					return nil, err
+				}
+			} else {
+				log.Error("currently application can only be launched by rigger super supervisor")
+				return nil, ErrUnSurportedProducer("currently application can only be launched by rigger super supervisor")
 			}
 		default:
 			typeName := reflect.TypeOf(producer).Name()

@@ -1,9 +1,9 @@
 package rigger
 
 import (
+	"errors"
 	"fmt"
 	"github.com/AsynkronIT/protoactor-go/actor"
-	"github.com/AsynkronIT/protoactor-go/remote"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"os"
@@ -28,7 +28,7 @@ var (
 	pidSets = make(map[string]*actor.PID)
 	// 所有注册过的producer
 	registerInfoMap = make(map[string]*registerInfo)
-	runningApplication = make(map[string]*Application)
+	runningApplication = make(map[string]*actor.PID)
 	startingTasks []*StartingNode
 	signalChan chan os.Signal // 接收一些系统信号
 )
@@ -45,7 +45,8 @@ type remoteSpec struct {
 }
 
 type StartingNode struct {
-	name string
+	id string // id
+	name string // 名字
 	fullName string // 全名,包含了其父级及祖名称,可以通过其定位到进程
 	parent *StartingNode
 	spawnSpec *SpawnSpec //  自身的启动规范
@@ -131,8 +132,27 @@ func StartWithConfig(launchConfigPath string/*应用启动配置文件*/, appCon
 	waitInterupt()
 }
 
+func MakeSureApplication(applicationId string) error {
+	startRiggerApp()
+	if pid, exists := GetPid(riggerManagingServerName); exists {
+		f := Root().Root.RequestFuture(pid, &SpawnLoacalApplicationSpec{ApplicationId: applicationId}, 3 * time.Second)
+		if ret, err := f.Result(); err == nil {
+			resp := ret.(*SpawnLocalApplicationResp)
+			if resp.Error == "" {
+				return nil
+			} else {
+				return errors.New(resp.Error)
+			}
+		} else {
+			return err
+		}
+	} else {
+		return errors.New("rigger seems not launched")
+	}
+}
+
 // 获取正在运行中的应用,如果没有,第二个返回值为 false,否则为true
-func GetRunningApplication(id string) (*Application, bool) {
+func GetRunningApplication(id string) (*actor.PID, bool) {
 	if app, ok := runningApplication[id]; ok {
 		return app, true
 	}
@@ -140,18 +160,18 @@ func GetRunningApplication(id string) (*Application, bool) {
 	return nil, false
 }
 
-func setRunningApplication(id string, app *Application)  {
+func setRunningApplication(id string, app *actor.PID)  {
 	runningApplication[id] = app
 }
 
 // TODO 考虑将所有应用在同一个根上启动,这样各个应用间比较好通信
-func GetApplicationRoot(name string) *actor.ActorSystem {
-	if app, ok := GetRunningApplication(name); ok {
-		return app.Parent
-	}
-
-	return nil
-}
+//func GetApplicationRoot(name string) *actor.ActorSystem {
+//	if app, ok := GetRunningApplication(name); ok {
+//		return app.Parent
+//	}
+//
+//	return nil
+//}
 
 // 根据配置中的名字获取其进程id, 如果存在,则返回进程ID和true, 否则返回 nil,false
 // 获取到进程ID,并不意味着此进程依然存活
@@ -241,8 +261,8 @@ func waitInterupt()  {
 	s := <- signalChan
 	log.Tracef("now quite becase of signal: %s", s)
 	for _, app := range runningApplication {
-		if err := app.StopFuture().Wait(); err != nil {
-			log.Errorf("Error when quite application: %s", app.id)
+		if err := root.Root.StopFuture(app).Wait(); err != nil {
+			log.Errorf("Error when quite application: %s", app)
 		}
 	}
 }
@@ -255,27 +275,6 @@ func readLaunchConfig(path string)  {
 	}
 }
 
-func startApplications()  {
-	for _, node := range startingTasks{
-		startNode(node)
-	}
-}
-
-func startNode(node *StartingNode) {
-	if node.location != nil {
-		return
-	}
-
-	// 启动应用
-	if app, err := startApplicationNode(node); err == nil {
-		// 将启动的应用存起来
-		setRunningApplication(node.name, app)
-		//startRest(app, filterLocalNode(node.children))
-	} else {
-		log.Panicf("error when start application: %s", node.name)
-	}
-}
-
 func filterLocalNode(nodes []*StartingNode) (n []*StartingNode)  {
 	for _, c := range nodes {
 		if c.location == nil {
@@ -284,22 +283,6 @@ func filterLocalNode(nodes []*StartingNode) (n []*StartingNode)  {
 	}
 
 	return n
-}
-
-func startApplicationNode(node *StartingNode) (*Application, error) {
-	if node.parent != nil {
-		log.Panicf("application should not have Parent:%s", node.name)
-	}
-	spawnSpec := node.spawnSpec
-	// producer先不判断了,因为生成时,已经判断过了
-	// remote
-	if node.remote == nil {
-		return startApplicationSpec(spawnSpec)
-	} else {
-		r := remote.NewRemote(root, remote.Configure(node.remote.host, node.remote.port))
-		r.Start()
-		return startApplicationSpec(node.spawnSpec)
-	}
 }
 
 func parseConfig()  {
@@ -718,10 +701,10 @@ func startRiggerApp()  {
 	if ifRiggerStarted {
 		return
 	}
-	if app, err := startApplication(riggerAppName); err != nil {
+	if app, err := startApplication(root.Root, riggerAppName); err != nil {
 		log.Panicf("failed to start rigger application, reason: %s", err.Error())
 	} else {
 		ifRiggerStarted = true
-		setRunningApplication(riggerAppName, app)
+		setRunningApplication(riggerAppName, app.pid)
 	}
 }

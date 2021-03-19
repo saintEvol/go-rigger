@@ -1,11 +1,11 @@
 package normal_starting
 
 import (
-	"errors"
 	"fmt"
 	"github.com/AsynkronIT/protoactor-go/actor"
 	"github.com/golang/protobuf/proto"
 	"github.com/saintEvol/go-rigger/rigger"
+	"github.com/sirupsen/logrus"
 	"time"
 )
 
@@ -27,12 +27,14 @@ func (p *playerManagingServer) OnRestarting(ctx actor.Context) {
 }
 
 func (p *playerManagingServer) OnStarted(ctx actor.Context, args interface{}) error {
+	logrus.Tracef("started: %v", ctx.Self())
 	// 初始化玩家ID
 	p.nextPlayerId = 1
 	p.allPlayers = make(map[string]*player)
 	p.onlinePlayers = make(map[uint64]*player)
 	fmt.Printf("%s started!, all players: %v, onlines: %v\r\n", playerManagingServerName, p.allPlayers, p.onlinePlayers)
-	return errors.New("test error")
+	//return errors.New("test error")
+	return nil
 }
 
 func (p *playerManagingServer) OnPostStarted(ctx actor.Context, args interface{}) {

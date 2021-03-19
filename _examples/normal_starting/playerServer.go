@@ -5,6 +5,7 @@ import (
 	"github.com/AsynkronIT/protoactor-go/actor"
 	"github.com/golang/protobuf/proto"
 	"github.com/saintEvol/go-rigger/rigger"
+	"github.com/sirupsen/logrus"
 )
 
 const playerServerName = "playerServer"
@@ -33,7 +34,7 @@ func (p *playerServer) OnRestarting(ctx actor.Context) {
 }
 
 func (p *playerServer) OnStarted(ctx actor.Context, args interface{}) error {
-	fmt.Printf("player started: %d\r\n", args)
+	logrus.Tracef("player started: %v", ctx.Self())
 	// 将自己加入广播
 	if pid, ok := rigger.GetPid(playerBroadcastServerName); ok {
 		p.broadcastPid = pid

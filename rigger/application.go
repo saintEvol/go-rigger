@@ -20,13 +20,13 @@ type ApplicationBehaviour interface {
 type ApplicationBehaviourProducer func() ApplicationBehaviour
 
 // 根据应用ID启动应用
-func startApplication(id string) (*Application, error) {
-	return startApplicationSpec(makeDefaultSpawnSpec(id))
+func startApplication(ctx actor.SpawnerContext, id string) (*Application, error) {
+	return startApplicationSpec(ctx, makeDefaultSpawnSpec(id))
 }
 
 // 根据启动规范启动应用
-func startApplicationSpec(spec *SpawnSpec)	(*Application, error)  {
-	return (&Application{}).startSpec(spec)
+func startApplicationSpec(parent actor.SpawnerContext, spec *SpawnSpec)	(*Application, error)  {
+	return (&Application{}).startSpec(parent, spec)
 }
 
 // 根据启动规范和system启动应用
@@ -40,7 +40,7 @@ type Application struct {
 	id             string
 	pid            *actor.PID
 	delegate       *supDelegate
-	Parent         *actor.ActorSystem
+	Parent         actor.SpawnerContext
 	initArgs       interface{}
 	receiveTimeout time.Duration
 	childStrategy  actor.SupervisorStrategy
@@ -62,15 +62,17 @@ type Application struct {
 //	return app
 //}
 
-func (app *Application) startSpec(spec *SpawnSpec) (*Application, error) {
+func (app *Application) startSpec(parent actor.SpawnerContext, spec *SpawnSpec) (*Application, error) {
 	if info, ok := getRegisterInfo(spec.Id); ok {
 		switch prod := info.producer.(type) {
 		case ApplicationBehaviourProducer:
 			app.isFromConfig = spec.isFromConfig
 			app.initConfig(spec)
 			app.id = spec.Id
-			if app.Parent == nil {
-				app.Parent = root
+			if parent == nil {
+				app.Parent = root.Root
+			} else {
+				app.Parent = parent
 			}
 			// 准备启动, 会准备好props, 初始化future等
 			props, initFuture := app.prepareSpawn(prod, spec.SpawnTimeout)
@@ -82,7 +84,7 @@ func (app *Application) startSpec(spec *SpawnSpec) (*Application, error) {
 			app.initArgs = spec.Args
 			// 检查startFun
 			startFun := makeStartFun(info)
-			if pid, err := startFun(app.Parent.Root, props, spec.Args); err != nil {
+			if pid, err := startFun(app.Parent, props, spec.Args); err != nil {
 				log.Errorf("error when start actor, reason:%s", err.Error())
 				return app, err
 			} else {
@@ -110,7 +112,7 @@ func (app *Application ) prepareSpawn(producer ApplicationBehaviourProducer, tim
 	if timeout < 0 {
 		future = nil
 	} else {
-		future = actor.NewFuture(app.Parent, timeout)
+		future = actor.NewFuture(app.Parent.ActorSystem(), timeout)
 	}
 
 	props := app.generateProps(producer, future)
@@ -130,19 +132,19 @@ func (app *Application) generateProps(producer ApplicationBehaviourProducer, fut
 }
 
 func (app *Application) Stop()  {
-	app.Parent.Root.Stop(app.pid)
+	app.Parent.ActorSystem().Root.Stop(app.pid)
 }
 
 func (app *Application)StopFuture() *actor.Future {
-	return app.Parent.Root.StopFuture(app.pid)
+	return app.Parent.ActorSystem().Root.StopFuture(app.pid)
 }
 
 func (app *Application)Poison() {
-	app.Parent.Root.Poison(app.pid)
+	app.Parent.ActorSystem().Root.Poison(app.pid)
 }
 
 func (app *Application)PoisonFuture() *actor.Future  {
-	return app.Parent.Root.PoisonFuture(app.pid)
+	return app.Parent.ActorSystem().Root.PoisonFuture(app.pid)
 }
 
 // Interface: supDelegateHolder
@@ -180,7 +182,8 @@ func (app *Application) initConfig(spec *SpawnSpec)  {
 		return
 	}
 	// 初始化配置
-	config := &StartingNode{
+	config := &StartingNode {
+		id	: 	   spec.Id,
 		name:      spec.Id,
 		fullName:  spec.Id,
 		parent:    nil,

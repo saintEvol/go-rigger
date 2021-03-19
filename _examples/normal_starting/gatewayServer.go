@@ -4,6 +4,7 @@ import (
 	"github.com/AsynkronIT/protoactor-go/actor"
 	"github.com/golang/protobuf/proto"
 	"github.com/saintEvol/go-rigger/rigger"
+	"github.com/sirupsen/logrus"
 )
 
 const gatewayServerName = "gatewayServer"
@@ -24,6 +25,7 @@ func (g *gatewayServer) OnRestarting(ctx actor.Context) {
 }
 
 func (g *gatewayServer) OnStarted(ctx actor.Context, args interface{}) error {
+	logrus.Tracef("started: %v", ctx.Self())
 	return nil
 }
 

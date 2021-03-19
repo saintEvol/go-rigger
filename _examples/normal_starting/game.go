@@ -2,11 +2,22 @@ package normal_starting
 
 import (
 	"fmt"
+	"github.com/saintEvol/go-rigger/_examples/dep_app"
 	"github.com/saintEvol/go-rigger/rigger"
+	"github.com/sirupsen/logrus"
 	"time"
 )
 
 func StartNormal()  {
+	logrus.SetLevel(logrus.TraceLevel)
+	err := rigger.MakeSureApplication(dep_app.AnotherAppName)
+	if err == nil{
+		logrus.Trace("success launched dep app")
+	} else {
+		logrus.Tracef("failed to launched dep app, reason: %s", err.Error())
+		return
+	}
+	err = dep_app.Echo()
 	go func() {
 		time.Sleep(3 * time.Second)
 		// 模拟注册和登录
@@ -36,9 +47,9 @@ func register(userName string, nickname string)  {
 	spec := Register{UserName: userName, Nickname: nickname}
 	if managerPid, ok := rigger.GetPid(playerManagingServerName); ok {
 		// 获取应用
-		root := rigger.GetApplicationRoot(gameAppName)
+		logrus.Tracef("managerPid: %v", managerPid)
 		// TODO 是否可以优化发消息
-		future := root.Root.RequestFuture(managerPid, &spec, 3 * time.Second)
+		future := rigger.Root().Root.RequestFuture(managerPid, &spec, 3 * time.Second)
 		if resp, err := future.Result(); err == nil {
 			ret := resp.(*RegisterResp)
 			if ret.Error == "" {
@@ -57,10 +68,9 @@ func login(userName string)  {
 	spec := LoginSpec{UserName: userName}
 	if managerPid, ok := rigger.GetPid(playerManagingServerName); ok {
 		// 获取应用
-		root := rigger.GetApplicationRoot(gameAppName)
 		// TODO 是否可以优化发消息
 		// TODO 应该是从loginServer登录
-		future := root.Root.RequestFuture(managerPid, &spec, 3 * time.Second)
+		future := rigger.Root().Root.RequestFuture(managerPid, &spec, 3 * time.Second)
 		if resp, err := future.Result(); err == nil {
 			ret := resp.(*LoginResp)
 			if ret.Error == "" {
@@ -78,8 +88,7 @@ func login(userName string)  {
 
 func logout(username string)  {
 	if managerPid, ok := rigger.GetPid(playerManagingServerName); ok {
-		root := rigger.GetApplicationRoot(gameAppName)
-		f := root.Root.RequestFuture(managerPid, &LogoutSpec{UserName: username}, 1 * time.Second)
+		f := rigger.Root().Root.RequestFuture(managerPid, &LogoutSpec{UserName: username}, 1 * time.Second)
 		if ret, err := f.Result(); err == nil{
 			r := ret.(*LogoutResp)
 			if r.Error == "" {
@@ -96,7 +105,6 @@ func logout(username string)  {
 func broadcast()  {
 	if broadcastPid, ok := rigger.GetPid(playerBroadcastServerName); ok {
 		// 获取应用
-		root := rigger.GetApplicationRoot(gameAppName)
-		root.Root.Send(broadcastPid, &Broadcast{Content: "hello"})
+		rigger.Root().Root.Send(broadcastPid, &Broadcast{Content: "hello"})
 	}
 }

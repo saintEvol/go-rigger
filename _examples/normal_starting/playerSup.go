@@ -3,6 +3,7 @@ package normal_starting
 import (
 	"github.com/AsynkronIT/protoactor-go/actor"
 	"github.com/saintEvol/go-rigger/rigger"
+	"github.com/sirupsen/logrus"
 )
 
 
@@ -23,6 +24,7 @@ func (p *playerServerSup) OnRestarting(ctx actor.Context) {
 }
 
 func (p *playerServerSup) OnStarted(ctx actor.Context, args interface{}) error {
+	logrus.Tracef("started: %v", ctx.Self())
 	return nil
 }
 

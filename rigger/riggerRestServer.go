@@ -13,7 +13,8 @@ func (r *riggerRestServer) OnRestarting(ctx actor.Context) {
 
 }
 
-func (r *riggerRestServer) OnStarted(ctx actor.Context, args interface{}) {
+func (r *riggerRestServer) OnStarted(ctx actor.Context, args interface{}) error {
+	return nil
 }
 
 func (r *riggerRestServer) OnPostStarted(ctx actor.Context, args interface{}) {

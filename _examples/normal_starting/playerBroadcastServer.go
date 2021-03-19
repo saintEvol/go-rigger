@@ -3,6 +3,7 @@ package normal_starting
 import (
 	"github.com/AsynkronIT/protoactor-go/actor"
 	"github.com/saintEvol/go-rigger/rigger"
+	"github.com/sirupsen/logrus"
 )
 
 const playerBroadcastServerName = "playerBroadcastServer"
@@ -16,6 +17,7 @@ type playerBroadcastServer struct {
 }
 
 func (p playerBroadcastServer) OnGetType() rigger.RouterType {
+	logrus.Trace("OnGetType of braodcast")
 	return rigger.BroadcastType
 }
 

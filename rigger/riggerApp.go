@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-const riggerAppName = "@riggerAppName"
+const riggerAppName = "@riggerApp"
 
 func init() {
 	Register(riggerAppName, ApplicationBehaviourProducer(func() ApplicationBehaviour {
@@ -42,6 +42,7 @@ func (r riggerApp) OnGetSupFlag(ctx actor.Context) (supFlag SupervisorFlag, chil
 	supFlag.StrategyFlag = OneForOne
 
 	childSpecs = []*SpawnSpec{
+		DefaultSpawnSpec(allApplicationTopSupName),
 		DefaultSpawnSpec(riggerManagingServerName),
 	}
 	return

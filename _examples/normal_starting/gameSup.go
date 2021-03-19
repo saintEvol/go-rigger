@@ -3,6 +3,7 @@ package normal_starting
 import (
 	"github.com/AsynkronIT/protoactor-go/actor"
 	"github.com/saintEvol/go-rigger/rigger"
+	"github.com/sirupsen/logrus"
 )
 
 const gameSupName = "gameSup"
@@ -24,6 +25,7 @@ func (g *gameSup) OnRestarting(ctx actor.Context) {
 }
 
 func (g *gameSup) OnStarted(ctx actor.Context, args interface{}) error {
+	logrus.Tracef("strted: %v", ctx.Self())
 	return nil
 }
 
