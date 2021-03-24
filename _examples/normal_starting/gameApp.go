@@ -2,18 +2,24 @@ package normal_starting
 
 import (
 	"github.com/AsynkronIT/protoactor-go/actor"
+	"github.com/saintEvol/go-rigger/_examples/dep_app"
 	"github.com/saintEvol/go-rigger/rigger"
 	"github.com/sirupsen/logrus"
 )
 
-const gameAppName = "gameApp"
+const GameAppName = "gameApp"
 
 func init()  {
 	var appProducer rigger.ApplicationBehaviourProducer = func() rigger.ApplicationBehaviour {
 		return &gameApp{}
 	}
-	rigger.Register(gameAppName, appProducer)
+	rigger.Register(GameAppName, appProducer)
 }
+
+func init()  {
+	rigger.DependOn(GameAppName, dep_app.AnotherAppName)
+}
+
 // gameApp
 type gameApp struct {
 
@@ -27,6 +33,13 @@ func (g *gameApp) OnRestarting(ctx actor.Context) {
 // 进程启动时的回调, 此回调成功返回后,监控进程才会认为此进程已经成功启动,因此不宜在此回调中进行较费时的操作
 func (g *gameApp) OnStarted(ctx actor.Context, args interface{}) error {
 	logrus.Tracef("Started: %v", ctx.Self())
+
+	err := dep_app.Echo()
+	if err == nil {
+		logrus.Tracef("echo success")
+	} else {
+		logrus.Tracef("echo failed, reason: %s", err.Error())
+	}
 	return nil
 }
 

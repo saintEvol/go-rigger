@@ -88,12 +88,13 @@ func (server *GeneralServer)StartSpec(spec *SpawnSpec) (*GeneralServer, error){
 			props, initFuture := server.prepareSpawn(prod, spec.SpawnTimeout)
 			// 检查startFun
 			startFun := makeStartFun(info)
+			// 在启动完成前设置启动参数
+			server.initArgs = spec.Args
 			if pid, err := startFun(server.spawner, props, spec.Args); err != nil {
 				log.Errorf("error when start actor, reason:%s", err.Error())
+				server.initArgs = nil
 				return server, err
 			} else {
-				// 在启动完成前设置启动参数
-				server.initArgs = spec.Args
 				// 设置receiveTimeout
 				if spec.ReceiveTimeout >= 0 {
 					server.receiveTimeout = spec.ReceiveTimeout

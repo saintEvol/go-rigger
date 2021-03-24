@@ -12,6 +12,8 @@ func init() {
 		return &depApp{}
 	}))
 }
+func init() {
+}
 
 type depApp struct {
 

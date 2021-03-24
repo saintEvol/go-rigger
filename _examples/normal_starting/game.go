@@ -2,7 +2,6 @@ package normal_starting
 
 import (
 	"fmt"
-	"github.com/saintEvol/go-rigger/_examples/dep_app"
 	"github.com/saintEvol/go-rigger/rigger"
 	"github.com/sirupsen/logrus"
 	"time"
@@ -10,14 +9,6 @@ import (
 
 func StartNormal()  {
 	logrus.SetLevel(logrus.TraceLevel)
-	err := rigger.MakeSureApplication(dep_app.AnotherAppName)
-	if err == nil{
-		logrus.Trace("success launched dep app")
-	} else {
-		logrus.Tracef("failed to launched dep app, reason: %s", err.Error())
-		return
-	}
-	err = dep_app.Echo()
 	go func() {
 		time.Sleep(3 * time.Second)
 		// 模拟注册和登录
@@ -36,8 +27,8 @@ func StartNormal()  {
 		broadcast()
 	}()
 	// 启动游戏应用, 会阻塞当前进程,直到收到打断信号
-	if err := rigger.Start(gameAppName, ""); err != nil {
-		fmt.Printf("error when starting app, app id: %s, err: %v\r\n", gameAppName, err)
+	if err := rigger.Start(GameAppName, ""); err != nil {
+		fmt.Printf("error when starting app, app id: %s, err: %v\r\n", GameAppName, err)
 	}
 }
 

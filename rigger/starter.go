@@ -1,7 +1,6 @@
 package rigger
 
 import (
-	"errors"
 	"fmt"
 	"github.com/AsynkronIT/protoactor-go/actor"
 	log "github.com/sirupsen/logrus"
@@ -23,6 +22,8 @@ func Root() *actor.ActorSystem {
 const startTimeOut = 10_000_000_000
 
 var (
+	dependence map[string][]string = make(map[string][]string) // 应用的依赖表
+	//dependenceLock sync.RWMutex // 依赖表的锁,
 	//isFromConfig bool = false	// 是否是从配置启动
 	serversMap = make(map[string]*StartingNode) // 记录已经parse过的server,防止重复
 	pidSets = make(map[string]*actor.PID)
@@ -32,17 +33,6 @@ var (
 	startingTasks []*StartingNode
 	signalChan chan os.Signal // 接收一些系统信号
 )
-
-// 进程的位置信息
-type location struct {
-	host string
-	port int
-}
-
-// 远程配置
-type remoteSpec struct {
-	location
-}
 
 type StartingNode struct {
 	id string // id
@@ -132,24 +122,43 @@ func StartWithConfig(launchConfigPath string/*应用启动配置文件*/, appCon
 	waitInterupt()
 }
 
-func MakeSureApplication(applicationId string) error {
-	startRiggerApp()
-	if pid, exists := GetPid(riggerManagingServerName); exists {
-		f := Root().Root.RequestFuture(pid, &SpawnLoacalApplicationSpec{ApplicationId: applicationId}, 3 * time.Second)
-		if ret, err := f.Result(); err == nil {
-			resp := ret.(*SpawnLocalApplicationResp)
-			if resp.Error == "" {
-				return nil
-			} else {
-				return errors.New(resp.Error)
-			}
-		} else {
-			return err
-		}
+// 声明依赖
+func DependOn(app string, depApps... string)  {
+	old := getDependence(app)
+	for _, dep := range depApps {
+		old = append(old, dep)
+	}
+	dependence[app] = old
+}
+
+func getDependence(app string) []string {
+	if dep, exists := dependence[app]; exists {
+		return dep
 	} else {
-		return errors.New("rigger seems not launched")
+		var ret []string
+		return ret
 	}
 }
+
+
+//func MakeSureApplication(applicationId string) error {
+//	startRiggerApp()
+//	if pid, exists := GetPid(riggerManagingServerName); exists {
+//		f := Root().Root.RequestFuture(pid, &SpawnLoacalApplicationSpec{ApplicationId: applicationId}, 3 * time.Second)
+//		if ret, err := f.Result(); err == nil {
+//			resp := ret.(*SpawnLocalApplicationResp)
+//			if resp.Error == "" {
+//				return nil
+//			} else {
+//				return errors.New(resp.Error)
+//			}
+//		} else {
+//			return err
+//		}
+//	} else {
+//		return errors.New("rigger seems not launched")
+//	}
+//}
 
 // 获取正在运行中的应用,如果没有,第二个返回值为 false,否则为true
 func GetRunningApplication(id string) (*actor.PID, bool) {
@@ -226,6 +235,8 @@ type registerInfo struct {
 1. 如果进程是普通(非动态/即非SimpleOneForOne)进程, 启动函数会以id作为启动后的进程的名字
 2. 如果进程是动态进程,也即SimpleOneForOne, 启动函数不会对该进程命名
 3. 如果进程是SimpleOneForOne,但又需要命名,此时需要调用 RegisterStartFun来注册自定义的启动函数
+
+应该在init函数中调用此函数
 */
 func Register(id string, producer interface{})  {
 	RegisterStartFun(id, producer, nil)
@@ -233,6 +244,8 @@ func Register(id string, producer interface{})  {
 
 /*
 给进程注册producer及启动函数
+
+应该在init函数中调用此函数
 */
 func RegisterStartFun(name string, producer interface{}, startFun SpawnFun)  {
 	if _, ok := registerInfoMap[name]; ok {
@@ -708,3 +721,14 @@ func startRiggerApp()  {
 		setRunningApplication(riggerAppName, app.pid)
 	}
 }
+
+type location struct {
+	host string
+	port int
+}
+
+// 远程配置
+type remoteSpec struct {
+	location
+}
+

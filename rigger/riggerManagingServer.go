@@ -2,6 +2,7 @@ package rigger
 
 import (
 	"errors"
+	"fmt"
 	"github.com/AsynkronIT/protoactor-go/actor"
 	"github.com/AsynkronIT/protoactor-go/remote"
 	"github.com/golang/protobuf/proto"
@@ -10,7 +11,9 @@ import (
 )
 const riggerManagingServerName = "@riggerManagingServerName"
 
+// 启动本地应用
 func spawnLocalApplications(spec *SpawnLoacalApplicationSpec) (*SpawnLocalApplicationResp, error) {
+	// 确保rigger管理服务启动了
 	if pid, ok := GetPid(riggerManagingServerName); ok {
 		if r, err := root.Root.RequestFuture(pid, spec, 10 * time.Second).Result(); err != nil {
 			return nil, err
@@ -84,12 +87,64 @@ func (r *riggerManagingServer) launchLoacalApplications(ctx actor.Context, spec 
 	} else {
 		// 读取应用配置
 		readAppConfig(spec.ApplicationConfigPath)
-		if app, err := StartChildSync(ctx, r.topSupPid, DefaultSpawnSpec(spec.ApplicationId), startTimeOut); err == nil {
-			setRunningApplication(spec.ApplicationId, app)
+		err := r.startApplicationRecursively(ctx, spec.ApplicationId, make(map[string]bool), startTimeOut)
+		if err == nil {
 			return &SpawnLocalApplicationResp{}
 		} else {
+
 			return &SpawnLocalApplicationResp{Error: err.Error()}
 		}
+	}
+}
+
+/*
+递归的启动应用,也即同时启动该应用的所有依赖应用
+启动过程中会检查应用是否存在循环依赖
+*/
+func (r *riggerManagingServer) startApplicationRecursively(ctx actor.Context, appOrSpec interface{},
+	handling map[string]bool, timeout time.Duration) error {
+	var app string
+	var spec *SpawnSpec
+	switch s := appOrSpec.(type) {
+	case string:
+		app = s
+		spec = DefaultSpawnSpec(app)
+	case *SpawnSpec:
+		app = s.Id
+		spec = s
+	}
+
+	deps := getDependence(app)
+	handling[app] = true
+	for _, dep := range deps {
+		// 检查是否循环依赖
+		if _, exists := handling[dep]; app == dep || exists {
+			return errors.New(fmt.Sprintf("find loop dependent: %s <<=>> %s", app, dep))
+		}
+
+		// 依赖的是否是应用
+		if info, exists := getRegisterInfo(dep); exists {
+			if _, ok := info.producer.(ApplicationBehaviourProducer); !ok {
+				return errors.New(fmt.Sprintf("%s not an application", dep))
+			}
+		} else {
+			return errors.New(fmt.Sprintf("has no register info: %s", dep))
+		}
+
+		if _, started := GetRunningApplication(dep); !started {
+			// 依赖没启动,先启动依赖
+			if err := r.startApplicationRecursively(ctx, dep, handling, timeout); err != nil {
+				return err
+			}
+		}
+	}
+	delete(handling, app)
+	// 所有依赖启动完成, 启动应用本身
+	if pid, err := StartChildSync(ctx, r.topSupPid, spec, timeout); err == nil {
+		setRunningApplication(app, pid)
+		return nil
+	} else {
+		return err
 	}
 }
 
@@ -103,31 +158,24 @@ func (r *riggerManagingServer) startNode(ctx actor.Context, node *StartingNode) 
 	if node.location != nil {
 		return
 	}
-
 	// 启动应用
-	if app, err := r.startApplicationNode(ctx, node); err == nil {
-		// 将启动的应用存起来
-		setRunningApplication(node.name, app)
-		//startRest(app, filterLocalNode(node.children))
-	} else {
-		log.Panicf("error when start application: %s", node.name)
+	if err := r.startApplicationNode(ctx, node); err != nil {
+		log.Panicf("error when start application: %s, error: %s", node.name, err.Error())
 	}
 }
 
-func (r *riggerManagingServer) startApplicationNode(ctx actor.Context, node *StartingNode) (*actor.PID, error) {
+func (r *riggerManagingServer) startApplicationNode(ctx actor.Context, node *StartingNode) error {
 	if node.parent != nil {
 		log.Panicf("application should not have Parent:%s", node.name)
 	}
 	spawnSpec := node.spawnSpec
 	// producer先不判断了,因为生成时,已经判断过了
 	// remote
-	if node.remote == nil {
-		return StartChildSync(ctx, r.topSupPid, spawnSpec, startTimeOut)
-		// return startApplicationSpec(spawnSpec)
-	} else {
+	if node.remote != nil {
+		// TODO 多应用时是否会重复启动remote
 		re := remote.NewRemote(root, remote.Configure(node.remote.host, node.remote.port))
 		re.Start()
-		return StartChildSync(ctx, r.topSupPid, spawnSpec, startTimeOut)
 	}
+	return r.startApplicationRecursively(ctx, spawnSpec, make(map[string]bool), startTimeOut)
 }
 

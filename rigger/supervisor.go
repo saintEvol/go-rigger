@@ -169,6 +169,7 @@ func (sup *Supervisor) StartSpec(spec *SpawnSpec) (*Supervisor, error) {
 			// 检查下是否有startFun
 			startFun := makeStartFun(info)
 			if pid, err := startFun(sup.spawner, props, spec.Args); err != nil {
+				sup.initArgs = nil
 				log.Errorf("error when start supervisor, reason:%s", err.Error())
 				return sup, err
 			} else {

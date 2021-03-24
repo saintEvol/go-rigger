@@ -9,14 +9,14 @@ import (
 )
 
 func Echo() error {
-	pid, _ := rigger.GetPid(depSerName)
+	pid, _ := rigger.GetPid(DepSerName)
 	f := rigger.Root().Root.RequestFuture(pid, &echo{}, 3 * time.Second)
 	err := f.Wait()
 	return err
 }
 
 func init() {
-	rigger.Register(depSerName, rigger.GeneralServerBehaviourProducer(func() rigger.GeneralServerBehaviour {
+	rigger.Register(DepSerName, rigger.GeneralServerBehaviourProducer(func() rigger.GeneralServerBehaviour {
 		return &depServer{}
 	}))
 }
@@ -24,7 +24,7 @@ type echo struct {
 
 }
 
-const depSerName = "depServer"
+const DepSerName = "depServer"
 
 type depServer struct {
 
