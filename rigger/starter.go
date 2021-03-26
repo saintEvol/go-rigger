@@ -141,24 +141,6 @@ func getDependence(app string) []string {
 }
 
 
-//func MakeSureApplication(applicationId string) error {
-//	startRiggerApp()
-//	if pid, exists := GetPid(riggerManagingServerName); exists {
-//		f := Root().Root.RequestFuture(pid, &SpawnLoacalApplicationSpec{ApplicationId: applicationId}, 3 * time.Second)
-//		if ret, err := f.Result(); err == nil {
-//			resp := ret.(*SpawnLocalApplicationResp)
-//			if resp.Error == "" {
-//				return nil
-//			} else {
-//				return errors.New(resp.Error)
-//			}
-//		} else {
-//			return err
-//		}
-//	} else {
-//		return errors.New("rigger seems not launched")
-//	}
-//}
 
 // 获取正在运行中的应用,如果没有,第二个返回值为 false,否则为true
 func GetRunningApplication(id string) (*actor.PID, bool) {

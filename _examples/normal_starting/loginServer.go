@@ -29,6 +29,7 @@ func (l *loginServer) OnStarted(ctx actor.Context, args interface{}) error {
 }
 
 func (l *loginServer) OnPostStarted(ctx actor.Context, args interface{}) {
+	logrus.Tracef("post Started: %v", ctx.Self())
 }
 
 func (l *loginServer) OnStopping(ctx actor.Context) {

@@ -19,9 +19,6 @@ type GeneralServerBehaviour interface {
 	LifeCyclePart
 	// 结果需要返回给请求进程,为了保证能够跨节点,需要是proto.Message
 	OnMessage(ctx actor.Context, message interface{}) proto.Message
-	//OnCast(ctx actor.Context, msg interface{})
-	//OnCall(ctx actor.Context, msg interface{})
-	//PidHolder
 }
 
 // 行为模式生成器

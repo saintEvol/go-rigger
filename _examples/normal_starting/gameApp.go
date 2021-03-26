@@ -45,6 +45,7 @@ func (g *gameApp) OnStarted(ctx actor.Context, args interface{}) error {
 
 // 进程启动时回调, 不过在OnStarted之后,可以在此进行一些比较耗时的初始化工作
 func (g *gameApp) OnPostStarted(ctx actor.Context, args interface{}) {
+	logrus.Tracef("post Started: %v", ctx.Self())
 }
 
 // 进程即将停止时回调

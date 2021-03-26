@@ -30,6 +30,7 @@ func (g *gatewayServer) OnStarted(ctx actor.Context, args interface{}) error {
 }
 
 func (g *gatewayServer) OnPostStarted(ctx actor.Context, args interface{}) {
+	logrus.Tracef("post Started: %v", ctx.Self())
 }
 
 func (g *gatewayServer) OnStopping(ctx actor.Context) {

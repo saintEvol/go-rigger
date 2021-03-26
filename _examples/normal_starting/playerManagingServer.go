@@ -38,6 +38,7 @@ func (p *playerManagingServer) OnStarted(ctx actor.Context, args interface{}) er
 }
 
 func (p *playerManagingServer) OnPostStarted(ctx actor.Context, args interface{}) {
+	logrus.Tracef("post Started: %v", ctx.Self())
 }
 
 func (p *playerManagingServer) OnStopping(ctx actor.Context) {
