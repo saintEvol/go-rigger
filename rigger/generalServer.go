@@ -209,6 +209,8 @@ func (server *GeneralServer) setSupervisor(strategy actor.SupervisorStrategy) su
 
 // GeneralServer代理
 type genServerDelegate struct {
+	onMessageFunc func(ctx actor.Context, msg interface{}) proto.Message
+	behaviour iBehaviour
 	callback GeneralServerBehaviour
 	initFuture *actor.Future // 初始化future,如果设置了,初始化完成后通过future进行通知
 	owner *GeneralServer
@@ -221,6 +223,8 @@ func (server *genServerDelegate) Receive(context actor.Context) {
 		var err error = nil
 		// TODO 如果是这里通知的应该是有异常了
 		defer server.notifyInitComplete(context, err)
+
+		server.decideOnMessageFun()
 
 		// 设置GeneralServer中的代理指针
 		server.owner.delegate = server
@@ -252,7 +256,7 @@ func (server *genServerDelegate) Receive(context actor.Context) {
 		re := server.callback.(TimeoutReceiver)
 		re.OnTimeout(context)
 	default:
-		ret := server.callback.OnMessage(context, msg)
+		ret := server.onMessageFunc(context, msg)
 		if ret != NoReply {
 			switch r := ret.(type) {
 			case *Forward:
@@ -263,6 +267,28 @@ func (server *genServerDelegate) Receive(context actor.Context) {
 				}
 			}
 		}
+	}
+}
+
+func (server *genServerDelegate) decideOnMessageFun()  {
+	if b, ok := (interface{})(server.callback).(iBehaviour); ok {
+		server.behaviour = b
+		server.onMessageFunc = server.onMessageWithBehaviour
+	} else {
+		server.behaviour = nil
+		server.onMessageFunc = server.onMessagePlain
+	}
+}
+
+func (server *genServerDelegate) onMessagePlain(context actor.Context, msg interface{}) proto.Message {
+	return server.callback.OnMessage(context, msg)
+}
+
+func (server *genServerDelegate) onMessageWithBehaviour(context actor.Context, msg interface{}) proto.Message {
+	if ret, ok := server.behaviour.handleMessage(context, msg); ok {
+		return ret
+	} else {
+		return server.onMessagePlain(context, msg)
 	}
 }
 
