@@ -1,4 +1,4 @@
-package helloWorld
+package behaviourtest
 
 import (
 	"fmt"
@@ -17,7 +17,7 @@ func Start()  {
 hello world 应用
 */
 // 应用名,应用标识
-const appName = "helloWorldApp"
+const appName = "behaviourtestapp"
 func init() {
 	rigger.Register(appName, rigger.ApplicationBehaviourProducer(func() rigger.ApplicationBehaviour {
 		return &helloWorldApp{}
@@ -35,7 +35,7 @@ func (h *helloWorldApp) OnRestarting(ctx actor.Context) {
 
 // 如果返回的错误非空,则表示启动失败,则会停止启动后续进程
 func (h *helloWorldApp) OnStarted(ctx actor.Context, args interface{}) error {
-	fmt.Print("start hello world \r\n")
+	fmt.Print("start hello world")
 	return nil
 }
 
@@ -119,13 +119,14 @@ func init() {
 	}))
 }
 type helloWordServer struct {
-	
+	rigger.Behaviour // 让GenServer可以切换行为
 }
 
 func (h *helloWordServer) OnRestarting(ctx actor.Context) {
 }
 
 func (h *helloWordServer) OnStarted(ctx actor.Context, args interface{}) error {
+	h.Become(h.firstTime)
 	return nil
 }
 
@@ -142,4 +143,16 @@ func (h *helloWordServer) OnStopped(ctx actor.Context) {
 func (h *helloWordServer) OnMessage(ctx actor.Context, message interface{}) proto.Message {
 	return nil
 }
+
+func (h *helloWordServer) firstTime(ctx actor.Context, message interface{}) proto.Message {
+	fmt.Printf("first time!!!\r\n")
+	h.Become(h.otherTime)
+	return nil
+}
+
+func (h *helloWordServer) otherTime(ctx actor.Context, message interface{}) proto.Message {
+	fmt.Printf("other time!!!\r\n")
+	return nil
+}
+
 
