@@ -159,7 +159,7 @@ func (sup *Supervisor) StartSpec(spec *SpawnSpec) (*Supervisor, error) {
 			sup.id = spec.Id
 			sup.isFromConfig = spec.isFromConfig
 			//props, initFuture := sup.prepareSpawn(prod, specOrArgs.SpawnTimeout)
-			props, initFuture := sup.prepareSpawn(prod, spec.SpawnTimeout)
+			props, initFuture := sup.prepareSpawn(prod, spec)
 			if spec.ReceiveTimeout <= 0 {
 				sup.receiveTimeout = -1
 			} else {
@@ -260,17 +260,18 @@ func (sup *Supervisor) generateProps(producer SupervisorBehaviourProducer, futur
 }
 
 // private methods
-func (sup *Supervisor) prepareSpawn(producer SupervisorBehaviourProducer, timeout time.Duration) (*actor.Props, *actor.Future) {
+func (sup *Supervisor) prepareSpawn(producer SupervisorBehaviourProducer, spec *SpawnSpec) (*actor.Props, *actor.Future) {
 	if sup.spawner == nil {
 		sup.WithSpawner(nil)
 	}
 	var future *actor.Future
+	timeout := spec.SpawnTimeout
 	if timeout < 0 {
 		future = nil
 	} else {
 		future = actor.NewFuture(sup.spawner.ActorSystem(), timeout)
 	}
-	props := sup.generateProps(producer, future)
+	props := sup.generateProps(producer, future).WithSpawnMiddleware(registerNamedProcessMiddleware)
 
 	return props, future
 }

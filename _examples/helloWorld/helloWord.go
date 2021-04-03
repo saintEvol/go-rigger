@@ -35,7 +35,7 @@ func (h *helloWorldApp) OnRestarting(ctx actor.Context) {
 
 // 如果返回的错误非空,则表示启动失败,则会停止启动后续进程
 func (h *helloWorldApp) OnStarted(ctx actor.Context, args interface{}) error {
-	fmt.Print("start hello world")
+	fmt.Print("start hello world\r\n")
 	return nil
 }
 

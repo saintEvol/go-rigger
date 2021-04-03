@@ -12,7 +12,13 @@ import (
 	"time"
 )
 // 所有rigger应用的根
-var root *actor.ActorSystem = actor.NewActorSystem()
+var root *actor.ActorSystem
+
+func init() {
+	root = actor.NewActorSystem()
+	root.Root.WithSpawnMiddleware(registerNamedProcessMiddleware)
+}
+
 // 获取所有rigger应用的根应用
 func Root() *actor.ActorSystem {
 	return root
@@ -168,22 +174,29 @@ func setRunningApplication(id string, app *actor.PID)  {
 // 获取到进程ID,并不意味着此进程依然存活
 // 本接口只适用于静态进程
 func GetPid(name string) (*actor.PID, bool) {
-	if pid, ok := pidSets[name]; ok {
-		return pid, ok
+	if pid, exists := registeredProcess[name]; exists {
+		return pid, true
 	} else {
-		if config, ok := getConfigByName(name); ok {
-			if config.location == nil {
-				pid = actor.NewPID("nonhost", config.fullName)
-			} else {
-				pid = actor.NewPID(fmt.Sprintf("%s:%d", config.location.host, config.location.port), config.fullName)
-			}
-			pidSets[name] = pid
-			return pid, true
-		} else {
-			return nil, false
-		}
+		return nil, false
 	}
 }
+//func GetPid(name string) (*actor.PID, bool) {
+//	if pid, ok := pidSets[name]; ok {
+//		return pid, ok
+//	} else {
+//		if config, ok := getConfigByName(name); ok {
+//			if config.location == nil {
+//				pid = actor.NewPID("nonhost", config.fullName)
+//			} else {
+//				pid = actor.NewPID(fmt.Sprintf("%s:%d", config.location.host, config.location.port), config.fullName)
+//			}
+//			pidSets[name] = pid
+//			return pid, true
+//		} else {
+//			return nil, false
+//		}
+//	}
+//}
 
 // 获取动态进程的PID
 func GetDynamicPid(registerName/*注册名*/ string, dynamicName/*动态名*/ string) (*actor.PID, bool) {

@@ -75,7 +75,7 @@ func (app *Application) startSpec(parent actor.SpawnerContext, spec *SpawnSpec) 
 				app.Parent = parent
 			}
 			// 准备启动, 会准备好props, 初始化future等
-			props, initFuture := app.prepareSpawn(prod, spec.SpawnTimeout)
+			props, initFuture := app.prepareSpawn(prod, spec)
 			if spec.ReceiveTimeout <= 0 {
 				app.receiveTimeout = -1
 			} else {
@@ -107,8 +107,9 @@ func (app *Application) startSpec(parent actor.SpawnerContext, spec *SpawnSpec) 
 	return app, nil
 }
 
-func (app *Application ) prepareSpawn(producer ApplicationBehaviourProducer, timeout time.Duration) (*actor.Props, *actor.Future)  {
+func (app *Application ) prepareSpawn(producer ApplicationBehaviourProducer, spec *SpawnSpec) (*actor.Props, *actor.Future)  {
 	var future *actor.Future
+	timeout := spec.SpawnTimeout
 	if timeout < 0 {
 		future = nil
 	} else {
@@ -116,9 +117,10 @@ func (app *Application ) prepareSpawn(producer ApplicationBehaviourProducer, tim
 	}
 
 	props := app.generateProps(producer, future)
-
+	props.WithSpawnMiddleware(registerNamedProcessMiddleware)
 	return props, future
 }
+
 func (app *Application) generateProps(producer ApplicationBehaviourProducer, future *actor.Future) *actor.Props  {
 	props := actor.PropsFromProducer(func() actor.Actor {
 		return &supDelegate{

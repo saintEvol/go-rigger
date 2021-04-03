@@ -82,7 +82,7 @@ func (server *GeneralServer)StartSpec(spec *SpawnSpec) (*GeneralServer, error){
 	if info, ok := getRegisterInfo(spec.Id); ok {
 		switch prod := info.producer.(type) {
 		case GeneralServerBehaviourProducer:
-			props, initFuture := server.prepareSpawn(prod, spec.SpawnTimeout)
+			props, initFuture := server.prepareSpawn(prod, spec)
 			// 检查startFun
 			startFun := makeStartFun(info)
 			// 在启动完成前设置启动参数
@@ -178,17 +178,18 @@ func (server *GeneralServer) generateProps(producer GeneralServerBehaviourProduc
 	return props
 }
 
-func (server *GeneralServer) prepareSpawn(producer GeneralServerBehaviourProducer, timeout time.Duration) (*actor.Props, *actor.Future) {
+func (server *GeneralServer) prepareSpawn(producer GeneralServerBehaviourProducer, spec *SpawnSpec) (*actor.Props, *actor.Future) {
 	if server.spawner == nil {
 		server.WithSpawner(actor.NewActorSystem().Root)
 	}
 	var initFuture *actor.Future
+	timeout := spec.SpawnTimeout
 	if timeout <= 0 {
 		initFuture = nil
 	} else {
 		initFuture = actor.NewFuture(server.spawner.ActorSystem(), timeout)
 	}
-	props := server.generateProps(producer, initFuture)
+	props := server.generateProps(producer, initFuture).WithSpawnMiddleware(registerNamedProcessMiddleware)
 
 
 	return props, initFuture

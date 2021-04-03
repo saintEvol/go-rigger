@@ -1,6 +1,7 @@
 package rigger
 
 import (
+	"fmt"
 	"github.com/AsynkronIT/protoactor-go/actor"
 	"github.com/golang/protobuf/proto"
 	"reflect"
@@ -49,7 +50,7 @@ type SpawnSpec struct {
 	2. 如果是静态进程, 则会使用Id作为注册名
 	3. Application只有rigger能启动, rigger会以Application的Id作为其它注册名
 	*/
-	//Name 		   string
+	Name 		   string
 	Id             string // Id, 必选参数, 框架会根据此ID查询启动 Producer和StartFun
 	//Producer     interface{} // props producer,生成一个对应行为模式的实例,也即行为模式工厂
 	//Starter      SpawnFun
@@ -220,3 +221,59 @@ func withSupervisor(setter supervisorSetter, maybeSupervisor interface{}) superv
 	return setter
 }
 
+//func makeRegisterNameSpanwMiddleware(name string) actor.SpawnMiddleware {
+//	return actor.SpawnMiddleware(func(next actor.SpawnFunc) actor.SpawnFunc {
+//		return func(actorSystem *actor.ActorSystem, id string, props *actor.Props, parentContext actor.SpawnerContext) (*actor.PID, error) {
+//			if pid, err := next(actorSystem, id, props, parentContext); err == nil {
+//				if riggerManagingServerPid != nil {
+//					// 注册名字
+//					actorSystem.Root.Send(riggerManagingServerPid, &registerNamedPid{
+//						name: name,
+//						pid:  pid,
+//					})
+//				}
+//				return pid, nil
+//			} else {
+//				return nil, err
+//			}
+//		}
+//	})
+//}
+
+func registerNamedProcessMiddleware(next actor.SpawnFunc) actor.SpawnFunc {
+	return func(actorSystem *actor.ActorSystem, id string, props *actor.Props, parentContext actor.SpawnerContext) (*actor.PID, error) {
+		fmt.Printf("treate register, id: %s, name: %s \r\n", id, parseProcessName(id))
+		if pid, err := next(actorSystem, id, props, parentContext); err == nil {
+			if riggerManagingServerPid != nil {
+				// 注册名字
+				name := parseProcessName(id)
+				if name != "" {
+					actorSystem.Root.Send(riggerManagingServerPid, &registerNamedPid{
+						name: name,
+						pid:  pid,
+					})
+				}
+			}
+			return pid, nil
+		} else {
+			return nil, err
+		}
+	}
+}
+
+func parseProcessName(name string) string {
+	arr := []rune(name)
+	length := len(arr)
+	for i := length - 1; i >= 0; i -= 1 {
+		if arr[i] == '/' {
+			// 判断是否是'$'开头
+			if arr[i + 1] != '$' {
+				return name[i + 1:]
+			} else {
+				return ""
+			}
+		}
+	}
+
+	return name
+}

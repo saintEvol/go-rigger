@@ -9,7 +9,15 @@ import (
 	log "github.com/sirupsen/logrus"
 	"time"
 )
+
 const riggerManagingServerName = "@riggerManagingServerName"
+var riggerManagingServerPid *actor.PID = nil
+var registeredProcess map[string]*actor.PID
+
+type registerNamedPid struct {
+	name string
+	pid *actor.PID
+}
 
 // 启动本地应用
 func spawnLocalApplications(spec *SpawnLoacalApplicationSpec) (*SpawnLocalApplicationResp, error) {
@@ -46,6 +54,8 @@ func (r *riggerManagingServer) OnRestarting(ctx actor.Context) {
 }
 
 func (r *riggerManagingServer) OnStarted(ctx actor.Context, args interface{}) error {
+	riggerManagingServerPid = ctx.Self()
+	registeredProcess = make(map[string]*actor.PID, 100)
 	if pid, exists := GetPid(allApplicationTopSupName); exists {
 		r.topSupPid = pid
 		return nil
@@ -67,6 +77,10 @@ func (r *riggerManagingServer) OnMessage(ctx actor.Context, message interface{})
 	switch msg := message.(type) {
 	case *SpawnLoacalApplicationSpec:
 		return r.launchLoacalApplications(ctx, msg)
+	case *registerNamedPid:
+		r.registerNamedProcess(ctx, msg)
+	case *actor.Terminated:
+		r.onProcessDown(msg.Who)
 	}
 
 	return nil
@@ -179,3 +193,12 @@ func (r *riggerManagingServer) startApplicationNode(ctx actor.Context, node *Sta
 	return r.startApplicationRecursively(ctx, spawnSpec, make(map[string]bool), startTimeOut)
 }
 
+func (r *riggerManagingServer) registerNamedProcess(ctx actor.Context, info *registerNamedPid)  {
+	registeredProcess[info.name] = info.pid
+	ctx.Watch(info.pid)
+}
+
+func (r *riggerManagingServer) onProcessDown(pid *actor.PID){
+	name := parseProcessName(pid.Id)
+	delete(registeredProcess, name)
+}
