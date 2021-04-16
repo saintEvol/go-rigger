@@ -59,7 +59,7 @@ func (g *gameApp) OnStopped(ctx actor.Context) {
 // 获取对子进程的监控标志/参数及其子进程规范,以便 go-rigger对子进程进行启动和管理
 func (g *gameApp) OnGetSupFlag(ctx actor.Context) (supFlag rigger.SupervisorFlag, childSpecs []*rigger.SpawnSpec) {
 	// 只有一个子进程,也就是整个游戏的主监控树
-	childSpecs = append(childSpecs, rigger.DefaultSpawnSpec(gameSupName))
+	childSpecs = append(childSpecs, rigger.SpawnSpecWithKind(gameSupName))
 	return
 }
 

@@ -21,12 +21,14 @@ func (a *applicationTopSup) OnRestarting(ctx actor.Context) {
 }
 
 func (a *applicationTopSup) OnStarted(ctx actor.Context, args interface{}) error {
+	registeredProcess[allApplicationTopSupName] = ctx.Self()
+
 	logrus.Tracef("started: %v", ctx.Self())
-	if pid, exists := GetPid(allApplicationTopSupName); exists {
-		logrus.Tracef("top sup: %v", pid)
-	} else {
-		logrus.Error("faild to get top sup pid\r\n")
-	}
+	//if pid, exists := GetPid(allApplicationTopSupName); exists {
+	//	logrus.Tracef("top sup: %v", pid)
+	//} else {
+	//	logrus.Error("faild to get top sup pid\r\n")
+	//}
 	return nil
 }
 

@@ -28,7 +28,7 @@ func startGeneralServer(parent interface{}, id string) (*GeneralServer, error) {
 	if _, ok := getRegisterInfo(id); ok {
 		server := newGeneralServer()
 		_, err := server.WithSupervisor(parent).WithSpawner(parent).StartSpec(&SpawnSpec{
-			Id: id,
+			Kind:         id,
 			SpawnTimeout: startTimeOut,
 		})
 		if err != nil {
@@ -79,12 +79,12 @@ func (server *GeneralServer)WithSpawner(spawner interface{}) *GeneralServer {
 
 // 使用启动规范启动一个Actor
 func (server *GeneralServer)StartSpec(spec *SpawnSpec) (*GeneralServer, error){
-	if info, ok := getRegisterInfo(spec.Id); ok {
+	if info, ok := getRegisterInfo(spec.Kind); ok {
 		switch prod := info.producer.(type) {
 		case GeneralServerBehaviourProducer:
 			props, initFuture := server.prepareSpawn(prod, spec)
 			// 检查startFun
-			startFun := makeStartFun(info)
+			startFun := makeStartFun(spec, info)
 			// 在启动完成前设置启动参数
 			server.initArgs = spec.Args
 			if pid, err := startFun(server.spawner, props, spec.Args); err != nil {
@@ -121,7 +121,7 @@ func (server *GeneralServer)StartSpec(spec *SpawnSpec) (*GeneralServer, error){
 		return server, nil
 
 	} else {
-		return nil, ErrNotRegister(spec.Id)
+		return nil, ErrNotRegister(spec.Kind)
 	}
 }
 

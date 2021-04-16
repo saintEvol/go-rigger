@@ -62,7 +62,7 @@ func (h *helloWorldApp) OnGetSupFlag(ctx actor.Context) (supFlag rigger.Supervis
 
 	// 将helloWorldSup 设置为应用的子进程
 	childSpecs = []*rigger.SpawnSpec {
-		rigger.DefaultSpawnSpec(helloWorldSupName),
+		rigger.SpawnSpecWithKind(helloWorldSupName),
 	}
 
 	return
@@ -103,7 +103,7 @@ func (h helloWorldSup) OnStopped(ctx actor.Context) {
 func (h helloWorldSup) OnGetSupFlag(ctx actor.Context) (supFlag rigger.SupervisorFlag, childSpecs []*rigger.SpawnSpec) {
 	childSpecs = []*rigger.SpawnSpec{
 		// 配置一个子进程(业务进程)
-		rigger.DefaultSpawnSpec(helloWorldServerName),
+		rigger.SpawnSpecWithKind(helloWorldServerName),
 	}
 	return
 }

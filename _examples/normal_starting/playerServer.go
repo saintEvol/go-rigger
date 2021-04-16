@@ -15,11 +15,7 @@ func init() {
 		return &playerServer{}
 	}
 	// 通过注册start fun动态给玩家进程命名
-	rigger.RegisterStartFun(playerServerName, producer,
-		func(parent actor.SpawnerContext, props *actor.Props, args interface{}) (pid *actor.PID, err error) {
-			name := genPlayerProcessName(args.(uint64))
-			return parent.SpawnNamed(props, name)
-	})
+	rigger.Register(playerServerName, producer)
 }
 
 func genPlayerProcessName(id uint64) string {

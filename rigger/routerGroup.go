@@ -56,7 +56,7 @@ func startRouterGroup(parent interface{}, id string) (*routerGroup, error) {
 	if _, ok := getRegisterInfo(id); ok {
 		group := &routerGroup{}
 		_, err := group.WithSupervisor(parent).WithSpawner(parent).StartSpec(&SpawnSpec{
-			Id: id,
+			Kind:         id,
 			SpawnTimeout: startTimeOut,
 		})
 		if err != nil {
@@ -90,13 +90,13 @@ func (r *routerGroup) setSpawner(spawner actor.SpawnerContext) spawnerSetter {
 }
 
 func (r *routerGroup) StartSpec(spec *SpawnSpec) (*routerGroup, error) {
-	if info, ok := getRegisterInfo(spec.Id); ok {
+	if info, ok := getRegisterInfo(spec.Kind); ok {
 		switch prod := info.producer.(type) {
 		case RouterGroupBehaviourProducer:
 			be := prod()
 			pids := be.OnGetRoutee()
 			props := genProps(be.OnGetType(), pids)
-			startFun := makeStartFun(info)
+			startFun := makeStartFun(spec, info)
 			if pid, err := startFun(r.spawner, props, spec.Args); err != nil {
 				log.Errorf("error when start actor, reason:%s", err.Error())
 				return r, err
@@ -105,10 +105,10 @@ func (r *routerGroup) StartSpec(spec *SpawnSpec) (*routerGroup, error) {
 				return r, nil
 			}
 		default:
-			return r, ErrWrongProducer(spec.Id)
+			return r, ErrWrongProducer(spec.Kind)
 		}
 	} else {
-		return nil, ErrNotRegister(spec.Id)
+		return nil, ErrNotRegister(spec.Kind)
 	}
 }
 

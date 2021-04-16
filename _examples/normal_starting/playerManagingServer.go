@@ -81,7 +81,7 @@ func (p *playerManagingServer) OnMessage(ctx actor.Context, message interface{})
 			} else {
 				// 启动玩家进程
 				supPid, _ := rigger.GetPid(playerServerSupName)
-				if _, err := rigger.StartChildSync(ctx, supPid, data.userId, 3 * time.Second); err == nil {
+				if _, err := rigger.StartChildSync(ctx, supPid, rigger.SimpleSpawnSpec(genPlayerProcessName(data.userId), data.userId), 3 * time.Second); err == nil {
 					p.onlinePlayers[data.userId] = data
 					return &LoginResp{
 						Error:    "",
@@ -107,7 +107,7 @@ func (p *playerManagingServer) OnMessage(ctx actor.Context, message interface{})
 		if player, ok := p.allPlayers[msg.UserName]; ok {
 			// 是否在线
 			if p.isOnline(player.userId) {
-				if playerPid, ok := rigger.GetDynamicPid(playerServerName, genPlayerProcessName(player.userId)); ok {
+				if playerPid, ok := rigger.GetPid(genPlayerProcessName(player.userId)); ok {
 					if err := ctx.StopFuture(playerPid).Wait(); err != nil {
 						fmt.Printf("logout err: %s\r\n", err.Error())
 						return &LogoutResp{Error: err.Error()}

@@ -16,7 +16,6 @@ var root *actor.ActorSystem
 
 func init() {
 	root = actor.NewActorSystem()
-	root.Root.WithSpawnMiddleware(registerNamedProcessMiddleware)
 }
 
 // 获取所有rigger应用的根应用
@@ -41,15 +40,15 @@ var (
 )
 
 type StartingNode struct {
-	id string // id
-	name string // 名字
-	fullName string // 全名,包含了其父级及祖名称,可以通过其定位到进程
-	parent *StartingNode
+	id        string // id TODO 重命名为 name
+	kind      string // 名字
+	fullName  string // 全名,包含了其父级及祖名称,可以通过其定位到进程
+	parent    *StartingNode
 	spawnSpec *SpawnSpec //  自身的启动规范
-	children []*StartingNode
-	location *location
-	remote *remoteSpec
-	supFlag *SupervisorFlag
+	children  []*StartingNode
+	location  *location
+	remote    *remoteSpec
+	supFlag   *SupervisorFlag
 }
 
 /*
@@ -86,7 +85,7 @@ func StartFromCli()  {
 	l, n, c := parseCl()
 	// l与n必须有一个
 	if l == nil && n == nil {
-		log.Panicf("need c launch config or application name to launch go-rigger applications")
+		log.Panicf("need c launch config or application kind to launch go-rigger applications")
 		return // 不写return, IDE无法判断后续对l的解引用总是安全的
 	}
 
@@ -162,8 +161,8 @@ func setRunningApplication(id string, app *actor.PID)  {
 }
 
 // TODO 考虑将所有应用在同一个根上启动,这样各个应用间比较好通信
-//func GetApplicationRoot(name string) *actor.ActorSystem {
-//	if app, ok := GetRunningApplication(name); ok {
+//func GetApplicationRoot(kind string) *actor.ActorSystem {
+//	if app, ok := GetRunningApplication(kind); ok {
 //		return app.Parent
 //	}
 //
@@ -180,17 +179,17 @@ func GetPid(name string) (*actor.PID, bool) {
 		return nil, false
 	}
 }
-//func GetPid(name string) (*actor.PID, bool) {
-//	if pid, ok := pidSets[name]; ok {
+//func GetPid(kind string) (*actor.PID, bool) {
+//	if pid, ok := pidSets[kind]; ok {
 //		return pid, ok
 //	} else {
-//		if config, ok := getConfigByName(name); ok {
+//		if config, ok := getConfigByKind(kind); ok {
 //			if config.location == nil {
 //				pid = actor.NewPID("nonhost", config.fullName)
 //			} else {
 //				pid = actor.NewPID(fmt.Sprintf("%s:%d", config.location.host, config.location.port), config.fullName)
 //			}
-//			pidSets[name] = pid
+//			pidSets[kind] = pid
 //			return pid, true
 //		} else {
 //			return nil, false
@@ -199,27 +198,27 @@ func GetPid(name string) (*actor.PID, bool) {
 //}
 
 // 获取动态进程的PID
-func GetDynamicPid(registerName/*注册名*/ string, dynamicName/*动态名*/ string) (*actor.PID, bool) {
-	if config, ok := getConfigByName(registerName); ok {
-		// 先状态是不是
-		if isDynamic(config) {
-			fullName := fmt.Sprintf("%s/%s", config.parent.fullName, dynamicName)
-			if config.location == nil {
-				return actor.NewPID("nonhost", fullName), true
-			} else {
-				return actor.NewPID(fmt.Sprintf("%s:%d", config.location.host, config.location.port), fullName), true
-			}
-		} else {
-			return nil, false
-		}
-	} else {
-		return nil, false
-	}
-}
+//func GetDynamicPid(registerName/*注册名*/ string, dynamicName/*动态名*/ string) (*actor.PID, bool) {
+//	if config, ok := getConfigByKind(registerName); ok {
+//		// 先状态是不是
+//		if isDynamic(config) {
+//			fullName := fmt.Sprintf("%s/%s", config.parent.fullName, dynamicName)
+//			if config.location == nil {
+//				return actor.NewPID("nonhost", fullName), true
+//			} else {
+//				return actor.NewPID(fmt.Sprintf("%s:%d", config.location.host, config.location.port), fullName), true
+//			}
+//		} else {
+//			return nil, false
+//		}
+//	} else {
+//		return nil, false
+//	}
+//}
 
 
 type registerInfo struct {
-	id string
+	kind string
 	producer interface{}
 	startFun SpawnFun
 }
@@ -233,8 +232,8 @@ type registerInfo struct {
 
 应该在init函数中调用此函数
 */
-func Register(id string, producer interface{})  {
-	RegisterStartFun(id, producer, nil)
+func Register(kind string, producer interface{})  {
+	RegisterStartFun(kind, producer, nil)
 }
 
 /*
@@ -246,9 +245,9 @@ func RegisterStartFun(name string, producer interface{}, startFun SpawnFun)  {
 	if _, ok := registerInfoMap[name]; ok {
 		panic(fmt.Sprintf("duplicated producer register key:%s", name))
 	}
-	fmt.Println("register name:", name)
+	fmt.Println("register kind:", name)
 	registerInfoMap[name] = &registerInfo{
-		id: name,
+		kind:     name,
 		producer: producer,
 		startFun: startFun,
 	}
@@ -329,7 +328,7 @@ func printNode(node *StartingNode, depth int)  {
 		dynamic = " (动态进程)*"
 	}
 
-	log.Tracef("%s%s:%s	%s%s", space, nodeType, node.name, dynamic, locType)
+	log.Tracef("%s%s:%s	%s%s", space, nodeType, node.kind, dynamic, locType)
 	// 打印子节点的
 	if len(node.children) > 0 {
 		for _, c := range node.children {
@@ -404,12 +403,12 @@ func parseSingleNode(parent *StartingNode, nodeMap map[interface{}]interface{}) 
 	}
 	name := getNodeName(nodeMap)
 	if name == "" {
-		log.Panicf("node must have a name, Parent:%s", parent.name)
+		log.Panicf("node must have a kind, Parent:%s", parent.kind)
 	}
 	// 名字是否重复
-	ret.name = name
+	ret.kind = name
 	if !setConfig(ret) {
-		log.Panicf("duplicated name:%s", name)
+		log.Panicf("duplicated kind:%s", name)
 	}
 	// sup flag
 	ret.supFlag = getSupFlag(nodeMap)
@@ -430,7 +429,7 @@ func parseSingleNode(parent *StartingNode, nodeMap map[interface{}]interface{}) 
 
 func getNodeName(nodeMap map[interface{}]interface{}) string  {
 	node := getNode(nodeMap)
-	return node["name"].(string)
+	return node["kind"].(string)
 }
 
 func getSupFlag(nodeMap map[interface{}]interface{}) *SupervisorFlag {
@@ -524,7 +523,7 @@ func getMaxRetries(node map[interface{}]interface{}) int {
 }
 
 func getNodeSpawnSpec(parent *StartingNode, nodeMap map[interface{}]interface{}) *SpawnSpec {
-	spec := NewDefaultSpawnSpec()
+	spec := NewSpawnSpec()
 	name := getNodeName(nodeMap)
 	// 根据名字获注册的producer
 	if info, ok := getRegisterInfo(name); ok {
@@ -563,7 +562,7 @@ func getNodeSpawnSpec(parent *StartingNode, nodeMap map[interface{}]interface{})
 	if rtimeout, ok := node["receive_timeout"]; ok {
 		spec.ReceiveTimeout = rtimeout.(time.Duration)
 	}
-	spec.Id = name
+	spec.Kind = name
 	spec.isFromConfig = true
 	return spec
 }
@@ -613,8 +612,8 @@ func generateSpace(ret string, depth int) string {
 }
 
 // 通过注册名获取对应的配置信息
-func getConfigByName(name string) (*StartingNode, bool) {
-	if config, ok := serversMap[name]; ok {
+func getConfigByKind(kind string) (*StartingNode, bool) {
+	if config, ok := serversMap[kind]; ok {
 		return config, true
 	} else {
 		return nil, false
@@ -622,10 +621,10 @@ func getConfigByName(name string) (*StartingNode, bool) {
 }
 
 func setConfig(node *StartingNode) bool {
-	if _, ok := getConfigByName(node.name); ok {
+	if _, ok := getConfigByKind(node.kind); ok {
 		return false
 	} else {
-		serversMap[node.name] = node
+		serversMap[node.kind] = node
 		return true
 	}
 }
@@ -634,32 +633,46 @@ func isDynamic(node *StartingNode) bool {
 	return node.parent != nil && node.parent.supFlag != nil && node.parent.supFlag.StrategyFlag == SimpleOneForOne
 }
 
-func makeStartFun(info *registerInfo) SpawnFun {
+// 生成一个启动函数,内部使用
+func makeStartFun(spec *SpawnSpec, info *registerInfo) SpawnFun {
 	if info.startFun != nil {
 		return info.startFun
 	}
 
-	if config, ok := getConfigByName(info.id); ok {
+	var name string
+	if spec.Name == "" {
+		name = info.kind
+	} else {
+		name = spec.Name
+	}
+
+	if config, ok := getConfigByKind(info.kind); ok {
 		if config.parent == nil {
-			log.Warnf("got no parent when make start fun, id: %s", info.id)
+			log.Warnf("got no parent when make start fun, kind: %s", info.kind)
 			return func(parent actor.SpawnerContext, props *actor.Props, args interface{}) (pid *actor.PID, err error) {
-				return parent.SpawnNamed(props, info.id)
+				return parent.SpawnNamed(props, name)
 			}
 		} else {
 			if config.parent.supFlag.StrategyFlag == SimpleOneForOne {
-				return func(parent actor.SpawnerContext, props *actor.Props, args interface{}) (pid *actor.PID, err error) {
-					return parent.Spawn(props), nil
+				if spec.Name == "" {
+					return func(parent actor.SpawnerContext, props *actor.Props, args interface{}) (pid *actor.PID, err error) {
+						return parent.Spawn(props), nil
+					}
+				} else {
+					return func(parent actor.SpawnerContext, props *actor.Props, args interface{}) (pid *actor.PID, err error) {
+						return parent.SpawnNamed(props, name)
+					}
 				}
 			} else {
 				return func(parent actor.SpawnerContext, props *actor.Props, args interface{}) (pid *actor.PID, err error) {
-					return parent.SpawnNamed(props, info.id)
+					return parent.SpawnNamed(props, name)
 				}
 			}
 		}
 	} else {
-		log.Warnf("got no config when make start fun, id: %s", info.id)
+		log.Warnf("got no config when make start fun, kind: %s", info.kind)
 		return func(parent actor.SpawnerContext, props *actor.Props, args interface{}) (pid *actor.PID, err error) {
-			return parent.SpawnNamed(props, info.id)
+			return parent.SpawnNamed(props, name)
 		}
 	}
 }

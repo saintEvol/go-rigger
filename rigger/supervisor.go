@@ -50,14 +50,14 @@ type SupervisorFlag struct {
 // 启动一个子进程,只对Supervisor有效
 // spawnSpecOrArgs: 可以接受的类型为*SpawnSpec 或其它任何类型
 // 注意: 如果监控进程的模式是 SimpleOneForOne, 则spawnSpecOrArgs会当作动态启动参考原样回传给starter/OnStarted/OnPostStarted
-func StartChild(from actor.Context, pid *actor.PID, spawnSpecOrArgs interface{}) error {
+func StartChild(from actor.Context, pid *actor.PID, spawnSpec *SpawnSpec) error {
 	// 判断是否是远程进程
 	if IsLocalPid(pid) {
-		from.Send(pid, &startChildCmd{specOrArgs: spawnSpecOrArgs})
+		from.Send(pid, &startChildCmd{spawnSpec: spawnSpec})
 	} else {
 		// 如果是远程进程,先序列化spawnSpecOrArgs
-		if specBytes, err := encodeMsg(spawnSpecOrArgs); err == nil {
-			from.Send(pid, &RemoteStartChildCmd{SpecOrArgs: specBytes})
+		if specBytes, err := encodeMsg(spawnSpec); err == nil {
+			from.Send(pid, &RemoteStartChildCmd{SpawnSpecBytes: specBytes})
 		} else {
 			return err
 		}
@@ -73,16 +73,16 @@ func (u UnexceptedStartResult) Error() string {
 }
 
 // 以异步的方式启动子进程,如果启动成功,会将新的进程ID通知给from进程
-func StartChildNotified(from actor.Context, pid *actor.PID, spawnSpecOrArgs interface{}) error {
+func StartChildNotified(from actor.Context, pid *actor.PID, spawnSpec *SpawnSpec) error {
 	// 判断是否是远程进程
 	if IsLocalPid(pid) {
-		from.Request(pid, &startChildCmd{specOrArgs: spawnSpecOrArgs})
+		from.Request(pid, &startChildCmd{spawnSpec: spawnSpec})
 	} else {
 		// 如果是远程进程,先序列化spawnSpecOrArgs
-		if specBytes, err := encodeMsg(spawnSpecOrArgs); err != nil {
+		if specBytes, err := encodeMsg(spawnSpec); err != nil {
 			return err
 		} else {
-			from.Request(pid, &RemoteStartChildCmd{SpecOrArgs: specBytes})
+			from.Request(pid, &RemoteStartChildCmd{SpawnSpecBytes: specBytes})
 		}
 	}
 
@@ -93,21 +93,21 @@ func StartChildNotified(from actor.Context, pid *actor.PID, spawnSpecOrArgs inte
 启动子进程
 已知问题: 如果在父进程内部启动子进程,会导致死锁超时
 */
-func StartChildSync(from actor.Context/*谁请求*/, pid *actor.PID/*父进程ID*/, spawnSpecOrArgs interface{} /* *SpawnSpec 或启动参数 */, timeout time.Duration) (*actor.PID, error) {
+func StartChildSync(from actor.Context /*谁请求*/, pid *actor.PID /*父进程ID*/, spawnSpec *SpawnSpec /* *SpawnSpec 或启动参数 */, timeout time.Duration) (*actor.PID, error) {
 	if pid == nil {
 		return nil, ErrPidIsNil{}
 	}
 
 	// 是否是远程进程
 	if IsLocalPid(pid) {
-		future := from.RequestFuture(pid, &startChildCmd{specOrArgs: spawnSpecOrArgs}, timeout)
+		future := from.RequestFuture(pid, &startChildCmd{spawnSpec: spawnSpec}, timeout)
 		return waitStartChildResp(future)
 	} else {
 		//远程进程,先序列化spawnSpecOrArgs
-		if specBytes, err := encodeMsg(spawnSpecOrArgs); err != nil {
+		if specBytes, err := encodeMsg(spawnSpec); err != nil {
 			return nil, err
 		} else {
-			future := from.RequestFuture(pid, &RemoteStartChildCmd{SpecOrArgs: specBytes}, timeout)
+			future := from.RequestFuture(pid, &RemoteStartChildCmd{SpawnSpecBytes: specBytes}, timeout)
 			return waitStartChildResp(future)
 		}
 	}
@@ -117,7 +117,7 @@ func StartChildSync(from actor.Context/*谁请求*/, pid *actor.PID/*父进程ID
 func StartSupervisor(parent interface{}, id string) (*Supervisor, error) {
 	if _, ok := getRegisterInfo(id); ok {
 		server, err := NewSupervisor().WithSupervisor(parent).WithSpawner(parent).StartSpec(&SpawnSpec{
-			Id:           id,
+			Kind:         id,
 			SpawnTimeout: startTimeOut,
 		})
 		if err != nil {
@@ -149,16 +149,16 @@ type Supervisor struct {
 	initArgs       interface{}
 	receiveTimeout time.Duration
 	isFromConfig bool
-	//id string // 内部标识,只有由config启动时才会设置,可以根据ID获取配置值
+	//kind string // 内部标识,只有由config启动时才会设置,可以根据ID获取配置值
 }
 
 func (sup *Supervisor) StartSpec(spec *SpawnSpec) (*Supervisor, error) {
-	if info, ok := getRegisterInfo(spec.Id); ok {
+	if info, ok := getRegisterInfo(spec.Kind); ok {
 		switch prod := info.producer.(type) {
 		case SupervisorBehaviourProducer:
-			sup.id = spec.Id
+			sup.id = spec.Kind
 			sup.isFromConfig = spec.isFromConfig
-			//props, initFuture := sup.prepareSpawn(prod, specOrArgs.SpawnTimeout)
+			//props, initFuture := sup.prepareSpawn(prod, spawnSpec.SpawnTimeout)
 			props, initFuture := sup.prepareSpawn(prod, spec)
 			if spec.ReceiveTimeout <= 0 {
 				sup.receiveTimeout = -1
@@ -167,7 +167,7 @@ func (sup *Supervisor) StartSpec(spec *SpawnSpec) (*Supervisor, error) {
 			}
 			sup.initArgs = spec.Args
 			// 检查下是否有startFun
-			startFun := makeStartFun(info)
+			startFun := makeStartFun(spec, info)
 			if pid, err := startFun(sup.spawner, props, spec.Args); err != nil {
 				sup.initArgs = nil
 				log.Errorf("error when start supervisor, reason:%s", err.Error())
@@ -354,11 +354,11 @@ func (sup *supDelegate) Receive(context actor.Context) {
 		re.OnTimeout(context)
 	case *startChildCmd:
 		// 启动子进程的命令
-		sup.startChild(context, msg.specOrArgs)
+		sup.startChild(context, msg.spawnSpec)
 	case *RemoteStartChildCmd: // 远程启动子进程
 		// 解码
-		if data, err := decodeMsg(msg.SpecOrArgs); err == nil {
-			sup.startChild(context, data)
+		if data, err := decodeMsg(msg.SpawnSpecBytes); err == nil {
+			sup.startChild(context, data.(*SpawnSpec))
 		}
 	case *actor.Terminated:
 
@@ -432,7 +432,7 @@ func (sup *supDelegate) treateConfig(supFlag *SupervisorFlag) {
 
 func (sup *supDelegate) completeConfig(supFlag *SupervisorFlag) (*StartingNode, error) {
 	id := sup.owner.GetId()
-	if node, ok := getConfigByName(id); ok {
+	if node, ok := getConfigByKind(id); ok {
 		node.supFlag = supFlag
 		return node, nil
 	} else {
@@ -442,12 +442,12 @@ func (sup *supDelegate) completeConfig(supFlag *SupervisorFlag) (*StartingNode, 
 
 func (sup *supDelegate) initChildConfig(parent *StartingNode, spec *SpawnSpec) {
 	// 不重复生成
-	if _, ok := getConfigByName(spec.Id); ok {
+	if _, ok := getConfigByKind(spec.Kind); ok {
 		return
 	}
 	config := &StartingNode{
-		name:      spec.Id,
-		fullName:  fmt.Sprintf("%s/%s", parent.fullName, spec.Id),
+		kind:      spec.Kind,
+		fullName:  fmt.Sprintf("%s/%s", parent.fullName, spec.Kind),
 		parent:    parent,
 		spawnSpec: spec,
 		children:  nil, // 启动子进程时再生成
@@ -467,21 +467,23 @@ func (sup *supDelegate) initChildrenConfigs(parent *StartingNode, specs []*Spawn
 	}
 }
 
-func (sup *supDelegate) startChild(context actor.Context, specOrArgs interface{}) {
+func (sup *supDelegate) startChild(context actor.Context, spawnSpec *SpawnSpec) {
 	if sup.supervisorFlag.StrategyFlag == SimpleOneForOne {
 		// 此模式下,直接取原来的Spcs, 并使用新传入的参数
 		pid, err := sup.spawnBySpec(&SpawnSpec{
-			Id:           sup.childSpecs[0].Id,
-			Args:         specOrArgs, // SimpleOneForOne模式下,是参数
+			Name: spawnSpec.Name,
+			Kind:         sup.childSpecs[0].Kind,
+			Args:         spawnSpec.Args, // SimpleOneForOne模式下,是参数
 			SpawnTimeout: sup.childSpecs[0].SpawnTimeout,
+			ReceiveTimeout: sup.childSpecs[0].ReceiveTimeout,
 		})
 		sup.responseStartChild(context, pid, err)
 	} else {
-		spec :=  unifySpawnSpec(specOrArgs)
+		//spec :=  unifySpawnSpec(spawnSpec)
 		// 初始化子进程的配置
-		node, _ := getConfigByName(sup.owner.GetId())
-		sup.initChildrenConfigs(node, []*SpawnSpec{spec})
-		pid, err := sup.spawnBySpec(spec)
+		node, _ := getConfigByKind(sup.owner.GetId())
+		sup.initChildrenConfigs(node, []*SpawnSpec{spawnSpec})
+		pid, err := sup.spawnBySpec(spawnSpec)
 		sup.responseStartChild(context, pid, err)
 	}
 }
@@ -501,7 +503,7 @@ func (sup *supDelegate) spawnSpecs(childSpecs []*SpawnSpec) {
 
 // 根据spec启动子进程,所有启动都采用同步方式,默认超时时间:10S
 func (sup *supDelegate) spawnBySpec(spec *SpawnSpec) (*actor.PID, error) {
-	if info, ok := getRegisterInfo(spec.Id); ok {
+	if info, ok := getRegisterInfo(spec.Kind); ok {
 		// 由监控树启动的进程,如果未设置超时,则强行设置为10S
 		if spec.SpawnTimeout == 0 {
 			spec.SpawnTimeout = startTimeOut
@@ -546,7 +548,7 @@ func (sup *supDelegate) spawnBySpec(spec *SpawnSpec) (*actor.PID, error) {
 		}
 
 	} else {
-		return nil, ErrNotRegister(spec.Id)
+		return nil, ErrNotRegister(spec.Kind)
 	}
 }
 
@@ -554,7 +556,7 @@ func (sup *supDelegate) getSupFlag(context actor.Context) (supFlag SupervisorFla
 	if sup.owner.IsFromConfig() {
 		// 从配置启动,所以要从配置中拿
 		// 根据ID拿取自身的信息
-		if config, ok := getConfigByName(sup.owner.GetId()); ok {
+		if config, ok := getConfigByKind(sup.owner.GetId()); ok {
 			supFlag = *config.supFlag
 			// 所有的子进程的SpawnSpec
 			localChildren := filterLocalNode(config.children)
@@ -600,15 +602,15 @@ func unifySpawnSpec(specOrOtherThing interface{}) *SpawnSpec {
 	case string:
 		return makeDefaultSpawnSpec(spec)
 	default:
-		log.Errorf("unexcepted spawn specOrArgs:%s", reflect.TypeOf(spec).Name())
+		log.Errorf("unexcepted spawn spawnSpec:%s", reflect.TypeOf(spec).Name())
 	}
 
 	return nil
 }
 
-func makeDefaultSpawnSpec(id string) *SpawnSpec {
+func makeDefaultSpawnSpec(kind string) *SpawnSpec {
 	return &SpawnSpec{
-		Id:           id,
+		Kind:         kind,
 		SpawnTimeout: startTimeOut,
 	}
 }
@@ -624,7 +626,7 @@ type supDelegateHolder interface {
 }
 
 //type startChildCmd struct {
-//	specOrArgs interface{}
+//	spawnSpec interface{}
 //}
 // 将启动规范或参数包装在切片里,序列化,以便后续跨节点发送
 func encodeMsg(argsOrSpawnSpec interface{}) ([]byte, error) {

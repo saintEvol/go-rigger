@@ -38,7 +38,7 @@ func (a *depApp) OnStopped(ctx actor.Context) {
 
 func (a *depApp) OnGetSupFlag(ctx actor.Context) (supFlag rigger.SupervisorFlag, childSpecs []*rigger.SpawnSpec) {
 	childSpecs = []*rigger.SpawnSpec{
-		rigger.DefaultSpawnSpec(depSupName),
+		rigger.SpawnSpecWithKind(depSupName),
 	}
 
 	return

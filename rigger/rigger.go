@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/AsynkronIT/protoactor-go/actor"
 	"github.com/golang/protobuf/proto"
+	"github.com/sirupsen/logrus"
 	"reflect"
 	"time"
 )
@@ -35,44 +36,6 @@ func IsRemotePid(pid *actor.PID) bool {
 
 // 启动函数, go-rigger使用此类型的启动进程
 type SpawnFun func(parent actor.SpawnerContext, props *actor.Props, args interface{}) (pid *actor.PID, err error)
-
-// 根据进程名生成一个默认的SpawnSpec
-func DefaultSpawnSpec(name string) *SpawnSpec {
-	return makeDefaultSpawnSpec(name)
-}
-
-// 启动规范,描述了如何启动一个进程
-type SpawnSpec struct {
-	/*
-	进程名,如果此值不为空,则使用此名字注册进程, 如果为空,则:
-	1. 如果是动态启动的进程, rigger不会自动注册进程,此时,如果用户想要注册,则应该rigger.RegisterStartFun注册启动函数,
-	   并在启动函数中使用SpawnNamed来规定注册名
-	2. 如果是静态进程, 则会使用Id作为注册名
-	3. Application只有rigger能启动, rigger会以Application的Id作为其它注册名
-	*/
-	Name 		   string
-	Id             string // Id, 必选参数, 框架会根据此ID查询启动 Producer和StartFun
-	//Producer     interface{} // props producer,生成一个对应行为模式的实例,也即行为模式工厂
-	//Starter      SpawnFun
-	Args         interface{}   // 启动参数, 原样传入 Starter, 与LifeCyclePart.OnStareted, 对于SimpleOneForOne, 此字段不生效
-	SpawnTimeout time.Duration // 超时时间,如果为0表示不等待,也即异步启动
-	// 平静期超时时间,如果在指定时间内没收到任何消息,则会触发TimeroutReceiver回调,此值不为0时,需要实现TimeoutReceiver
-	ReceiveTimeout time.Duration
-
-	isFromConfig bool // 是否是从配置启动
-}
-
-// 新创建一个默认的SpawnSpec结构
-func NewDefaultSpawnSpec() *SpawnSpec {
-	return &SpawnSpec{
-		//Producer:       nil,
-		//Starter:        nil,
-		Args:           nil,
-		SpawnTimeout:   startTimeOut,
-		ReceiveTimeout: 0,
-		Id:             "",
-	}
-}
 
 // 表示不需要回复发送者,意味者,处理者需要自己正确处理回复
 const NoReply = noReply(1)
@@ -165,7 +128,7 @@ type LifeCyclePart interface {
 
 // 启动子进程的命令
 type startChildCmd struct {
-	specOrArgs interface{}
+	spawnSpec *SpawnSpec
 }
 
 type spawnerSetter interface {
@@ -221,37 +184,24 @@ func withSupervisor(setter supervisorSetter, maybeSupervisor interface{}) superv
 	return setter
 }
 
-//func makeRegisterNameSpanwMiddleware(name string) actor.SpawnMiddleware {
-//	return actor.SpawnMiddleware(func(next actor.SpawnFunc) actor.SpawnFunc {
-//		return func(actorSystem *actor.ActorSystem, id string, props *actor.Props, parentContext actor.SpawnerContext) (*actor.PID, error) {
-//			if pid, err := next(actorSystem, id, props, parentContext); err == nil {
-//				if riggerManagingServerPid != nil {
-//					// 注册名字
-//					actorSystem.Root.Send(riggerManagingServerPid, &registerNamedPid{
-//						name: name,
-//						pid:  pid,
-//					})
-//				}
-//				return pid, nil
-//			} else {
-//				return nil, err
-//			}
-//		}
-//	})
-//}
 
 func registerNamedProcessMiddleware(next actor.SpawnFunc) actor.SpawnFunc {
 	return func(actorSystem *actor.ActorSystem, id string, props *actor.Props, parentContext actor.SpawnerContext) (*actor.PID, error) {
-		fmt.Printf("treate register, id: %s, name: %s \r\n", id, parseProcessName(id))
 		if pid, err := next(actorSystem, id, props, parentContext); err == nil {
-			if riggerManagingServerPid != nil {
-				// 注册名字
+			// 注册名字
+			if nil != riggerProcessManagingServerPid {
+				fmt.Printf("treate register, kind: %s, kind: %s \r\n", id, parseProcessName(id))
 				name := parseProcessName(id)
 				if name != "" {
-					actorSystem.Root.Send(riggerManagingServerPid, &registerNamedPid{
+					f := actorSystem.Root.RequestFuture(riggerProcessManagingServerPid, &registerNamedPid{
 						name: name,
 						pid:  pid,
-					})
+					}, 3 * time.Second)
+					if err := f.Wait(); err == nil {
+						logrus.Tracef("success register")
+					} else {
+						logrus.Tracef("unsuccess register")
+					}
 				}
 			}
 			return pid, nil

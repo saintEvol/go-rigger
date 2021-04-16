@@ -12,9 +12,6 @@ import (
  */
 type ApplicationBehaviour interface {
 	SupervisorBehaviour
-	//LifeCyclePart
-	//PidHolder
-	//OnMessage(msg interface{}, ctx actor.Context)
 }
 
 type ApplicationBehaviourProducer func() ApplicationBehaviour
@@ -29,7 +26,6 @@ func startApplicationSpec(parent actor.SpawnerContext, spec *SpawnSpec)	(*Applic
 	return (&Application{}).startSpec(parent, spec)
 }
 
-// 根据启动规范和system启动应用
 //func startApplicationWithSystem(system *actor.ActorSystem, spec *SpawnSpec) (*Application, error) {
 //	return (&Application{Parent: system}).startSpec(spec)
 //}
@@ -63,12 +59,12 @@ type Application struct {
 //}
 
 func (app *Application) startSpec(parent actor.SpawnerContext, spec *SpawnSpec) (*Application, error) {
-	if info, ok := getRegisterInfo(spec.Id); ok {
+	if info, ok := getRegisterInfo(spec.Kind); ok {
 		switch prod := info.producer.(type) {
 		case ApplicationBehaviourProducer:
 			app.isFromConfig = spec.isFromConfig
 			app.initConfig(spec)
-			app.id = spec.Id
+			app.id = spec.Kind
 			if parent == nil {
 				app.Parent = root.Root
 			} else {
@@ -83,7 +79,7 @@ func (app *Application) startSpec(parent actor.SpawnerContext, spec *SpawnSpec) 
 			}
 			app.initArgs = spec.Args
 			// 检查startFun
-			startFun := makeStartFun(info)
+			startFun := makeStartFun(spec, info)
 			if pid, err := startFun(app.Parent, props, spec.Args); err != nil {
 				log.Errorf("error when start actor, reason:%s", err.Error())
 				return app, err
@@ -102,7 +98,7 @@ func (app *Application) startSpec(parent actor.SpawnerContext, spec *SpawnSpec) 
 			return app, ErrWrongProducer(reflect.TypeOf(prod).Name())
 		}
 	} else {
-		return nil, ErrNotRegister(spec.Id)
+		return nil, ErrNotRegister(spec.Kind)
 	}
 	return app, nil
 }
@@ -180,14 +176,14 @@ func (app *Application) initConfig(spec *SpawnSpec)  {
 		return
 	}
 
-	if _, ok := getConfigByName(spec.Id); ok {
+	if _, ok := getConfigByKind(spec.Kind); ok {
 		return
 	}
 	// 初始化配置
 	config := &StartingNode {
-		id	: 	   spec.Id,
-		name:      spec.Id,
-		fullName:  spec.Id,
+		id	:    spec.Kind,
+		kind:      spec.Kind,
+		fullName:  spec.Kind,
 		parent:    nil,
 		spawnSpec: spec,
 		children:  nil, // 启动子进程时再生成

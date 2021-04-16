@@ -42,8 +42,9 @@ func (r riggerApp) OnGetSupFlag(ctx actor.Context) (supFlag SupervisorFlag, chil
 	supFlag.StrategyFlag = OneForOne
 
 	childSpecs = []*SpawnSpec{
-		DefaultSpawnSpec(allApplicationTopSupName),
-		DefaultSpawnSpec(riggerManagingServerName),
+		SpawnSpecWithKind(riggerProcessManagingServerName),
+		SpawnSpecWithKind(allApplicationTopSupName),
+		SpawnSpecWithKind(riggerManagingServerName),
 	}
 	return
 }

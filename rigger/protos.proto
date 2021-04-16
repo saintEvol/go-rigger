@@ -9,7 +9,7 @@ message Error {
 
 // 用于远程启动子进程的命令
 message RemoteStartChildCmd {
-    bytes specOrArgs = 1;
+    bytes spawnSpecBytes = 1;
 }
 
 // 表示成功的回复
