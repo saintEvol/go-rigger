@@ -1,7 +1,6 @@
 package rigger
 
 import (
-	"fmt"
 	"github.com/AsynkronIT/protoactor-go/actor"
 	"github.com/golang/protobuf/proto"
 	"github.com/sirupsen/logrus"
@@ -190,7 +189,7 @@ func registerNamedProcessMiddleware(next actor.SpawnFunc) actor.SpawnFunc {
 		if pid, err := next(actorSystem, id, props, parentContext); err == nil {
 			// 注册名字
 			if nil != riggerProcessManagingServerPid {
-				fmt.Printf("treate register, kind: %s, kind: %s \r\n", id, parseProcessName(id))
+				//fmt.Printf("treate register, kind: %s, name: %s \r\n", id, parseProcessName(id))
 				name := parseProcessName(id)
 				if name != "" {
 					f := actorSystem.Root.RequestFuture(riggerProcessManagingServerPid, &registerNamedPid{
