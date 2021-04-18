@@ -57,7 +57,7 @@ func (r *riggerManagingServer) OnRestarting(ctx actor.Context) {
 
 func (r *riggerManagingServer) OnStarted(ctx actor.Context, args interface{}) error {
 	riggerManagingServerPid = ctx.Self()
-	registeredProcess[riggerManagingServerName] = ctx.Self()
+	//registeredProcess[riggerManagingServerName] = ctx.Self()
 	if pid, exists := GetPid(allApplicationTopSupName); exists {
 		r.topSupPid = pid
 		return nil

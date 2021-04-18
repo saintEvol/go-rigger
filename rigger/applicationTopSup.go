@@ -21,7 +21,7 @@ func (a *applicationTopSup) OnRestarting(ctx actor.Context) {
 }
 
 func (a *applicationTopSup) OnStarted(ctx actor.Context, args interface{}) error {
-	registeredProcess[allApplicationTopSupName] = ctx.Self()
+	//registeredProcess[allApplicationTopSupName] = ctx.Self()
 
 	logrus.Tracef("started: %v", ctx.Self())
 	//if pid, exists := GetPid(allApplicationTopSupName); exists {
