@@ -1,9 +1,9 @@
 package rigger
 
 import (
+	"errors"
 	"github.com/AsynkronIT/protoactor-go/actor"
 	"github.com/golang/protobuf/proto"
-	"github.com/sirupsen/logrus"
 	"reflect"
 	"time"
 )
@@ -195,15 +195,24 @@ func registerNamedProcessMiddleware(next actor.SpawnFunc) actor.SpawnFunc {
 					f := actorSystem.Root.RequestFuture(riggerProcessManagingServerPid, &registerNamedPid{
 						name: name,
 						pid:  pid,
+						//isGlobal: true,
 					}, 3 * time.Second)
-					if err := f.Wait(); err == nil {
-						logrus.Tracef("success register")
+					if ret, err := f.Result(); err == nil {
+						if ret == nil {
+							return pid, nil
+						} else {
+							r := ret.(*Error)
+							return nil, errors.New(r.ErrStr)
+						}
 					} else {
-						logrus.Tracef("unsuccess register")
+						return nil, err
 					}
+				} else {
+					return pid, nil
 				}
+			} else {
+				return pid, nil
 			}
-			return pid, nil
 		} else {
 			return nil, err
 		}

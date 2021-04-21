@@ -19,6 +19,11 @@ var registeredProcess = make(map[string]*actor.PID)
 type registerNamedPid struct {
 	name string
 	pid *actor.PID
+	//isGlobal bool
+}
+
+type getRemotePid struct {
+	name string // 进程名
 }
 
 // 启动本地应用
@@ -185,7 +190,7 @@ func (r *riggerManagingServer) startApplicationNode(ctx actor.Context, node *Sta
 	// remote
 	if node.remote != nil {
 		// TODO 多应用时是否会重复启动remote
-		re := remote.NewRemote(root, remote.Configure(node.remote.host, node.remote.port))
+		re := remote.NewRemote(root, remote.Configure(node.remote.Host, node.remote.Port))
 		re.Start()
 	}
 	return r.startApplicationRecursively(ctx, spawnSpec, make(map[string]bool), startTimeOut)

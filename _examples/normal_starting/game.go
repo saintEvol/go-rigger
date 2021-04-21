@@ -10,7 +10,7 @@ import (
 func StartNormal()  {
 	logrus.SetLevel(logrus.TraceLevel)
 	go func() {
-		time.Sleep(3 * time.Second)
+		time.Sleep(5 * time.Second)
 		// 模拟注册和登录
 		register("test1", "hello kitty")
 		register("test2", "coolman")

@@ -43,3 +43,56 @@ message SpawnLocalApplicationResp {
 message hotUpdateSpec {
 
 }
+
+message GetPidRequest {
+    string name = 1;
+}
+
+message GetPidResponse {
+    actor.PID pid = 1;
+}
+
+message RegisterGlobalProcessRequest {
+    string name = 1;
+    actor.PID pid = 2;
+}
+
+message ResetRequest {
+    repeated RegisterGlobalProcessRequest pids = 1;
+}
+
+message GlobalProcess {
+    string name = 1;
+    actor.PID pid = 2;
+}
+
+message GlobalProcessList {
+    repeated GlobalProcess list = 1;
+}
+
+message Noop {
+}
+
+message SyncAllOthersRequest {
+    string exception = 1; // 需要排除的节点(地址, 格式: host:port)
+}
+
+message JoinRequest {
+    string node = 1;
+}
+
+message JoinResponse {
+    actor.PID pid = 1;
+}
+
+// 全局进程管理器
+service GlobalProcessManagingServer {
+  rpc GetPid(GetPidRequest) returns (GetPidResponse) {} // 通过进程名字获取全局进程ID
+  rpc Register(RegisterGlobalProcessRequest) returns (Noop) {} // 注册一个全局进程
+  rpc Join(JoinRequest) returns (JoinResponse) {} // 节点加入
+  // 暂时未支持流 TODO
+  rpc Reset(ResetRequest) returns (Noop) {} //重置,重新将本节点的所有全局进程推送给管理进程
+    // 暂未支持流
+  rpc SyncAllOthers(SyncAllOthersRequest) returns (GlobalProcessList) {} // 同步所有其它节点的全局进程(不包含本节点的)
+}
+

@@ -56,7 +56,7 @@ func StartChild(from actor.Context, pid *actor.PID, spawnSpec *SpawnSpec) error 
 		from.Send(pid, &startChildCmd{spawnSpec: spawnSpec})
 	} else {
 		// 如果是远程进程,先序列化spawnSpecOrArgs
-		if specBytes, err := encodeMsg(spawnSpec); err == nil {
+		if specBytes, err := encodeSpawnSpec(spawnSpec); err == nil {
 			from.Send(pid, &RemoteStartChildCmd{SpawnSpecBytes: specBytes})
 		} else {
 			return err
@@ -79,7 +79,7 @@ func StartChildNotified(from actor.Context, pid *actor.PID, spawnSpec *SpawnSpec
 		from.Request(pid, &startChildCmd{spawnSpec: spawnSpec})
 	} else {
 		// 如果是远程进程,先序列化spawnSpecOrArgs
-		if specBytes, err := encodeMsg(spawnSpec); err != nil {
+		if specBytes, err := encodeSpawnSpec(spawnSpec); err != nil {
 			return err
 		} else {
 			from.Request(pid, &RemoteStartChildCmd{SpawnSpecBytes: specBytes})
@@ -104,7 +104,7 @@ func StartChildSync(from actor.Context /*谁请求*/, pid *actor.PID /*父进程
 		return waitStartChildResp(future)
 	} else {
 		//远程进程,先序列化spawnSpecOrArgs
-		if specBytes, err := encodeMsg(spawnSpec); err != nil {
+		if specBytes, err := encodeSpawnSpec(spawnSpec); err != nil {
 			return nil, err
 		} else {
 			future := from.RequestFuture(pid, &RemoteStartChildCmd{SpawnSpecBytes: specBytes}, timeout)
@@ -114,21 +114,21 @@ func StartChildSync(from actor.Context /*谁请求*/, pid *actor.PID /*父进程
 }
 
 // 启动一个监控进程
-func StartSupervisor(parent interface{}, id string) (*Supervisor, error) {
-	if _, ok := getRegisterInfo(id); ok {
-		server, err := NewSupervisor().WithSupervisor(parent).WithSpawner(parent).StartSpec(&SpawnSpec{
-			Kind:         id,
-			SpawnTimeout: startTimeOut,
-		})
-		if err != nil {
-			return nil, err
-		} else {
-			return server, nil
-		}
-	} else {
-		return nil, ErrNotRegister(id)
-	}
-}
+//func StartSupervisor(parent interface{}, id string) (*Supervisor, error) {
+//	if _, ok := getRegisterInfo(id); ok {
+//		server, err := NewSupervisor().WithSupervisor(parent).WithSpawner(parent).StartSpec(&SpawnSpec{
+//			Kind:         id,
+//			SpawnTimeout: startTimeOut,
+//		})
+//		if err != nil {
+//			return nil, err
+//		} else {
+//			return server, nil
+//		}
+//	} else {
+//		return nil, ErrNotRegister(id)
+//	}
+//}
 
 // Parent:*Application, *Supervisor, *Generalserver, actor.Context, *actor.ActorSystem
 func StartSupervisorSpec(parent interface{}, spec *SpawnSpec) (*Supervisor, error) {
@@ -358,7 +358,9 @@ func (sup *supDelegate) Receive(context actor.Context) {
 	case *RemoteStartChildCmd: // 远程启动子进程
 		// 解码
 		if data, err := decodeMsg(msg.SpawnSpecBytes); err == nil {
-			sup.startChild(context, data.(*SpawnSpec))
+			sup.startChild(context, data)
+		} else {
+			log.Errorf("error when start remote child: %s", err.Error())
 		}
 	case *actor.Terminated:
 
@@ -412,7 +414,7 @@ func (sup *supDelegate) treateSupFlag(supFlag *SupervisorFlag, childSpecs []*Spa
 	if supFlag.StrategyFlag != SimpleOneForOne {
 		// SimpleOneForOne模式下所有进程均为动态创建
 		// 依次启动所有子进程
-		sup.spawnSpecs(sup.childSpecs)
+		sup.spawnSpecs(filterSpawnSpecOfThisNode(sup.childSpecs))
 	}
 }
 
@@ -629,26 +631,25 @@ type supDelegateHolder interface {
 //	spawnSpec interface{}
 //}
 // 将启动规范或参数包装在切片里,序列化,以便后续跨节点发送
-func encodeMsg(argsOrSpawnSpec interface{}) ([]byte, error) {
+func encodeSpawnSpec(spec *SpawnSpec) ([]byte, error) {
 	buffer := bytes.Buffer{}
 	encoder := gob.NewEncoder(&buffer)
-	arr := []interface{}{argsOrSpawnSpec}
-	if err := encoder.Encode(arr); err != nil {
+	//arr := []interface{}{spec}
+	if err := encoder.Encode(spec); err != nil {
 		return nil, err
 	}
 
 	return buffer.Bytes(), nil
 }
 
-func decodeMsg(b []byte) (interface{}, error) {
+func decodeMsg(b []byte) (*SpawnSpec, error) {
 	decoder := gob.NewDecoder(bytes.NewReader(b))
-	arr := make([]interface{}, 1, 1)
-	if err := decoder.Decode(&arr); err != nil {
+	//arr := make([]interface{}, 1, 1)
+	ret := &SpawnSpec{}
+	if err := decoder.Decode(ret); err != nil {
 		return nil, err
-	} else if len(arr) != 1 {
-		return nil, ErrSerializedSlicLenWrong{}
 	} else {
-		return arr[0], nil
+		return ret, nil
 	}
 }
 
@@ -669,4 +670,5 @@ func waitStartChildResp(future *actor.Future) (*actor.PID, error) {
 		}
 	}
 }
+
 

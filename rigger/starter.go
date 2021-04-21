@@ -3,6 +3,7 @@ package rigger
 import (
 	"fmt"
 	"github.com/AsynkronIT/protoactor-go/actor"
+	"github.com/AsynkronIT/protoactor-go/cluster"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"os"
@@ -13,9 +14,12 @@ import (
 )
 // 所有rigger应用的根
 var root *actor.ActorSystem
+var clusterInstance *cluster.Cluster
 
 func init() {
-	root = actor.NewActorSystem()
+	if root == nil {
+		root = actor.NewActorSystem()
+	}
 }
 
 // 获取所有rigger应用的根应用
@@ -46,7 +50,7 @@ type StartingNode struct {
 	parent    *StartingNode
 	spawnSpec *SpawnSpec //  自身的启动规范
 	children  []*StartingNode
-	location  *location
+	location  *Location
 	remote    *remoteSpec
 	supFlag   *SupervisorFlag
 }
@@ -57,6 +61,7 @@ applicationId: 应用标识, 需要是一个已经注册的应用标识
 configPath: 应用配置文件路径, 路径可以指向一个有效的yml文件, toml文件, ini文件, json文件等
  */
 func Start(applicationId string, configPath string) error  {
+	startCluster()
 	startRiggerApp()
 	if ret, err := spawnLocalApplications(
 		&SpawnLoacalApplicationSpec{
@@ -116,6 +121,7 @@ launchConfigPath 启动配置文件,目前为yum 文件, 里面描述了应该�
 appConfigPath 运行时环境配置文件, go-rigger不关心里面的内容, 此配置文件供用户自己使用,用户可以使用viper相关函数获取其中的数据
 */
 func StartWithConfig(launchConfigPath string/*应用启动配置文件*/, appConfigPath string/*应用配置文件*/)  {
+	startCluster()
 	startRiggerApp()
 	// 先设为最高级
 	log.SetLevel(6)
@@ -169,14 +175,27 @@ func setRunningApplication(id string, app *actor.PID)  {
 //	return nil
 //}
 
-// 根据配置中的名字获取其进程id, 如果存在,则返回进程ID和true, 否则返回 nil,false
-// 获取到进程ID,并不意味着此进程依然存活
-// 本接口只适用于静态进程
+// 根据注册名获取进程id
+// 对于不属于本节点的进程(远程进程),如果没有在本地获取到,则会尝试从远程获取
 func GetPid(name string) (*actor.PID, bool) {
 	if pid, exists := registeredProcess[name]; exists {
 		return pid, true
 	} else {
-		return nil, false
+		if belongThisNode(name) {
+			return nil, false
+		} else {
+			//// 尝试从远程获取
+			mPid := registeredProcess[riggerProcessManagingServerName]
+			response := root.Root.RequestFuture(mPid, &getRemotePid{name: name}, 5 * time.Second)
+			if ret, err := response.Result(); err == nil {
+				if ret == nil {
+					return nil, false
+				} else {
+					return ret.(*actor.PID), true
+				}
+			}
+			return nil, false
+		}
 	}
 }
 //func GetPid(kind string) (*actor.PID, bool) {
@@ -184,10 +203,10 @@ func GetPid(name string) (*actor.PID, bool) {
 //		return pid, ok
 //	} else {
 //		if config, ok := getConfigByKind(kind); ok {
-//			if config.location == nil {
+//			if config.Location == nil {
 //				pid = actor.NewPID("nonhost", config.fullName)
 //			} else {
-//				pid = actor.NewPID(fmt.Sprintf("%s:%d", config.location.host, config.location.port), config.fullName)
+//				pid = actor.NewPID(fmt.Sprintf("%s:%d", config.Location.Host, config.Location.Port), config.fullName)
 //			}
 //			pidSets[kind] = pid
 //			return pid, true
@@ -203,10 +222,10 @@ func GetPid(name string) (*actor.PID, bool) {
 //		// 先状态是不是
 //		if isDynamic(config) {
 //			fullName := fmt.Sprintf("%s/%s", config.parent.fullName, dynamicName)
-//			if config.location == nil {
+//			if config.Location == nil {
 //				return actor.NewPID("nonhost", fullName), true
 //			} else {
-//				return actor.NewPID(fmt.Sprintf("%s:%d", config.location.host, config.location.port), fullName), true
+//				return actor.NewPID(fmt.Sprintf("%s:%d", config.Location.Host, config.Location.Port), fullName), true
 //			}
 //		} else {
 //			return nil, false
@@ -318,9 +337,9 @@ func printNode(node *StartingNode, depth int)  {
 	}
 	var locType string
 	if node.parent != nil && node.parent.location != nil {
-		locType = fmt.Sprintf("|_(host: %s, port: %d)*", node.parent.location.host, node.parent.location.port)
+		locType = fmt.Sprintf("|_(Host: %s, Port: %d)*", node.parent.location.Host, node.parent.location.Port)
 	} else if node.location != nil {
-		locType = fmt.Sprintf("<host: %s, port: %d>", node.location.host, node.location.port)
+		locType = fmt.Sprintf("<Host: %s, Port: %d>", node.location.Host, node.location.Port)
 	}
 	// 是否是动态进程
 	var dynamic string
@@ -345,16 +364,16 @@ func parseRemote(rootMap map[interface{}]interface{}) *remoteSpec {
 
 	if rawRemoteMap, ok := rootMap["remote"]; ok {
 		remoteMap := rawRemoteMap.(map[interface{}]interface{})
-		if rawPort, ok := remoteMap["port"]; ok {
+		if rawPort, ok := remoteMap["Port"]; ok {
 			port := rawPort.(int)
 			var host = "127.0.0.1"
-			if rawHost, ok := remoteMap["host"]; ok {
+			if rawHost, ok := remoteMap["Host"]; ok {
 				host = rawHost.(string)
 			}
 
-			return &remoteSpec{location{
-				host: host,
-				port: port,
+			return &remoteSpec{Location{
+				Host: host,
+				Port: port,
 			}}
 		}
 	}
@@ -577,7 +596,7 @@ func getNode(nodeMap map[interface{}]interface{}) map[interface{}]interface{} {
 	return nodeMap
 }
 
-func getLocation(parent *StartingNode, m map[interface{}]interface{}) *location {
+func getLocation(parent *StartingNode, m map[interface{}]interface{}) *Location {
 	if parent != nil && parent.location != nil {
 		return parent.location
 	}
@@ -587,14 +606,14 @@ func getLocation(parent *StartingNode, m map[interface{}]interface{}) *location 
 	//	return nil
 	//}
 
-	if loc, ok := m["location"]; ok {
+	if loc, ok := m["Location"]; ok {
 		l := loc.(map[interface{}]interface{})
-		host := l["host"]
-		port := l["port"]
+		host := l["Host"]
+		port := l["Port"]
 
-		return &location{
-			host: host.(string),
-			port: port.(int),
+		return &Location{
+			Host: host.(string),
+			Port: port.(int),
 		}
 	}
 
@@ -730,13 +749,17 @@ func startRiggerApp()  {
 	}
 }
 
-type location struct {
-	host string
-	port int
+type Location struct {
+	Host string
+	Port int
+}
+
+func (lc *Location) String() string {
+	return fmt.Sprintf("%s:%d", lc.Host, lc.Port)
 }
 
 // 远程配置
 type remoteSpec struct {
-	location
+	Location
 }
 

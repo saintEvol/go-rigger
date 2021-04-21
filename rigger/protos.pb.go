@@ -5,9 +5,11 @@ package rigger
 
 import (
 	bytes "bytes"
+	context "context"
 	fmt "fmt"
 	actor "github.com/AsynkronIT/protoactor-go/actor"
 	proto "github.com/gogo/protobuf/proto"
+	grpc "google.golang.org/grpc"
 	io "io"
 	math "math"
 	reflect "reflect"
@@ -398,6 +400,444 @@ func (m *HotUpdateSpec) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_HotUpdateSpec proto.InternalMessageInfo
 
+type GetPidRequest struct {
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+}
+
+func (m *GetPidRequest) Reset()      { *m = GetPidRequest{} }
+func (*GetPidRequest) ProtoMessage() {}
+func (*GetPidRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f5a1f10097eb08ff, []int{8}
+}
+func (m *GetPidRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *GetPidRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_GetPidRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *GetPidRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetPidRequest.Merge(m, src)
+}
+func (m *GetPidRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *GetPidRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetPidRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetPidRequest proto.InternalMessageInfo
+
+func (m *GetPidRequest) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+type GetPidResponse struct {
+	Pid *actor.PID `protobuf:"bytes,1,opt,name=pid,proto3" json:"pid,omitempty"`
+}
+
+func (m *GetPidResponse) Reset()      { *m = GetPidResponse{} }
+func (*GetPidResponse) ProtoMessage() {}
+func (*GetPidResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f5a1f10097eb08ff, []int{9}
+}
+func (m *GetPidResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *GetPidResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_GetPidResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *GetPidResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetPidResponse.Merge(m, src)
+}
+func (m *GetPidResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *GetPidResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetPidResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetPidResponse proto.InternalMessageInfo
+
+func (m *GetPidResponse) GetPid() *actor.PID {
+	if m != nil {
+		return m.Pid
+	}
+	return nil
+}
+
+type RegisterGlobalProcessRequest struct {
+	Name string     `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Pid  *actor.PID `protobuf:"bytes,2,opt,name=pid,proto3" json:"pid,omitempty"`
+}
+
+func (m *RegisterGlobalProcessRequest) Reset()      { *m = RegisterGlobalProcessRequest{} }
+func (*RegisterGlobalProcessRequest) ProtoMessage() {}
+func (*RegisterGlobalProcessRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f5a1f10097eb08ff, []int{10}
+}
+func (m *RegisterGlobalProcessRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *RegisterGlobalProcessRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_RegisterGlobalProcessRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *RegisterGlobalProcessRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RegisterGlobalProcessRequest.Merge(m, src)
+}
+func (m *RegisterGlobalProcessRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *RegisterGlobalProcessRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_RegisterGlobalProcessRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RegisterGlobalProcessRequest proto.InternalMessageInfo
+
+func (m *RegisterGlobalProcessRequest) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *RegisterGlobalProcessRequest) GetPid() *actor.PID {
+	if m != nil {
+		return m.Pid
+	}
+	return nil
+}
+
+type ResetRequest struct {
+	Pids []*RegisterGlobalProcessRequest `protobuf:"bytes,1,rep,name=pids,proto3" json:"pids,omitempty"`
+}
+
+func (m *ResetRequest) Reset()      { *m = ResetRequest{} }
+func (*ResetRequest) ProtoMessage() {}
+func (*ResetRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f5a1f10097eb08ff, []int{11}
+}
+func (m *ResetRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *ResetRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_ResetRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *ResetRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ResetRequest.Merge(m, src)
+}
+func (m *ResetRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *ResetRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ResetRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ResetRequest proto.InternalMessageInfo
+
+func (m *ResetRequest) GetPids() []*RegisterGlobalProcessRequest {
+	if m != nil {
+		return m.Pids
+	}
+	return nil
+}
+
+type GlobalProcess struct {
+	Name string     `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Pid  *actor.PID `protobuf:"bytes,2,opt,name=pid,proto3" json:"pid,omitempty"`
+}
+
+func (m *GlobalProcess) Reset()      { *m = GlobalProcess{} }
+func (*GlobalProcess) ProtoMessage() {}
+func (*GlobalProcess) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f5a1f10097eb08ff, []int{12}
+}
+func (m *GlobalProcess) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *GlobalProcess) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_GlobalProcess.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *GlobalProcess) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GlobalProcess.Merge(m, src)
+}
+func (m *GlobalProcess) XXX_Size() int {
+	return m.Size()
+}
+func (m *GlobalProcess) XXX_DiscardUnknown() {
+	xxx_messageInfo_GlobalProcess.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GlobalProcess proto.InternalMessageInfo
+
+func (m *GlobalProcess) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *GlobalProcess) GetPid() *actor.PID {
+	if m != nil {
+		return m.Pid
+	}
+	return nil
+}
+
+type GlobalProcessList struct {
+	List []*GlobalProcess `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
+}
+
+func (m *GlobalProcessList) Reset()      { *m = GlobalProcessList{} }
+func (*GlobalProcessList) ProtoMessage() {}
+func (*GlobalProcessList) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f5a1f10097eb08ff, []int{13}
+}
+func (m *GlobalProcessList) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *GlobalProcessList) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_GlobalProcessList.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *GlobalProcessList) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GlobalProcessList.Merge(m, src)
+}
+func (m *GlobalProcessList) XXX_Size() int {
+	return m.Size()
+}
+func (m *GlobalProcessList) XXX_DiscardUnknown() {
+	xxx_messageInfo_GlobalProcessList.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GlobalProcessList proto.InternalMessageInfo
+
+func (m *GlobalProcessList) GetList() []*GlobalProcess {
+	if m != nil {
+		return m.List
+	}
+	return nil
+}
+
+type Noop struct {
+}
+
+func (m *Noop) Reset()      { *m = Noop{} }
+func (*Noop) ProtoMessage() {}
+func (*Noop) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f5a1f10097eb08ff, []int{14}
+}
+func (m *Noop) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *Noop) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_Noop.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *Noop) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Noop.Merge(m, src)
+}
+func (m *Noop) XXX_Size() int {
+	return m.Size()
+}
+func (m *Noop) XXX_DiscardUnknown() {
+	xxx_messageInfo_Noop.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Noop proto.InternalMessageInfo
+
+type SyncAllOthersRequest struct {
+	Exception string `protobuf:"bytes,1,opt,name=exception,proto3" json:"exception,omitempty"`
+}
+
+func (m *SyncAllOthersRequest) Reset()      { *m = SyncAllOthersRequest{} }
+func (*SyncAllOthersRequest) ProtoMessage() {}
+func (*SyncAllOthersRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f5a1f10097eb08ff, []int{15}
+}
+func (m *SyncAllOthersRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *SyncAllOthersRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_SyncAllOthersRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *SyncAllOthersRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SyncAllOthersRequest.Merge(m, src)
+}
+func (m *SyncAllOthersRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *SyncAllOthersRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_SyncAllOthersRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SyncAllOthersRequest proto.InternalMessageInfo
+
+func (m *SyncAllOthersRequest) GetException() string {
+	if m != nil {
+		return m.Exception
+	}
+	return ""
+}
+
+type JoinRequest struct {
+	Node string `protobuf:"bytes,1,opt,name=node,proto3" json:"node,omitempty"`
+}
+
+func (m *JoinRequest) Reset()      { *m = JoinRequest{} }
+func (*JoinRequest) ProtoMessage() {}
+func (*JoinRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f5a1f10097eb08ff, []int{16}
+}
+func (m *JoinRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *JoinRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_JoinRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *JoinRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_JoinRequest.Merge(m, src)
+}
+func (m *JoinRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *JoinRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_JoinRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_JoinRequest proto.InternalMessageInfo
+
+func (m *JoinRequest) GetNode() string {
+	if m != nil {
+		return m.Node
+	}
+	return ""
+}
+
+type JoinResponse struct {
+	Pid *actor.PID `protobuf:"bytes,1,opt,name=pid,proto3" json:"pid,omitempty"`
+}
+
+func (m *JoinResponse) Reset()      { *m = JoinResponse{} }
+func (*JoinResponse) ProtoMessage() {}
+func (*JoinResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f5a1f10097eb08ff, []int{17}
+}
+func (m *JoinResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *JoinResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_JoinResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *JoinResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_JoinResponse.Merge(m, src)
+}
+func (m *JoinResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *JoinResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_JoinResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_JoinResponse proto.InternalMessageInfo
+
+func (m *JoinResponse) GetPid() *actor.PID {
+	if m != nil {
+		return m.Pid
+	}
+	return nil
+}
+
 func init() {
 	proto.RegisterType((*Error)(nil), "rigger.Error")
 	proto.RegisterType((*RemoteStartChildCmd)(nil), "rigger.RemoteStartChildCmd")
@@ -407,38 +847,66 @@ func init() {
 	proto.RegisterType((*SpawnLoacalApplicationSpec)(nil), "rigger.SpawnLoacalApplicationSpec")
 	proto.RegisterType((*SpawnLocalApplicationResp)(nil), "rigger.SpawnLocalApplicationResp")
 	proto.RegisterType((*HotUpdateSpec)(nil), "rigger.hotUpdateSpec")
+	proto.RegisterType((*GetPidRequest)(nil), "rigger.GetPidRequest")
+	proto.RegisterType((*GetPidResponse)(nil), "rigger.GetPidResponse")
+	proto.RegisterType((*RegisterGlobalProcessRequest)(nil), "rigger.RegisterGlobalProcessRequest")
+	proto.RegisterType((*ResetRequest)(nil), "rigger.ResetRequest")
+	proto.RegisterType((*GlobalProcess)(nil), "rigger.GlobalProcess")
+	proto.RegisterType((*GlobalProcessList)(nil), "rigger.GlobalProcessList")
+	proto.RegisterType((*Noop)(nil), "rigger.Noop")
+	proto.RegisterType((*SyncAllOthersRequest)(nil), "rigger.SyncAllOthersRequest")
+	proto.RegisterType((*JoinRequest)(nil), "rigger.JoinRequest")
+	proto.RegisterType((*JoinResponse)(nil), "rigger.JoinResponse")
 }
 
 func init() { proto.RegisterFile("rigger/protos.proto", fileDescriptor_f5a1f10097eb08ff) }
 
 var fileDescriptor_f5a1f10097eb08ff = []byte{
-	// 407 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x7c, 0x52, 0xcf, 0x8e, 0xd2, 0x40,
-	0x18, 0xef, 0x80, 0x34, 0xf2, 0x29, 0x6a, 0x06, 0x35, 0x48, 0xcc, 0xa8, 0x8d, 0x31, 0xc6, 0xc4,
-	0x12, 0x95, 0x78, 0xf3, 0x80, 0xe8, 0x81, 0xc4, 0x44, 0xd2, 0xea, 0x03, 0x0c, 0xed, 0xd8, 0x36,
-	0x94, 0x99, 0xc9, 0x74, 0x88, 0xe1, 0xe6, 0xdd, 0xcb, 0x3e, 0xc4, 0x1e, 0xf6, 0x51, 0xf6, 0xc8,
-	0x91, 0xe3, 0x52, 0x2e, 0x7b, 0xe4, 0x11, 0x36, 0x9d, 0x36, 0x01, 0x96, 0xcd, 0x9e, 0xda, 0xdf,
-	0xbf, 0x7c, 0xbf, 0x6f, 0x66, 0xa0, 0xad, 0x92, 0x28, 0x62, 0xaa, 0x27, 0x95, 0xd0, 0x22, 0x73,
-	0xcd, 0x07, 0xdb, 0x25, 0xd9, 0xfd, 0x1c, 0x25, 0x3a, 0x9e, 0x4f, 0xdc, 0x40, 0xcc, 0x7a, 0x83,
-	0x6c, 0xc1, 0xa7, 0x4a, 0xf0, 0xd1, 0xaf, 0xd2, 0x4b, 0x03, 0x2d, 0xd4, 0xfb, 0x48, 0xf4, 0xcc,
-	0xcf, 0x41, 0xde, 0x79, 0x01, 0x8d, 0xef, 0x4a, 0x09, 0x85, 0x9f, 0x82, 0xcd, 0x94, 0xf2, 0xb5,
-	0xea, 0xa0, 0x97, 0xe8, 0x6d, 0xd3, 0xab, 0x90, 0xf3, 0x05, 0xda, 0x1e, 0x9b, 0x09, 0xcd, 0x7c,
-	0x4d, 0x95, 0x1e, 0xc6, 0x49, 0x1a, 0x0e, 0x67, 0x21, 0x7e, 0x03, 0x0f, 0x32, 0x49, 0xff, 0x72,
-	0x5f, 0xb2, 0xe0, 0xeb, 0x42, 0xb3, 0xcc, 0xc4, 0xee, 0x7b, 0xd7, 0x58, 0xe7, 0x2e, 0xd8, 0x3f,
-	0xa7, 0x1e, 0xcb, 0xa4, 0xf3, 0x0a, 0x9a, 0x66, 0x52, 0x01, 0xf0, 0x63, 0x68, 0xb0, 0x02, 0x54,
-	0xc3, 0x4a, 0xe0, 0xfc, 0x47, 0xd0, 0xf2, 0x8b, 0x7c, 0xe1, 0x11, 0x3c, 0x63, 0xd8, 0x01, 0x3b,
-	0x63, 0x3c, 0x64, 0xa5, 0xf1, 0xde, 0x47, 0x70, 0xcd, 0x0e, 0xee, 0x78, 0xf4, 0xcd, 0xab, 0x94,
-	0xc2, 0x23, 0xa9, 0x62, 0x5c, 0x77, 0x6a, 0xc7, 0x9e, 0x52, 0xc1, 0xcf, 0xa1, 0x2e, 0x93, 0xb0,
-	0x53, 0x3f, 0x32, 0x14, 0xf4, 0xae, 0xcd, 0x9d, 0xfd, 0x36, 0xa7, 0x08, 0xba, 0xa6, 0xcd, 0x0f,
-	0x41, 0x03, 0x9a, 0x0e, 0xa4, 0x4c, 0x93, 0x80, 0xea, 0x44, 0x98, 0xf5, 0xf0, 0x3b, 0x78, 0x94,
-	0xd2, 0x39, 0x0f, 0xe2, 0xa1, 0xe0, 0x7f, 0x92, 0x68, 0x4c, 0x75, 0x5c, 0x6d, 0x73, 0xc4, 0xe3,
-	0x3e, 0x3c, 0xa1, 0xbb, 0xf8, 0x5e, 0xa0, 0x66, 0x02, 0x37, 0x8b, 0xf8, 0x35, 0xb4, 0xf6, 0x84,
-	0x51, 0x59, 0xbf, 0xe9, 0x1d, 0x92, 0xce, 0x07, 0x78, 0x56, 0xb5, 0x3c, 0x2c, 0x79, 0xcb, 0x39,
-	0x3f, 0x84, 0x56, 0x2c, 0xf4, 0x6f, 0x19, 0x52, 0xcd, 0xcc, 0x55, 0xf5, 0x97, 0x6b, 0x62, 0xad,
-	0xd6, 0xc4, 0xda, 0xae, 0x09, 0xfa, 0x97, 0x13, 0x74, 0x96, 0x13, 0x74, 0x9e, 0x13, 0xb4, 0xcc,
-	0x09, 0xba, 0xc8, 0x09, 0xba, 0xcc, 0x89, 0xb5, 0xcd, 0x09, 0x3a, 0xd9, 0x10, 0x6b, 0xb9, 0x21,
-	0xd6, 0x6a, 0x43, 0xac, 0x89, 0x6d, 0x9e, 0xd0, 0xa7, 0xab, 0x00, 0x00, 0x00, 0xff, 0xff, 0x7f,
-	0x64, 0x8c, 0x43, 0x99, 0x02, 0x00, 0x00,
+	// 691 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x54, 0x41, 0x53, 0xd3, 0x4e,
+	0x14, 0x4f, 0x4a, 0xe9, 0xd0, 0x47, 0xcb, 0xff, 0xef, 0x52, 0x18, 0xa8, 0x9d, 0x28, 0x2b, 0xe3,
+	0xa0, 0x23, 0x65, 0x04, 0xc6, 0xd1, 0x83, 0x8e, 0x05, 0x1d, 0x84, 0x41, 0xe9, 0xa4, 0xfa, 0x01,
+	0x96, 0xe4, 0x99, 0x66, 0x48, 0xb3, 0x71, 0xb3, 0xa8, 0xdc, 0xbc, 0x7b, 0xf1, 0x43, 0x78, 0xf0,
+	0xa3, 0x38, 0x9e, 0x38, 0x72, 0x94, 0x72, 0xf1, 0xc8, 0x47, 0x70, 0xb2, 0x49, 0x48, 0x43, 0x3b,
+	0x0c, 0xe3, 0xa9, 0xbb, 0xbf, 0xf7, 0x7b, 0xfb, 0x7e, 0xef, 0xfd, 0x5e, 0x03, 0xd3, 0xc2, 0x75,
+	0x1c, 0x14, 0x2b, 0x81, 0xe0, 0x92, 0x87, 0x4d, 0xf5, 0x43, 0x4a, 0x31, 0x58, 0x7f, 0xe4, 0xb8,
+	0xb2, 0x7b, 0xb8, 0xdf, 0xb4, 0x78, 0x6f, 0xa5, 0x15, 0x1e, 0xf9, 0x07, 0x82, 0xfb, 0xdb, 0x6f,
+	0x63, 0x2e, 0xb3, 0x24, 0x17, 0xcb, 0x0e, 0x5f, 0x51, 0x87, 0x5c, 0x3e, 0xbd, 0x05, 0xe3, 0x2f,
+	0x85, 0xe0, 0x82, 0xcc, 0x42, 0x09, 0x85, 0xe8, 0x48, 0x31, 0xa7, 0xdf, 0xd6, 0x97, 0xca, 0x66,
+	0x72, 0xa3, 0x4f, 0x61, 0xda, 0xc4, 0x1e, 0x97, 0xd8, 0x91, 0x4c, 0xc8, 0xcd, 0xae, 0xeb, 0xd9,
+	0x9b, 0x3d, 0x9b, 0xdc, 0x85, 0xa9, 0x30, 0x60, 0x9f, 0xfc, 0x4e, 0x80, 0xd6, 0xc6, 0x91, 0xc4,
+	0x50, 0xa5, 0x55, 0xcc, 0x4b, 0x28, 0x9d, 0x80, 0xd2, 0xde, 0x81, 0x89, 0x61, 0x40, 0x17, 0xa0,
+	0xac, 0x2a, 0x45, 0x17, 0x52, 0x83, 0x71, 0x8c, 0x2e, 0x49, 0xb1, 0xf8, 0x42, 0xbf, 0xea, 0x50,
+	0xed, 0x44, 0xf9, 0x11, 0x87, 0xfb, 0x21, 0x12, 0x0a, 0xa5, 0x10, 0x7d, 0x1b, 0x63, 0xe2, 0xe4,
+	0x2a, 0x34, 0x55, 0x0f, 0xcd, 0xf6, 0xf6, 0x0b, 0x33, 0x89, 0x44, 0x9c, 0x80, 0x09, 0xf4, 0xe5,
+	0x5c, 0x61, 0x98, 0x13, 0x47, 0x48, 0x03, 0xc6, 0x02, 0xd7, 0x9e, 0x1b, 0x1b, 0x22, 0x44, 0x70,
+	0xa6, 0xa6, 0x38, 0xa8, 0xe6, 0xbb, 0x0e, 0x75, 0xa5, 0x66, 0x97, 0x33, 0x8b, 0x79, 0xad, 0x20,
+	0xf0, 0x5c, 0x8b, 0x49, 0x97, 0xab, 0xf6, 0xc8, 0x7d, 0xf8, 0xdf, 0x63, 0x87, 0xbe, 0xd5, 0xdd,
+	0xe4, 0xfe, 0x7b, 0xd7, 0x69, 0x33, 0xd9, 0x4d, 0xba, 0x19, 0xc2, 0xc9, 0x3a, 0xcc, 0xb0, 0x2c,
+	0x7d, 0x20, 0xa1, 0xa0, 0x12, 0x46, 0x07, 0xc9, 0x22, 0x54, 0x07, 0x02, 0xdb, 0xb1, 0xfc, 0xb2,
+	0x99, 0x07, 0xe9, 0x43, 0x98, 0x4f, 0x54, 0xe6, 0x45, 0x5e, 0x31, 0xe7, 0xff, 0xa0, 0xda, 0xe5,
+	0xf2, 0x5d, 0x60, 0x33, 0x89, 0x51, 0x2f, 0xf4, 0x0e, 0x54, 0xb7, 0x50, 0xb6, 0x5d, 0xdb, 0xc4,
+	0x0f, 0x87, 0x18, 0x4a, 0x42, 0xa0, 0xe8, 0xb3, 0x1e, 0x26, 0x69, 0xea, 0x4c, 0x9b, 0x30, 0x95,
+	0x92, 0x12, 0x77, 0x92, 0xa9, 0xea, 0x23, 0xa7, 0x4a, 0xdb, 0xd0, 0x30, 0xd1, 0x71, 0x43, 0x89,
+	0x62, 0xcb, 0xe3, 0xfb, 0xcc, 0x6b, 0x0b, 0x6e, 0x61, 0x18, 0x5e, 0x51, 0x23, 0x7d, 0xb1, 0x30,
+	0xfa, 0xc5, 0x57, 0x50, 0x31, 0x31, 0x44, 0x99, 0xbe, 0xf0, 0x18, 0x8a, 0x81, 0x6b, 0x47, 0xab,
+	0x37, 0xb6, 0x34, 0xb9, 0xba, 0xd8, 0x8c, 0xff, 0x0b, 0xcd, 0xab, 0xaa, 0x9a, 0x2a, 0x83, 0xb6,
+	0xa0, 0x9a, 0x8b, 0xfe, 0x83, 0x98, 0x67, 0x70, 0x23, 0xf7, 0xc4, 0xae, 0x1b, 0x4a, 0x72, 0x0f,
+	0x8a, 0x9e, 0x1b, 0xca, 0x44, 0xd1, 0x4c, 0xaa, 0x28, 0xaf, 0x44, 0x51, 0x68, 0x09, 0x8a, 0x6f,
+	0x38, 0x0f, 0xe8, 0x3a, 0xd4, 0x3a, 0x47, 0xbe, 0xd5, 0xf2, 0xbc, 0x3d, 0xd9, 0x45, 0x71, 0x31,
+	0x9e, 0x06, 0x94, 0xf1, 0xb3, 0x85, 0x41, 0xe4, 0x65, 0x22, 0x2b, 0x03, 0xe8, 0x02, 0x4c, 0xee,
+	0x70, 0xd7, 0x1f, 0x9c, 0x25, 0xb7, 0x33, 0xf9, 0xdc, 0x46, 0xfa, 0x00, 0x2a, 0x31, 0xe5, 0x3a,
+	0x6e, 0xad, 0xfe, 0x2a, 0xc0, 0xcd, 0x9c, 0xcc, 0xd7, 0xcc, 0x67, 0x8e, 0xeb, 0x3b, 0x1d, 0x14,
+	0x1f, 0x51, 0x90, 0x27, 0x50, 0x8a, 0xdd, 0x27, 0x59, 0x57, 0x83, 0x2b, 0x53, 0x9f, 0xbd, 0x0c,
+	0xc7, 0x65, 0xa9, 0x46, 0x9e, 0xc3, 0x44, 0x6a, 0x09, 0xb9, 0x96, 0x49, 0xf5, 0x4a, 0xca, 0x52,
+	0x13, 0xd2, 0xc8, 0x1a, 0x14, 0xa3, 0x56, 0xc8, 0x74, 0x8a, 0x0f, 0xf4, 0x5e, 0xaf, 0xe5, 0xc1,
+	0x8b, 0xb2, 0xcb, 0x30, 0xae, 0xb6, 0x85, 0xd4, 0xb2, 0x9a, 0xd9, 0xf2, 0x0c, 0xd5, 0xd8, 0x81,
+	0x6a, 0xce, 0x07, 0xd2, 0x48, 0x09, 0xa3, 0xec, 0xa9, 0xcf, 0x8f, 0xf4, 0x36, 0x5a, 0x02, 0xaa,
+	0x6d, 0xac, 0x1f, 0x9f, 0x1a, 0xda, 0xc9, 0xa9, 0xa1, 0x9d, 0x9f, 0x1a, 0xfa, 0x97, 0xbe, 0xa1,
+	0xff, 0xe8, 0x1b, 0xfa, 0xcf, 0xbe, 0xa1, 0x1f, 0xf7, 0x0d, 0xfd, 0x77, 0xdf, 0xd0, 0xff, 0xf4,
+	0x0d, 0xed, 0xbc, 0x6f, 0xe8, 0xdf, 0xce, 0x0c, 0xed, 0xf8, 0xcc, 0xd0, 0x4e, 0xce, 0x0c, 0x6d,
+	0xbf, 0xa4, 0x3e, 0xc9, 0x6b, 0x7f, 0x03, 0x00, 0x00, 0xff, 0xff, 0xc4, 0xee, 0x81, 0x74, 0xe9,
+	0x05, 0x00, 0x00,
 }
 
 func (this *Error) Equal(that interface{}) bool {
@@ -642,6 +1110,259 @@ func (this *HotUpdateSpec) Equal(that interface{}) bool {
 	}
 	return true
 }
+func (this *GetPidRequest) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*GetPidRequest)
+	if !ok {
+		that2, ok := that.(GetPidRequest)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.Name != that1.Name {
+		return false
+	}
+	return true
+}
+func (this *GetPidResponse) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*GetPidResponse)
+	if !ok {
+		that2, ok := that.(GetPidResponse)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if !this.Pid.Equal(that1.Pid) {
+		return false
+	}
+	return true
+}
+func (this *RegisterGlobalProcessRequest) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*RegisterGlobalProcessRequest)
+	if !ok {
+		that2, ok := that.(RegisterGlobalProcessRequest)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.Name != that1.Name {
+		return false
+	}
+	if !this.Pid.Equal(that1.Pid) {
+		return false
+	}
+	return true
+}
+func (this *ResetRequest) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*ResetRequest)
+	if !ok {
+		that2, ok := that.(ResetRequest)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if len(this.Pids) != len(that1.Pids) {
+		return false
+	}
+	for i := range this.Pids {
+		if !this.Pids[i].Equal(that1.Pids[i]) {
+			return false
+		}
+	}
+	return true
+}
+func (this *GlobalProcess) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*GlobalProcess)
+	if !ok {
+		that2, ok := that.(GlobalProcess)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.Name != that1.Name {
+		return false
+	}
+	if !this.Pid.Equal(that1.Pid) {
+		return false
+	}
+	return true
+}
+func (this *GlobalProcessList) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*GlobalProcessList)
+	if !ok {
+		that2, ok := that.(GlobalProcessList)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if len(this.List) != len(that1.List) {
+		return false
+	}
+	for i := range this.List {
+		if !this.List[i].Equal(that1.List[i]) {
+			return false
+		}
+	}
+	return true
+}
+func (this *Noop) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*Noop)
+	if !ok {
+		that2, ok := that.(Noop)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	return true
+}
+func (this *SyncAllOthersRequest) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*SyncAllOthersRequest)
+	if !ok {
+		that2, ok := that.(SyncAllOthersRequest)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.Exception != that1.Exception {
+		return false
+	}
+	return true
+}
+func (this *JoinRequest) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*JoinRequest)
+	if !ok {
+		that2, ok := that.(JoinRequest)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.Node != that1.Node {
+		return false
+	}
+	return true
+}
+func (this *JoinResponse) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*JoinResponse)
+	if !ok {
+		that2, ok := that.(JoinResponse)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if !this.Pid.Equal(that1.Pid) {
+		return false
+	}
+	return true
+}
 func (this *Error) GoString() string {
 	if this == nil {
 		return "nil"
@@ -731,6 +1452,119 @@ func (this *HotUpdateSpec) GoString() string {
 	s = append(s, "}")
 	return strings.Join(s, "")
 }
+func (this *GetPidRequest) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 5)
+	s = append(s, "&rigger.GetPidRequest{")
+	s = append(s, "Name: "+fmt.Sprintf("%#v", this.Name)+",\n")
+	s = append(s, "}")
+	return strings.Join(s, "")
+}
+func (this *GetPidResponse) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 5)
+	s = append(s, "&rigger.GetPidResponse{")
+	if this.Pid != nil {
+		s = append(s, "Pid: "+fmt.Sprintf("%#v", this.Pid)+",\n")
+	}
+	s = append(s, "}")
+	return strings.Join(s, "")
+}
+func (this *RegisterGlobalProcessRequest) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 6)
+	s = append(s, "&rigger.RegisterGlobalProcessRequest{")
+	s = append(s, "Name: "+fmt.Sprintf("%#v", this.Name)+",\n")
+	if this.Pid != nil {
+		s = append(s, "Pid: "+fmt.Sprintf("%#v", this.Pid)+",\n")
+	}
+	s = append(s, "}")
+	return strings.Join(s, "")
+}
+func (this *ResetRequest) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 5)
+	s = append(s, "&rigger.ResetRequest{")
+	if this.Pids != nil {
+		s = append(s, "Pids: "+fmt.Sprintf("%#v", this.Pids)+",\n")
+	}
+	s = append(s, "}")
+	return strings.Join(s, "")
+}
+func (this *GlobalProcess) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 6)
+	s = append(s, "&rigger.GlobalProcess{")
+	s = append(s, "Name: "+fmt.Sprintf("%#v", this.Name)+",\n")
+	if this.Pid != nil {
+		s = append(s, "Pid: "+fmt.Sprintf("%#v", this.Pid)+",\n")
+	}
+	s = append(s, "}")
+	return strings.Join(s, "")
+}
+func (this *GlobalProcessList) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 5)
+	s = append(s, "&rigger.GlobalProcessList{")
+	if this.List != nil {
+		s = append(s, "List: "+fmt.Sprintf("%#v", this.List)+",\n")
+	}
+	s = append(s, "}")
+	return strings.Join(s, "")
+}
+func (this *Noop) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 4)
+	s = append(s, "&rigger.Noop{")
+	s = append(s, "}")
+	return strings.Join(s, "")
+}
+func (this *SyncAllOthersRequest) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 5)
+	s = append(s, "&rigger.SyncAllOthersRequest{")
+	s = append(s, "Exception: "+fmt.Sprintf("%#v", this.Exception)+",\n")
+	s = append(s, "}")
+	return strings.Join(s, "")
+}
+func (this *JoinRequest) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 5)
+	s = append(s, "&rigger.JoinRequest{")
+	s = append(s, "Node: "+fmt.Sprintf("%#v", this.Node)+",\n")
+	s = append(s, "}")
+	return strings.Join(s, "")
+}
+func (this *JoinResponse) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 5)
+	s = append(s, "&rigger.JoinResponse{")
+	if this.Pid != nil {
+		s = append(s, "Pid: "+fmt.Sprintf("%#v", this.Pid)+",\n")
+	}
+	s = append(s, "}")
+	return strings.Join(s, "")
+}
 func valueToGoStringProtos(v interface{}, typ string) string {
 	rv := reflect.ValueOf(v)
 	if rv.IsNil() {
@@ -739,6 +1573,215 @@ func valueToGoStringProtos(v interface{}, typ string) string {
 	pv := reflect.Indirect(rv).Interface()
 	return fmt.Sprintf("func(v %v) *%v { return &v } ( %#v )", typ, typ, pv)
 }
+
+// Reference imports to suppress errors if they are not otherwise used.
+var _ context.Context
+var _ grpc.ClientConn
+
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the grpc package it is being compiled against.
+const _ = grpc.SupportPackageIsVersion4
+
+// GlobalProcessManagingServerClient is the client API for GlobalProcessManagingServer service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
+type GlobalProcessManagingServerClient interface {
+	GetPid(ctx context.Context, in *GetPidRequest, opts ...grpc.CallOption) (*GetPidResponse, error)
+	Register(ctx context.Context, in *RegisterGlobalProcessRequest, opts ...grpc.CallOption) (*Noop, error)
+	Join(ctx context.Context, in *JoinRequest, opts ...grpc.CallOption) (*JoinResponse, error)
+	// 暂时未支持流 TODO
+	Reset(ctx context.Context, in *ResetRequest, opts ...grpc.CallOption) (*Noop, error)
+	// 暂未支持流
+	SyncAllOthers(ctx context.Context, in *SyncAllOthersRequest, opts ...grpc.CallOption) (*GlobalProcessList, error)
+}
+
+type globalProcessManagingServerClient struct {
+	cc *grpc.ClientConn
+}
+
+func NewGlobalProcessManagingServerClient(cc *grpc.ClientConn) GlobalProcessManagingServerClient {
+	return &globalProcessManagingServerClient{cc}
+}
+
+func (c *globalProcessManagingServerClient) GetPid(ctx context.Context, in *GetPidRequest, opts ...grpc.CallOption) (*GetPidResponse, error) {
+	out := new(GetPidResponse)
+	err := c.cc.Invoke(ctx, "/rigger.GlobalProcessManagingServer/GetPid", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *globalProcessManagingServerClient) Register(ctx context.Context, in *RegisterGlobalProcessRequest, opts ...grpc.CallOption) (*Noop, error) {
+	out := new(Noop)
+	err := c.cc.Invoke(ctx, "/rigger.GlobalProcessManagingServer/Register", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *globalProcessManagingServerClient) Join(ctx context.Context, in *JoinRequest, opts ...grpc.CallOption) (*JoinResponse, error) {
+	out := new(JoinResponse)
+	err := c.cc.Invoke(ctx, "/rigger.GlobalProcessManagingServer/Join", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *globalProcessManagingServerClient) Reset(ctx context.Context, in *ResetRequest, opts ...grpc.CallOption) (*Noop, error) {
+	out := new(Noop)
+	err := c.cc.Invoke(ctx, "/rigger.GlobalProcessManagingServer/Reset", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *globalProcessManagingServerClient) SyncAllOthers(ctx context.Context, in *SyncAllOthersRequest, opts ...grpc.CallOption) (*GlobalProcessList, error) {
+	out := new(GlobalProcessList)
+	err := c.cc.Invoke(ctx, "/rigger.GlobalProcessManagingServer/SyncAllOthers", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// GlobalProcessManagingServerServer is the server API for GlobalProcessManagingServer service.
+type GlobalProcessManagingServerServer interface {
+	GetPid(context.Context, *GetPidRequest) (*GetPidResponse, error)
+	Register(context.Context, *RegisterGlobalProcessRequest) (*Noop, error)
+	Join(context.Context, *JoinRequest) (*JoinResponse, error)
+	// 暂时未支持流 TODO
+	Reset(context.Context, *ResetRequest) (*Noop, error)
+	// 暂未支持流
+	SyncAllOthers(context.Context, *SyncAllOthersRequest) (*GlobalProcessList, error)
+}
+
+func RegisterGlobalProcessManagingServerServer(s *grpc.Server, srv GlobalProcessManagingServerServer) {
+	s.RegisterService(&_GlobalProcessManagingServer_serviceDesc, srv)
+}
+
+func _GlobalProcessManagingServer_GetPid_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPidRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GlobalProcessManagingServerServer).GetPid(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/rigger.GlobalProcessManagingServer/GetPid",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GlobalProcessManagingServerServer).GetPid(ctx, req.(*GetPidRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GlobalProcessManagingServer_Register_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RegisterGlobalProcessRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GlobalProcessManagingServerServer).Register(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/rigger.GlobalProcessManagingServer/Register",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GlobalProcessManagingServerServer).Register(ctx, req.(*RegisterGlobalProcessRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GlobalProcessManagingServer_Join_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(JoinRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GlobalProcessManagingServerServer).Join(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/rigger.GlobalProcessManagingServer/Join",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GlobalProcessManagingServerServer).Join(ctx, req.(*JoinRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GlobalProcessManagingServer_Reset_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ResetRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GlobalProcessManagingServerServer).Reset(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/rigger.GlobalProcessManagingServer/Reset",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GlobalProcessManagingServerServer).Reset(ctx, req.(*ResetRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GlobalProcessManagingServer_SyncAllOthers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SyncAllOthersRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GlobalProcessManagingServerServer).SyncAllOthers(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/rigger.GlobalProcessManagingServer/SyncAllOthers",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GlobalProcessManagingServerServer).SyncAllOthers(ctx, req.(*SyncAllOthersRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+var _GlobalProcessManagingServer_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "rigger.GlobalProcessManagingServer",
+	HandlerType: (*GlobalProcessManagingServerServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetPid",
+			Handler:    _GlobalProcessManagingServer_GetPid_Handler,
+		},
+		{
+			MethodName: "Register",
+			Handler:    _GlobalProcessManagingServer_Register_Handler,
+		},
+		{
+			MethodName: "Join",
+			Handler:    _GlobalProcessManagingServer_Join_Handler,
+		},
+		{
+			MethodName: "Reset",
+			Handler:    _GlobalProcessManagingServer_Reset_Handler,
+		},
+		{
+			MethodName: "SyncAllOthers",
+			Handler:    _GlobalProcessManagingServer_SyncAllOthers_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "rigger/protos.proto",
+}
+
 func (m *Error) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -961,6 +2004,280 @@ func (m *HotUpdateSpec) MarshalTo(dAtA []byte) (int, error) {
 	return i, nil
 }
 
+func (m *GetPidRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *GetPidRequest) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.Name) > 0 {
+		dAtA[i] = 0xa
+		i++
+		i = encodeVarintProtos(dAtA, i, uint64(len(m.Name)))
+		i += copy(dAtA[i:], m.Name)
+	}
+	return i, nil
+}
+
+func (m *GetPidResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *GetPidResponse) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if m.Pid != nil {
+		dAtA[i] = 0xa
+		i++
+		i = encodeVarintProtos(dAtA, i, uint64(m.Pid.Size()))
+		n4, err := m.Pid.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n4
+	}
+	return i, nil
+}
+
+func (m *RegisterGlobalProcessRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *RegisterGlobalProcessRequest) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.Name) > 0 {
+		dAtA[i] = 0xa
+		i++
+		i = encodeVarintProtos(dAtA, i, uint64(len(m.Name)))
+		i += copy(dAtA[i:], m.Name)
+	}
+	if m.Pid != nil {
+		dAtA[i] = 0x12
+		i++
+		i = encodeVarintProtos(dAtA, i, uint64(m.Pid.Size()))
+		n5, err := m.Pid.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n5
+	}
+	return i, nil
+}
+
+func (m *ResetRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *ResetRequest) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.Pids) > 0 {
+		for _, msg := range m.Pids {
+			dAtA[i] = 0xa
+			i++
+			i = encodeVarintProtos(dAtA, i, uint64(msg.Size()))
+			n, err := msg.MarshalTo(dAtA[i:])
+			if err != nil {
+				return 0, err
+			}
+			i += n
+		}
+	}
+	return i, nil
+}
+
+func (m *GlobalProcess) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *GlobalProcess) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.Name) > 0 {
+		dAtA[i] = 0xa
+		i++
+		i = encodeVarintProtos(dAtA, i, uint64(len(m.Name)))
+		i += copy(dAtA[i:], m.Name)
+	}
+	if m.Pid != nil {
+		dAtA[i] = 0x12
+		i++
+		i = encodeVarintProtos(dAtA, i, uint64(m.Pid.Size()))
+		n6, err := m.Pid.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n6
+	}
+	return i, nil
+}
+
+func (m *GlobalProcessList) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *GlobalProcessList) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.List) > 0 {
+		for _, msg := range m.List {
+			dAtA[i] = 0xa
+			i++
+			i = encodeVarintProtos(dAtA, i, uint64(msg.Size()))
+			n, err := msg.MarshalTo(dAtA[i:])
+			if err != nil {
+				return 0, err
+			}
+			i += n
+		}
+	}
+	return i, nil
+}
+
+func (m *Noop) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *Noop) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	return i, nil
+}
+
+func (m *SyncAllOthersRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *SyncAllOthersRequest) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.Exception) > 0 {
+		dAtA[i] = 0xa
+		i++
+		i = encodeVarintProtos(dAtA, i, uint64(len(m.Exception)))
+		i += copy(dAtA[i:], m.Exception)
+	}
+	return i, nil
+}
+
+func (m *JoinRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *JoinRequest) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.Node) > 0 {
+		dAtA[i] = 0xa
+		i++
+		i = encodeVarintProtos(dAtA, i, uint64(len(m.Node)))
+		i += copy(dAtA[i:], m.Node)
+	}
+	return i, nil
+}
+
+func (m *JoinResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *JoinResponse) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if m.Pid != nil {
+		dAtA[i] = 0xa
+		i++
+		i = encodeVarintProtos(dAtA, i, uint64(m.Pid.Size()))
+		n7, err := m.Pid.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n7
+	}
+	return i, nil
+}
+
 func encodeVarintProtos(dAtA []byte, offset int, v uint64) int {
 	for v >= 1<<7 {
 		dAtA[offset] = uint8(v&0x7f | 0x80)
@@ -1086,6 +2403,144 @@ func (m *HotUpdateSpec) Size() (n int) {
 	return n
 }
 
+func (m *GetPidRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Name)
+	if l > 0 {
+		n += 1 + l + sovProtos(uint64(l))
+	}
+	return n
+}
+
+func (m *GetPidResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Pid != nil {
+		l = m.Pid.Size()
+		n += 1 + l + sovProtos(uint64(l))
+	}
+	return n
+}
+
+func (m *RegisterGlobalProcessRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Name)
+	if l > 0 {
+		n += 1 + l + sovProtos(uint64(l))
+	}
+	if m.Pid != nil {
+		l = m.Pid.Size()
+		n += 1 + l + sovProtos(uint64(l))
+	}
+	return n
+}
+
+func (m *ResetRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.Pids) > 0 {
+		for _, e := range m.Pids {
+			l = e.Size()
+			n += 1 + l + sovProtos(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *GlobalProcess) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Name)
+	if l > 0 {
+		n += 1 + l + sovProtos(uint64(l))
+	}
+	if m.Pid != nil {
+		l = m.Pid.Size()
+		n += 1 + l + sovProtos(uint64(l))
+	}
+	return n
+}
+
+func (m *GlobalProcessList) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.List) > 0 {
+		for _, e := range m.List {
+			l = e.Size()
+			n += 1 + l + sovProtos(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *Noop) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *SyncAllOthersRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Exception)
+	if l > 0 {
+		n += 1 + l + sovProtos(uint64(l))
+	}
+	return n
+}
+
+func (m *JoinRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Node)
+	if l > 0 {
+		n += 1 + l + sovProtos(uint64(l))
+	}
+	return n
+}
+
+func (m *JoinResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Pid != nil {
+		l = m.Pid.Size()
+		n += 1 + l + sovProtos(uint64(l))
+	}
+	return n
+}
+
 func sovProtos(x uint64) (n int) {
 	for {
 		n++
@@ -1178,6 +2633,107 @@ func (this *HotUpdateSpec) String() string {
 		return "nil"
 	}
 	s := strings.Join([]string{`&HotUpdateSpec{`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *GetPidRequest) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&GetPidRequest{`,
+		`Name:` + fmt.Sprintf("%v", this.Name) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *GetPidResponse) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&GetPidResponse{`,
+		`Pid:` + strings.Replace(fmt.Sprintf("%v", this.Pid), "PID", "actor.PID", 1) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *RegisterGlobalProcessRequest) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&RegisterGlobalProcessRequest{`,
+		`Name:` + fmt.Sprintf("%v", this.Name) + `,`,
+		`Pid:` + strings.Replace(fmt.Sprintf("%v", this.Pid), "PID", "actor.PID", 1) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *ResetRequest) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&ResetRequest{`,
+		`Pids:` + strings.Replace(fmt.Sprintf("%v", this.Pids), "RegisterGlobalProcessRequest", "RegisterGlobalProcessRequest", 1) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *GlobalProcess) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&GlobalProcess{`,
+		`Name:` + fmt.Sprintf("%v", this.Name) + `,`,
+		`Pid:` + strings.Replace(fmt.Sprintf("%v", this.Pid), "PID", "actor.PID", 1) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *GlobalProcessList) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&GlobalProcessList{`,
+		`List:` + strings.Replace(fmt.Sprintf("%v", this.List), "GlobalProcess", "GlobalProcess", 1) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *Noop) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&Noop{`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *SyncAllOthersRequest) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&SyncAllOthersRequest{`,
+		`Exception:` + fmt.Sprintf("%v", this.Exception) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *JoinRequest) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&JoinRequest{`,
+		`Node:` + fmt.Sprintf("%v", this.Node) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *JoinResponse) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&JoinResponse{`,
+		`Pid:` + strings.Replace(fmt.Sprintf("%v", this.Pid), "PID", "actor.PID", 1) + `,`,
 		`}`,
 	}, "")
 	return s
@@ -1956,6 +3512,908 @@ func (m *HotUpdateSpec) Unmarshal(dAtA []byte) error {
 			return fmt.Errorf("proto: hotUpdateSpec: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipProtos(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthProtos
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthProtos
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *GetPidRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowProtos
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: GetPidRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: GetPidRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Name", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProtos
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthProtos
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthProtos
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Name = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipProtos(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthProtos
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthProtos
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *GetPidResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowProtos
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: GetPidResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: GetPidResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Pid", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProtos
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthProtos
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthProtos
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Pid == nil {
+				m.Pid = &actor.PID{}
+			}
+			if err := m.Pid.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipProtos(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthProtos
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthProtos
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *RegisterGlobalProcessRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowProtos
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: RegisterGlobalProcessRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: RegisterGlobalProcessRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Name", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProtos
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthProtos
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthProtos
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Name = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Pid", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProtos
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthProtos
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthProtos
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Pid == nil {
+				m.Pid = &actor.PID{}
+			}
+			if err := m.Pid.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipProtos(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthProtos
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthProtos
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *ResetRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowProtos
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ResetRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ResetRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Pids", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProtos
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthProtos
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthProtos
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Pids = append(m.Pids, &RegisterGlobalProcessRequest{})
+			if err := m.Pids[len(m.Pids)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipProtos(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthProtos
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthProtos
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *GlobalProcess) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowProtos
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: GlobalProcess: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: GlobalProcess: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Name", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProtos
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthProtos
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthProtos
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Name = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Pid", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProtos
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthProtos
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthProtos
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Pid == nil {
+				m.Pid = &actor.PID{}
+			}
+			if err := m.Pid.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipProtos(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthProtos
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthProtos
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *GlobalProcessList) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowProtos
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: GlobalProcessList: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: GlobalProcessList: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field List", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProtos
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthProtos
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthProtos
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.List = append(m.List, &GlobalProcess{})
+			if err := m.List[len(m.List)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipProtos(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthProtos
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthProtos
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *Noop) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowProtos
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: Noop: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: Noop: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipProtos(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthProtos
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthProtos
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *SyncAllOthersRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowProtos
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: SyncAllOthersRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: SyncAllOthersRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Exception", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProtos
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthProtos
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthProtos
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Exception = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipProtos(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthProtos
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthProtos
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *JoinRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowProtos
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: JoinRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: JoinRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Node", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProtos
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthProtos
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthProtos
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Node = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipProtos(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthProtos
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthProtos
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *JoinResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowProtos
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: JoinResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: JoinResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Pid", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProtos
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthProtos
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthProtos
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Pid == nil {
+				m.Pid = &actor.PID{}
+			}
+			if err := m.Pid.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipProtos(dAtA[iNdEx:])

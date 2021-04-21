@@ -53,6 +53,7 @@ type SpawnSpec struct {
 	SpawnTimeout time.Duration // 超时时间,如果为0表示不等待,也即异步启动
 	// 平静期超时时间,如果在指定时间内没收到任何消息,则会触发TimeroutReceiver回调,此值不为0时,需要实现TimeoutReceiver
 	ReceiveTimeout time.Duration
+	//IsGlobal bool // 该进程是否是全局进程, 对于全局进程,在同一个集群中,只允许存在唯一一个同名进程
 
 	isFromConfig bool // 是否是从配置启动
 }
@@ -82,4 +83,33 @@ func (ss *SpawnSpec) WithReceiveTimeout(duration time.Duration) *SpawnSpec {
 	return ss
 }
 
+//func (ss *SpawnSpec) WithGlobal(isGlobal bool) *SpawnSpec {
+//	ss.IsGlobal = isGlobal
+//	return ss
+//}
+func (ss *SpawnSpec) BelongThisNode() bool {
+	var name string
+	if ss.Name != "" {
+		name = ss.Name
+	} else {
+		name = ss.Kind
+	}
+
+	if name == "" {
+		return false
+	}
+
+	return belongThisNode(name)
+}
+
+func filterSpawnSpecOfThisNode(specs []*SpawnSpec) []*SpawnSpec {
+	var ret []*SpawnSpec
+	for _, spec := range specs {
+		if spec.BelongThisNode() {
+			ret = append(ret, spec)
+		}
+	}
+
+	return ret
+}
 

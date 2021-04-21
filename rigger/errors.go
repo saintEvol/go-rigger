@@ -1,6 +1,15 @@
 package rigger
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
+
+var ErrLocalNameExists = errors.New("local name exists")
+var ErrGlobalNameNotRegistered = errors.New("global name not registered")
+var ErrGlobalNameExists = errors.New("global name exists")
+var ErrNodeExists = errors.New("node name exists")
+var ErrNodeNotExists = errors.New("node not exists")
 
 // implment: error
 func (err *Error) Error() string {
