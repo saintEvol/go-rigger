@@ -26,26 +26,26 @@ func SetLogLevel(level logmod.Level) {
 	plog.SetLevel(level)
 }
 
-var xGlobalProcessManagingServerFactory func() GlobalProcessManagingServer
+var xGlobalManagingGatewayFactory func() GlobalManagingGateway
 
-// GlobalProcessManagingServerFactory produces a GlobalProcessManagingServer
-func GlobalProcessManagingServerFactory(factory func() GlobalProcessManagingServer) {
-	xGlobalProcessManagingServerFactory = factory
+// GlobalManagingGatewayFactory produces a GlobalManagingGateway
+func GlobalManagingGatewayFactory(factory func() GlobalManagingGateway) {
+	xGlobalManagingGatewayFactory = factory
 }
 
-// GetGlobalProcessManagingServerGrainClient instantiates a new GlobalProcessManagingServerGrainClient with given ID
-func GetGlobalProcessManagingServerGrainClient(c *cluster.Cluster, id string) *GlobalProcessManagingServerGrainClient {
+// GetGlobalManagingGatewayGrainClient instantiates a new GlobalManagingGatewayGrainClient with given ID
+func GetGlobalManagingGatewayGrainClient(c *cluster.Cluster, id string) *GlobalManagingGatewayGrainClient {
 	if c == nil {
 		panic(fmt.Errorf("nil cluster instance"))
 	}
 	if id == "" {
 		panic(fmt.Errorf("empty id"))
 	}
-	return &GlobalProcessManagingServerGrainClient{ID: id, cluster: c}
+	return &GlobalManagingGatewayGrainClient{ID: id, cluster: c}
 }
 
-// GlobalProcessManagingServer interfaces the services available to the GlobalProcessManagingServer
-type GlobalProcessManagingServer interface {
+// GlobalManagingGateway interfaces the services available to the GlobalManagingGateway
+type GlobalManagingGateway interface {
 	Init(id string)
 	Terminate()
 	ReceiveDefault(ctx actor.Context)
@@ -57,20 +57,20 @@ type GlobalProcessManagingServer interface {
 	
 }
 
-// GlobalProcessManagingServerGrainClient holds the base data for the GlobalProcessManagingServerGrain
-type GlobalProcessManagingServerGrainClient struct {
+// GlobalManagingGatewayGrainClient holds the base data for the GlobalManagingGatewayGrain
+type GlobalManagingGatewayGrainClient struct {
 	ID      string
 	cluster *cluster.Cluster
 }
 
 // GetPid requests the execution on to the cluster with CallOptions
-func (g *GlobalProcessManagingServerGrainClient) GetPid(r *GetPidRequest, opts ...*cluster.GrainCallOptions) (*GetPidResponse, error) {
+func (g *GlobalManagingGatewayGrainClient) GetPid(r *GetPidRequest, opts ...*cluster.GrainCallOptions) (*GetPidResponse, error) {
 	bytes, err := proto.Marshal(r)
 	if err != nil {
 		return nil, err
 	}
 	reqMsg := &cluster.GrainRequest{MethodIndex: 0, MessageData: bytes}
-	resp, err := g.cluster.Call(g.ID, "GlobalProcessManagingServer", reqMsg, opts...)
+	resp, err := g.cluster.Call(g.ID, "GlobalManagingGateway", reqMsg, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -93,13 +93,13 @@ func (g *GlobalProcessManagingServerGrainClient) GetPid(r *GetPidRequest, opts .
 }
 
 // Register requests the execution on to the cluster with CallOptions
-func (g *GlobalProcessManagingServerGrainClient) Register(r *RegisterGlobalProcessRequest, opts ...*cluster.GrainCallOptions) (*Noop, error) {
+func (g *GlobalManagingGatewayGrainClient) Register(r *RegisterGlobalProcessRequest, opts ...*cluster.GrainCallOptions) (*Noop, error) {
 	bytes, err := proto.Marshal(r)
 	if err != nil {
 		return nil, err
 	}
 	reqMsg := &cluster.GrainRequest{MethodIndex: 1, MessageData: bytes}
-	resp, err := g.cluster.Call(g.ID, "GlobalProcessManagingServer", reqMsg, opts...)
+	resp, err := g.cluster.Call(g.ID, "GlobalManagingGateway", reqMsg, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -122,13 +122,13 @@ func (g *GlobalProcessManagingServerGrainClient) Register(r *RegisterGlobalProce
 }
 
 // Join requests the execution on to the cluster with CallOptions
-func (g *GlobalProcessManagingServerGrainClient) Join(r *JoinRequest, opts ...*cluster.GrainCallOptions) (*JoinResponse, error) {
+func (g *GlobalManagingGatewayGrainClient) Join(r *JoinRequest, opts ...*cluster.GrainCallOptions) (*JoinResponse, error) {
 	bytes, err := proto.Marshal(r)
 	if err != nil {
 		return nil, err
 	}
 	reqMsg := &cluster.GrainRequest{MethodIndex: 2, MessageData: bytes}
-	resp, err := g.cluster.Call(g.ID, "GlobalProcessManagingServer", reqMsg, opts...)
+	resp, err := g.cluster.Call(g.ID, "GlobalManagingGateway", reqMsg, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -151,13 +151,13 @@ func (g *GlobalProcessManagingServerGrainClient) Join(r *JoinRequest, opts ...*c
 }
 
 // Reset requests the execution on to the cluster with CallOptions
-func (g *GlobalProcessManagingServerGrainClient) Reset(r *ResetRequest, opts ...*cluster.GrainCallOptions) (*Noop, error) {
+func (g *GlobalManagingGatewayGrainClient) Reset(r *ResetRequest, opts ...*cluster.GrainCallOptions) (*Noop, error) {
 	bytes, err := proto.Marshal(r)
 	if err != nil {
 		return nil, err
 	}
 	reqMsg := &cluster.GrainRequest{MethodIndex: 3, MessageData: bytes}
-	resp, err := g.cluster.Call(g.ID, "GlobalProcessManagingServer", reqMsg, opts...)
+	resp, err := g.cluster.Call(g.ID, "GlobalManagingGateway", reqMsg, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -180,13 +180,13 @@ func (g *GlobalProcessManagingServerGrainClient) Reset(r *ResetRequest, opts ...
 }
 
 // SyncAllOthers requests the execution on to the cluster with CallOptions
-func (g *GlobalProcessManagingServerGrainClient) SyncAllOthers(r *SyncAllOthersRequest, opts ...*cluster.GrainCallOptions) (*GlobalProcessList, error) {
+func (g *GlobalManagingGatewayGrainClient) SyncAllOthers(r *SyncAllOthersRequest, opts ...*cluster.GrainCallOptions) (*GlobalProcessList, error) {
 	bytes, err := proto.Marshal(r)
 	if err != nil {
 		return nil, err
 	}
 	reqMsg := &cluster.GrainRequest{MethodIndex: 4, MessageData: bytes}
-	resp, err := g.cluster.Call(g.ID, "GlobalProcessManagingServer", reqMsg, opts...)
+	resp, err := g.cluster.Call(g.ID, "GlobalManagingGateway", reqMsg, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -209,18 +209,18 @@ func (g *GlobalProcessManagingServerGrainClient) SyncAllOthers(r *SyncAllOthersR
 }
 
 
-// GlobalProcessManagingServerActor represents the actor structure
-type GlobalProcessManagingServerActor struct {
-	inner   GlobalProcessManagingServer
+// GlobalManagingGatewayActor represents the actor structure
+type GlobalManagingGatewayActor struct {
+	inner   GlobalManagingGateway
 	Timeout time.Duration
 }
 
 // Receive ensures the lifecycle of the actor for the received message
-func (a *GlobalProcessManagingServerActor) Receive(ctx actor.Context) {
+func (a *GlobalManagingGatewayActor) Receive(ctx actor.Context) {
 	switch msg := ctx.Message().(type) {
 	case *actor.Started:
 	case *cluster.ClusterInit:
-		a.inner = xGlobalProcessManagingServerFactory()
+		a.inner = xGlobalManagingGatewayFactory()
 		a.inner.Init(msg.ID)
 		if a.Timeout > 0 {
 			ctx.SetReceiveTimeout(a.Timeout)

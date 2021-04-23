@@ -79,14 +79,15 @@ message SyncAllOthersRequest {
 
 message JoinRequest {
     string node = 1;
+    actor.PID pid = 2;
 }
 
 message JoinResponse {
     actor.PID pid = 1;
 }
 
-// 全局进程管理器
-service GlobalProcessManagingServer {
+// 全局管理网关,负责接受跨节点请求
+service GlobalManagingGateway {
   rpc GetPid(GetPidRequest) returns (GetPidResponse) {} // 通过进程名字获取全局进程ID
   rpc Register(RegisterGlobalProcessRequest) returns (Noop) {} // 注册一个全局进程
   rpc Join(JoinRequest) returns (JoinResponse) {} // 节点加入

@@ -1,0 +1,35 @@
+package globalManager
+
+import (
+	"github.com/AsynkronIT/protoactor-go/actor"
+	"github.com/saintEvol/go-rigger/rigger"
+)
+
+type globalManagerSup struct {
+	
+}
+
+func (g globalManagerSup) OnRestarting(ctx actor.Context) {
+	panic("implement me")
+}
+
+func (g globalManagerSup) OnStarted(ctx actor.Context, args interface{}) error {
+	panic("implement me")
+}
+
+func (g globalManagerSup) OnPostStarted(ctx actor.Context, args interface{}) {
+	panic("implement me")
+}
+
+func (g globalManagerSup) OnStopping(ctx actor.Context) {
+	panic("implement me")
+}
+
+func (g globalManagerSup) OnStopped(ctx actor.Context) {
+	panic("implement me")
+}
+
+func (g globalManagerSup) OnGetSupFlag(ctx actor.Context) (supFlag rigger.SupervisorFlag, childSpecs []*rigger.SpawnSpec) {
+	panic("implement me")
+}
+

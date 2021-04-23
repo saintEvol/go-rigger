@@ -20,7 +20,7 @@ var (
 	currentNode string
 	// TODO 支持动态添加
 	processName2Node = make(map[string]string)
-	globalProcessManagingServerCli *GlobalProcessManagingServerGrainClient
+	globalManagerGatewayCli *GlobalManagingGatewayGrainClient
 	globalProcessManagingServerPid *actor.PID // 全局管理进程的进程id
 )
 
@@ -52,8 +52,8 @@ func SetCluster(clusterName string, managingPort int)  {
 		root = actor.NewActorSystem()
 	}
 
-	globalProcessManagingServerKind := cluster.NewKind(GlobalProcessManagingServerKindName, actor.PropsFromProducer(func() actor.Actor {
-		return &GlobalProcessManagingServerActor{}
+	globalProcessManagingServerKind := cluster.NewKind(GlobalManagingGatewayKindName, actor.PropsFromProducer(func() actor.Actor {
+		return &GlobalManagingGatewayActor{}
 	}))
 	var addressArr []string
 	if len(allNodes) > 0 {
@@ -62,11 +62,11 @@ func SetCluster(clusterName string, managingPort int)  {
 		}
 	}
 	provider := automanaged.NewWithConfig(2 * time.Second, managingPort, addressArr...)
-	config := remote.Configure("localhost", 0)
+	config := remote.Configure("127.0.0.1", managingPort)
 	clusterConfig := cluster.Configure(clusterName, provider, config, globalProcessManagingServerKind)
 	clusterInstance = cluster.New(root, clusterConfig)
-	GlobalProcessManagingServerFactory(func() GlobalProcessManagingServer {
-		return &globalProcessManagingServerGrain{}
+	GlobalManagingGatewayFactory(func() GlobalManagingGateway {
+		return &globalManagerGatewyGrain{}
 	})
 }
 
@@ -80,24 +80,20 @@ func RegisterGlobal(name string, node string) error {
 	processName2Node[name] = node
 	return nil
 }
+
 func startCluster()  {
 	if clusterInstance !=nil {
 		clusterInstance.Start()
+		globalManagerGatewayCli = GetGlobalManagingGatewayGrainClient(clusterInstance, GlobalManagingGatewayKindName)
 	}
-
-	if clusterInstance == nil {
-		return
-	}
-
-	globalProcessManagingServerCli = GetGlobalProcessManagingServerGrainClient(clusterInstance, GlobalProcessManagingServerKindName)
-	join()
 }
 
-func join()  {
+func join(ctx actor.Context)  {
 	// 加入节点
 	for true {
-		if resp, err := globalProcessManagingServerCli.Join(&JoinRequest{Node: currentNode}); err == nil {
+		if resp, err := globalManagerGatewayCli.Join(&JoinRequest{Node: currentNode,Pid: ctx.Self()}); err == nil {
 			globalProcessManagingServerPid = resp.Pid
+			ctx.Watch(resp.Pid)
 			log.Infof("success join node")
 			return
 		} else {
@@ -114,4 +110,9 @@ func belongThisNode(name string) bool {
 	} else {
 		return true
 	}
+}
+
+func isLocalName(name string) bool {
+	_, exists := processName2Node[name]
+	return !exists
 }

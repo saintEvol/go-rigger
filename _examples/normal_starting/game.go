@@ -2,14 +2,26 @@ package normal_starting
 
 import (
 	"fmt"
+	"github.com/AsynkronIT/protoactor-go/cluster"
+	"github.com/AsynkronIT/protoactor-go/log"
 	"github.com/saintEvol/go-rigger/rigger"
 	"github.com/sirupsen/logrus"
 	"time"
 )
 
 func StartNormal()  {
-	logrus.SetLevel(logrus.TraceLevel)
+	cluster.SetLogLevel(log.WarnLevel)
+	//go func() {
+	//	for {
+	//		<- time.After(10 * time.Second)
+	//		if managerPid, ok := rigger.GetPid(playerManagingServerName); ok {
+	//			fmt.Println("now stop player manager")
+	//			rigger.Root().Root.Stop(managerPid)
+	//		}
+	//	}
+	//}()
 	go func() {
+		waitReady()
 		time.Sleep(5 * time.Second)
 		// 模拟注册和登录
 		register("test1", "hello kitty")
@@ -97,5 +109,16 @@ func broadcast()  {
 	if broadcastPid, ok := rigger.GetPid(playerBroadcastServerName); ok {
 		// 获取应用
 		rigger.Root().Root.Send(broadcastPid, &Broadcast{Content: "hello"})
+	}
+}
+
+func waitReady()  {
+	for true {
+		if _, ok := rigger.GetPid(playerManagingServerName); ok {
+			fmt.Println("ready====")
+			return
+		}
+		fmt.Println("not ready wait 1 second to continue")
+		<- time.After(1 * time.Second)
 	}
 }

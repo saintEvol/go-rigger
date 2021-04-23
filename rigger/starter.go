@@ -185,7 +185,11 @@ func GetPid(name string) (*actor.PID, bool) {
 			return nil, false
 		} else {
 			//// 尝试从远程获取
-			mPid := registeredProcess[riggerProcessManagingServerName]
+			mPid, ok := registeredProcess[riggerProcessManagingServerName]
+			if !ok {
+				return nil, false
+			}
+
 			response := root.Root.RequestFuture(mPid, &getRemotePid{name: name}, 5 * time.Second)
 			if ret, err := response.Result(); err == nil {
 				if ret == nil {

@@ -81,7 +81,7 @@ func (app *Application) startSpec(parent actor.SpawnerContext, spec *SpawnSpec) 
 			// 检查startFun
 			startFun := makeStartFun(spec, info)
 			if pid, err := startFun(app.Parent, props, spec.Args); err != nil {
-				log.Errorf("error when start actor, reason:%s", err.Error())
+				log.Errorf("error when start application, reason:%s", err.Error())
 				return app, err
 			} else {
 				app.pid = pid

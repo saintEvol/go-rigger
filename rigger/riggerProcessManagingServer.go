@@ -15,22 +15,20 @@ func init() {
 	}))
 }
 type riggerProcessManagingServer struct {
-	//globalProcessManagingServerClient *GlobalProcessManagingServerGrainClient
-	//globalProcessManagingServerPid *actor.PID // 全局管理进程的进程id
 }
 
 func (r *riggerProcessManagingServer) OnRestarting(ctx actor.Context) {
 }
 
 func (r *riggerProcessManagingServer) OnStarted(ctx actor.Context, args interface{}) error {
-	root.Root.WithSpawnMiddleware(registerNamedProcessMiddleware)
 	registeredProcess[riggerProcessManagingServerName] = ctx.Self()
 	riggerProcessManagingServerPid = ctx.Self()
 
-	if globalProcessManagingServerPid != nil {
-		ctx.Watch(globalProcessManagingServerPid)
+	if globalManagerGatewayCli != nil {
+		join(ctx)
+		//ctx.Watch(globalProcessManagingServerPid)
 	}
-
+	root.Root.WithSpawnMiddleware(registerNamedProcessMiddleware)
 	return nil
 }
 
@@ -62,7 +60,7 @@ func (r *riggerProcessManagingServer) OnMessage(ctx actor.Context, message inter
 			return nil
 		}
 	case *actor.Terminated:
-		r.onProcessDown(msg.Who)
+		r.onProcessDown(ctx, msg.Who)
 
 	}
 	return nil
@@ -76,8 +74,8 @@ func (r *riggerProcessManagingServer) registerNamedProcess(ctx actor.Context, in
 	}
 
 	// 注册全局进程
-	if !belongThisNode(info.name) {
-		if _, err :=  globalProcessManagingServerCli.Register(&RegisterGlobalProcessRequest{Name: info.name, Pid: info.pid}); err != nil {
+	if !isLocalName(info.name) {
+		if _, err := globalManagerGatewayCli.Register(&RegisterGlobalProcessRequest{Name: info.name, Pid: info.pid}); err != nil {
 			// TODO 错误处理
 			logrus.Errorf("error when regisger global pid, name: %s", info.name)
 			return err
@@ -103,7 +101,7 @@ func (r *riggerProcessManagingServer) registerLocal(ctx actor.Context, name stri
 }
 
 func (r *riggerProcessManagingServer) getRemotePid(ctx actor.Context, name string) (*actor.PID, error) {
-	if resp, err := globalProcessManagingServerCli.GetPid(&GetPidRequest{Name: name}); err == nil {
+	if resp, err := globalManagerGatewayCli.GetPid(&GetPidRequest{Name: name}); err == nil {
 		pid := resp.Pid
 		if err := r.registerLocal(ctx, name, pid); err == nil {
 			return pid, nil
@@ -115,16 +113,19 @@ func (r *riggerProcessManagingServer) getRemotePid(ctx actor.Context, name strin
 	}
 }
 
-func (r *riggerProcessManagingServer) onProcessDown(pid *actor.PID){
+func (r *riggerProcessManagingServer) onProcessDown(ctx actor.Context, pid *actor.PID){
 	// TODO 优化
 	// 是否是全局管理进程
 	if globalProcessManagingServerPid != nil && globalProcessManagingServerPid.Address == pid.Address && globalProcessManagingServerPid.Id == pid.Id {
-		globalProcessManagingServerCli = nil
+		globalManagerGatewayCli = nil
 		globalProcessManagingServerPid = nil
-		join()
+		// 重新获取全局管理进程
+		globalManagerGatewayCli = GetGlobalManagingGatewayGrainClient(clusterInstance, GlobalManagingGatewayKindName)
+		join(ctx)
 		return
 	}
 
+	//ctx.Send(globalProcessManagingServerPid, "test")
 	name := parseProcessName(pid.Id)
 	delete(registeredProcess, name)
 }

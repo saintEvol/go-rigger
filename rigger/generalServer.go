@@ -88,7 +88,7 @@ func (server *GeneralServer)StartSpec(spec *SpawnSpec) (*GeneralServer, error){
 			// 在启动完成前设置启动参数
 			server.initArgs = spec.Args
 			if pid, err := startFun(server.spawner, props, spec.Args); err != nil {
-				log.Errorf("error when start actor, reason:%s", err.Error())
+				log.Errorf("error when start general server, reason:%s", err.Error())
 				server.initArgs = nil
 				return server, err
 			} else {

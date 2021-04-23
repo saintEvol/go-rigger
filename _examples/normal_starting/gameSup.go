@@ -4,6 +4,7 @@ import (
 	"github.com/AsynkronIT/protoactor-go/actor"
 	"github.com/saintEvol/go-rigger/rigger"
 	"github.com/sirupsen/logrus"
+	"time"
 )
 
 const gameSupName = "gameSup"
@@ -43,7 +44,7 @@ func (g *gameSup) OnGetSupFlag(ctx actor.Context) (supFlag rigger.SupervisorFlag
 	// 监控进程会依次同步启动下列进程,
 	childSpecs = append(childSpecs, rigger.SpawnSpecWithKind(gatewayServerName))
 	childSpecs = append(childSpecs, rigger.SpawnSpecWithKind(loginServerName))
-	childSpecs = append(childSpecs, rigger.SpawnSpecWithKind(playerManagingServerName))
+	childSpecs = append(childSpecs, rigger.SpawnSpecWithKind(playerManagingServerName).WithSpawnTimeout(1 * time.Hour))
 	childSpecs = append(childSpecs, rigger.SpawnSpecWithKind(playerBroadcastServerName))
 	childSpecs = append(childSpecs, rigger.SpawnSpecWithKind(playerServerSupName))
 	return
