@@ -75,8 +75,8 @@ func (g *globalManager) register(name string, pid *actor.PID, context actor.Cont
 	}
 }
 
-func (g *globalManager) reset(request *ResetRequest, context actor.Context) error {
-	for _, info := range request.Pids {
+func (g *globalManager) reset(info []*RegisterGlobalProcessRequest, context actor.Context) error {
+	for _, info := range info{
 		if err := g.register(info.Name, info.Pid, context); err != nil {
 			return err
 		}
@@ -157,6 +157,12 @@ func (g *globalManager) Receive(ctx actor.Context) {
 		}
 	case *_register:
 		if err := g.register(msg.name, msg.pid, ctx); err == nil {
+			ctx.Respond(nil)
+		} else {
+			ctx.Respond(err)
+		}
+	case *_reset:
+		if err := g.reset(msg.pids, ctx); err == nil {
 			ctx.Respond(nil)
 		} else {
 			ctx.Respond(err)

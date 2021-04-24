@@ -105,7 +105,7 @@ func logout(username string)  {
 	}
 }
 
-func broadcast()  {
+func broadcast() {
 	if broadcastPid, ok := rigger.GetPid(playerBroadcastServerName); ok {
 		// 获取应用
 		rigger.Root().Root.Send(broadcastPid, &Broadcast{Content: "hello"})

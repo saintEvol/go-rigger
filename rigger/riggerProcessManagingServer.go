@@ -26,9 +26,8 @@ func (r *riggerProcessManagingServer) OnStarted(ctx actor.Context, args interfac
 
 	if globalManagerGatewayCli != nil {
 		join(ctx)
-		//ctx.Watch(globalProcessManagingServerPid)
 	}
-	root.Root.WithSpawnMiddleware(registerNamedProcessMiddleware)
+	root.Root.WithSpawnMiddleware(registerNamedProcessMiddlewareRoot)
 	return nil
 }
 
@@ -125,7 +124,6 @@ func (r *riggerProcessManagingServer) onProcessDown(ctx actor.Context, pid *acto
 		return
 	}
 
-	//ctx.Send(globalProcessManagingServerPid, "test")
 	name := parseProcessName(pid.Id)
 	delete(registeredProcess, name)
 }

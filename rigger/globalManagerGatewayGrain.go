@@ -22,7 +22,10 @@ func (g *globalManagerGatewyGrain) Init(id string) {
 	}).WithSupervisor(actor.NewOneForOneStrategy(10, 1 * time.Second, func(reason interface{}) actor.Directive {
 		return actor.RestartDirective
 	}))
-	pid, _ := root.Root.SpawnNamed(props, globalManagerName)
+	pid, err := root.Root.SpawnNamed(props, globalManagerName)
+	if err != nil {
+		logrus.Errorf("error when start manager process")
+	}
 	g.managerPid = pid
 }
 
@@ -65,15 +68,18 @@ func (g *globalManagerGatewyGrain) Register(request *RegisterGlobalProcessReques
 	}
 }
 
-//TODO 暂未实现
 func (g *globalManagerGatewyGrain) Reset(request *ResetRequest, context cluster.GrainContext) (*Noop, error) {
-	for _, info := range request.Pids {
-		if _, err := g.Register(info, context); err != nil {
-			return nil, err
+	// TODO 需要考虑量大的情况下可能超时
+	f := context.RequestFuture(g.managerPid, &_reset{pids: request.Pids}, globalRequestTimeout)
+	if resp, err := f.Result(); err == nil {
+		if resp == nil {
+			return nil, nil
+		} else {
+			return nil, resp.(error)
 		}
+	} else {
+		return nil, err
 	}
-
-	return nil, nil
 }
 
 //TODO 暂未实现

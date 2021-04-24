@@ -183,6 +183,41 @@ func withSupervisor(setter supervisorSetter, maybeSupervisor interface{}) superv
 	return setter
 }
 
+// 全局管理器通过特殊处理在根上启动, 当全局管理器重启时, 如果也注册,会千万本地进程管理器与全局管理器的死锁,所以特殊处理: 全局管理进程不进行注册
+func registerNamedProcessMiddlewareRoot(next actor.SpawnFunc) actor.SpawnFunc {
+	return func(actorSystem *actor.ActorSystem, id string, props *actor.Props, parentContext actor.SpawnerContext) (*actor.PID, error) {
+		if pid, err := next(actorSystem, id, props, parentContext); err == nil {
+			// 注册名字
+			if nil != riggerProcessManagingServerPid {
+				//fmt.Printf("treate register, kind: %s, name: %s \r\n", id, parseProcessName(id))
+				name := parseProcessName(id)
+				if name != "" && name != globalManagerName {
+					f := actorSystem.Root.RequestFuture(riggerProcessManagingServerPid, &registerNamedPid{
+						name: name,
+						pid:  pid,
+						//isGlobal: true,
+					}, 3 * time.Second)
+					if ret, err := f.Result(); err == nil {
+						if ret == nil {
+							return pid, nil
+						} else {
+							r := ret.(*Error)
+							return nil, errors.New(r.ErrStr)
+						}
+					} else {
+						return nil, err
+					}
+				} else {
+					return pid, nil
+				}
+			} else {
+				return pid, nil
+			}
+		} else {
+			return nil, err
+		}
+	}
+}
 
 func registerNamedProcessMiddleware(next actor.SpawnFunc) actor.SpawnFunc {
 	return func(actorSystem *actor.ActorSystem, id string, props *actor.Props, parentContext actor.SpawnerContext) (*actor.PID, error) {

@@ -62,7 +62,7 @@ func SetCluster(clusterName string, managingPort int)  {
 		}
 	}
 	provider := automanaged.NewWithConfig(2 * time.Second, managingPort, addressArr...)
-	config := remote.Configure("127.0.0.1", managingPort)
+	config := remote.Configure("127.0.0.1", 0)
 	clusterConfig := cluster.Configure(clusterName, provider, config, globalProcessManagingServerKind)
 	clusterInstance = cluster.New(root, clusterConfig)
 	GlobalManagingGatewayFactory(func() GlobalManagingGateway {
@@ -88,6 +88,7 @@ func startCluster()  {
 	}
 }
 
+// TODO 节点加入时还需要同步本节点的全局进程
 func join(ctx actor.Context)  {
 	// 加入节点
 	for true {
@@ -95,6 +96,16 @@ func join(ctx actor.Context)  {
 			globalProcessManagingServerPid = resp.Pid
 			ctx.Watch(resp.Pid)
 			log.Infof("success join node")
+			var remotePids []*RegisterGlobalProcessRequest
+			for name, pid := range registeredProcess {
+				if !isLocalName(name) {
+					remotePids = append(remotePids, &RegisterGlobalProcessRequest{Name: name, Pid: pid})
+				}
+			}
+			// TODO 如果重置失败呢
+			if _, err := globalManagerGatewayCli.Reset(&ResetRequest{Pids: remotePids}); err == nil {
+				log.Infof("success reset remote pids")
+			}
 			return
 		} else {
 			log.Errorf("error when join, wait 3 seconds to try again, error: %s ", err.Error())
