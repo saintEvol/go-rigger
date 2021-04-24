@@ -178,14 +178,14 @@ func setRunningApplication(id string, app *actor.PID)  {
 // 根据注册名获取进程id
 // 对于不属于本节点的进程(远程进程),如果没有在本地获取到,则会尝试从远程获取
 func GetPid(name string) (*actor.PID, bool) {
-	if pid, exists := registeredProcess[name]; exists {
+	if pid, exists := registeredProcess.get(name); exists {
 		return pid, true
 	} else {
 		if belongThisNode(name) {
 			return nil, false
 		} else {
 			//// 尝试从远程获取
-			mPid, ok := registeredProcess[riggerProcessManagingServerName]
+			mPid, ok := registeredProcess.get(riggerProcessManagingServerName)
 			if !ok {
 				return nil, false
 			}

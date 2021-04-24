@@ -11,10 +11,14 @@ import (
 )
 
 const riggerManagingServerName = "@riggerManagingServerName"
-var riggerManagingServerPid *actor.PID = nil
-var riggerProcessManagingServerPid *actor.PID = nil
-// 已经注册的进程,此MAP只能由applicationTopSup在OnStarted时对自己进行注册时和riggerManagingServer进程对其它进程进行注册时修改
-var registeredProcess = make(map[string]*actor.PID)
+
+var (
+	riggerManagingServerPid *actor.PID = nil
+	riggerProcessManagingServerPid *actor.PID = nil
+	registeredProcess = newRegisteredPidMap()
+	// 已经注册的进程,此MAP只能由applicationTopSup在OnStarted时对自己进行注册时和riggerManagingServer进程对其它进程进行注册时修改
+	//registeredProcess = make(map[string]*actor.PID)
+)
 
 type registerNamedPid struct {
 	name string

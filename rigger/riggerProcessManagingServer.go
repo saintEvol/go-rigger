@@ -21,7 +21,8 @@ func (r *riggerProcessManagingServer) OnRestarting(ctx actor.Context) {
 }
 
 func (r *riggerProcessManagingServer) OnStarted(ctx actor.Context, args interface{}) error {
-	registeredProcess[riggerProcessManagingServerName] = ctx.Self()
+	//registeredProcess[riggerProcessManagingServerName] = ctx.Self()
+	_ = registeredProcess.add(riggerProcessManagingServerName, ctx.Self(), true)
 	riggerProcessManagingServerPid = ctx.Self()
 
 	if globalManagerGatewayCli != nil {
@@ -89,14 +90,12 @@ func (r *riggerProcessManagingServer) registerNamedProcess(ctx actor.Context, in
 
 func (r *riggerProcessManagingServer) registerLocal(ctx actor.Context, name string, pid *actor.PID) error {
 	// TODO 因为使用名字启动时protoactor会检查名字唯一性,因此是否可以不再检查?
-	if _, exists := registeredProcess[name]; exists {
-		return ErrLocalNameExists
+	if err := registeredProcess.add(name, pid, false); err == nil {
+		ctx.Watch(pid)
+		return nil
+	} else {
+		return err
 	}
-
-	registeredProcess[name] = pid
-	ctx.Watch(pid)
-
-	return nil
 }
 
 func (r *riggerProcessManagingServer) getRemotePid(ctx actor.Context, name string) (*actor.PID, error) {
@@ -125,6 +124,6 @@ func (r *riggerProcessManagingServer) onProcessDown(ctx actor.Context, pid *acto
 	}
 
 	name := parseProcessName(pid.Id)
-	delete(registeredProcess, name)
+	registeredProcess.remove(name)
 }
 
