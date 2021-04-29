@@ -1,0 +1,236 @@
+package main
+
+import (
+	"fmt"
+	console "github.com/AsynkronIT/goconsole"
+	"github.com/AsynkronIT/protoactor-go/actor"
+	"github.com/AsynkronIT/protoactor-go/cluster"
+	"github.com/AsynkronIT/protoactor-go/cluster/automanaged"
+	"github.com/AsynkronIT/protoactor-go/remote"
+	behaviourtest "github.com/saintEvol/go-rigger/_examples/behaviour"
+	"github.com/saintEvol/go-rigger/_examples/normal_starting"
+	"github.com/saintEvol/go-rigger/rigger"
+	"os"
+	"time"
+)
+
+type reg struct {
+	who *actor.PID
+}
+
+
+type supActor struct {
+	children map[string]bool
+}
+
+func (s *supActor) Receive(c actor.Context) {
+	switch msg := c.Message().(type){
+	case *actor.Started:
+		fmt.Printf("sup started---\r\n")
+		s.children = make(map[string]bool, 100)
+	case *reg:
+		fmt.Printf("sup reg---\r\n")
+		key := fmt.Sprintf("%s:%s", msg.who.Address, msg.who.Id)
+		if _, ok := s.children[key]; !ok {
+			c.Watch(msg.who)
+			s.children[key] = true
+		}
+	case *actor.Terminated:
+		key := fmt.Sprintf("%s:%s", msg.Who.Address, msg.Who.Id)
+		delete(s.children, key)
+		c.Unwatch(msg.Who)
+	default:
+		fmt.Printf("msg:%v\r\n", msg)
+	}
+}
+
+type childActor struct {
+
+}
+
+func (c2 *childActor) Receive(c actor.Context) {
+	switch c.Message().(type) {
+	case *actor.Started:
+		// 测试先 注册,再停止
+		//f := c.RequestFuture(supPid, &reg{who: c.Self()}, 1 * time.Second)
+		//_ = f.Wait()
+		//c.Stop(c.Self())
+
+		// 测试先停止再注册, 也会收到Terminated消息
+		c.Stop(c.Self())
+		time.Sleep(400 * time.Millisecond)
+		c.Send(supPid, &reg{who: c.Self()})
+	case *actor.Stopped:
+		fmt.Println("child stopped======\r\n")
+
+	}
+}
+var supPid *actor.PID
+
+// test for
+type parent struct {
+
+}
+
+func (p *parent) speak() {
+}
+
+type speaker interface {
+	speak()
+}
+
+type child struct {
+	parent
+}
+
+func main() {
+	//cluster.Start()
+	//sys := actor.NewActorSystem()
+	//supProps := actor.PropsFromProducer(func() actor.Actor {
+	//	return &supActor{}
+	//})
+	//supPid, _ = sys.Root.SpawnNamed(supProps, "sup")
+	//sys.Root.Spawn(actor.PropsFromProducer(func() actor.Actor {
+	//	return &childActor{}
+	//}))
+
+	//console.ReadLine()
+	//rigger.StartFromCli()
+	testCluster1()
+	// TODO behaviour
+
+
+
+	console.ReadLine()
+}
+
+func testCluster1()  {
+	var currNode string
+	var port int
+	for idx, arg := range os.Args {
+		if arg == "-node" {
+			currNode = os.Args[idx + 1]
+		}
+	}
+	if currNode == "main_node" {
+		port = 9090
+	} else {
+		port = 9091
+	}
+
+	rigger.SetNodes(&rigger.ClusterNode{
+		Name:     "main_node",
+		Location: rigger.Location{
+			Host: "localhost",
+			Port: 9090,
+		}},
+		&rigger.ClusterNode{
+			Name:     "sub_node",
+			Location: rigger.Location{Host: "localhost", Port: 9091},
+		})
+	rigger.SetCurrentNode(currNode)
+	rigger.SetCluster("my-cluster", port)
+	rigger.RegisterGlobal("loginServer", "main_node")
+	rigger.RegisterGlobal("playerManagingServerName", "sub_node")
+
+	normal_starting.StartNormal()
+}
+
+func testCluster()  {
+	system := actor.NewActorSystem()
+	//etcd.New()
+	//cp, _ := consul.New()
+	cp := automanaged.NewWithConfig(2 * time.Second, 2381)
+	config := remote.Configure("localhost", 0)
+	clusterConfig := cluster.Configure("my-cluster", cp, config)
+	cl := cluster.New(system, clusterConfig)
+	cl.Start()
+}
+
+func testBehaviour()  {
+	go func() {
+		<- time.After(1 * time.Second)
+		pid, exists := rigger.GetPid("helloWorldServer")
+		fmt.Printf("hello world server, pid :%v, if exists: %v\r\n", pid, exists)
+		rigger.Root().Root.Send(pid, "hello")
+		rigger.Root().Root.Send(pid, "hello")
+	}()
+	behaviourtest.Start()
+}
+
+func testNoralStart()  {
+	normal_starting.StartNormal()
+}
+
+func testWatch()  {
+	watchRoot = actor.NewActorSystem()
+	cof1 := remote.Configure("localhost", 8080)
+	watchRe = remote.NewRemote(watchRoot, cof1)
+	watchRe.Start()
+	watcheeProps := actor.PropsFromProducer(func() actor.Actor {
+		return &watchee{}
+	})
+	watchRoot.Root.SpawnNamed(watcheeProps, "watchee")
+
+	root2 := actor.NewActorSystem()
+	cof2 := remote.Configure("localhost", 8081)
+	r2 := remote.NewRemote(root2, cof2)
+	r2.Start()
+	watcherProps := actor.PropsFromProducer(func() actor.Actor {
+		return &watcher{}
+	})
+	<- time.After(1 * time.Second)
+	root2.Root.SpawnNamed(watcherProps, "watcher")
+}
+
+type watcher struct {
+	count int
+}
+
+var watchRe *remote.Remote
+var watchRoot *actor.ActorSystem
+var watcherPid *actor.PID
+var watcheePid *actor.PID
+
+func (w *watcher) Receive(c actor.Context) {
+	switch msg := c.Message().(type) {
+	case *actor.Started:
+		c.Watch(watcheePid)
+		c.Request(watcheePid, &Ping{})
+	case Pong, *Pong:
+		fmt.Print("received pong\r\n")
+		c.Request(watcheePid, &Ping{})
+	case *actor.Terminated:
+		fmt.Printf("teiminated: %v\r\n", msg.Who)
+		w.count += 1
+		if w.count >= 4 {
+			return
+		}
+		//
+		watcheeProps := actor.PropsFromProducer(func() actor.Actor {
+			return &watchee{}
+		})
+		pid, _ := watchRoot.Root.SpawnNamed(watcheeProps, "watchee")
+		c.Watch(pid)
+		c.Request(pid, &Ping{})
+	}
+}
+
+type watchee struct {
+	count int
+}
+
+func (w *watchee) Receive(c actor.Context) {
+	switch c.Message().(type) {
+	case *actor.Started:
+		watcheePid = c.Self()
+	case Ping, *Ping:
+		fmt.Print("received ping\r\n")
+		w.count += 1
+		if w.count >=4 {
+			c.Stop(c.Self())
+			return
+		}
+		c.Respond(&Pong{})
+	} }
+

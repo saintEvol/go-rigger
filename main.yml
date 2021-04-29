@@ -1,0 +1,101 @@
+# 节点进程配置表
+# 节点将按照配置信息启动,可以将不同的进程分布到不同的节点中去
+# 配置的进程,需要在代码中通过rigger的注册函数进行注册, 注册代码通常写在定义文件的init中,以便在包加载时自动运行
+# 关键字:
+#     rigger
+#     servers
+#     remote: 设置后,该配置下所有进程都可被远程访问
+#     max_retries: 最大尝试次数, 仅对监控进程有效
+#     within_duration: 在多久内尝试, 仅对监控进程有效
+#     directive: 子进程崩溃时,父进程采取的动作/命令,可用的指令,参考proto-actor, 仅对监控进程有效
+#     strategy: 重启时的策略,可用: one_for_one, simple_one_for_one, all_for_one 仅对监控进程有效
+#     node: 节点设置
+#     sup: 表明当前进程是监控进程
+#     children: 列出监控进程的子进程
+#     location: 标识进程的位置, 本地进程不需要进行设置,设置后,不会在本地启动对应的进程,而是会尝试在设置的远程位置去访问
+#     spawn_timeout: 启动时的超时时间,默认为10秒
+#     receive_timeout: 进程多久未收到消息,即触发超时消息,默认不设置, 必须大于0才会生效
+#     args: 启动参数,将原样传进程的OnStarted回调
+rigger:
+   servers: # 声明所有的服务进程, 声明主要是为了后面更方便构建进程树
+     - main_application: &main_application
+         name: "main_application"
+     - main_application_sup: &main_sup
+         name: "main_application_sup"
+         max_retries: 10
+         within_duration: 10_000_000_000
+         directive: restart
+         strategy: one_for_one
+     - user_manager_sup: &user_manager_sup
+         name: "user_manager_sup"
+         max_retries: 10
+         within_duration: 10_000_000_000
+         directive: restart
+         strategy: one_for_one
+     - user_manager:  &user_manager
+         name: "user_manager"
+     # 用户监控进程
+     - user_sup: &user_sup
+         name: "user_sup"
+         max_retries: 10
+         within_duration: 10_000_000_000
+         directive: restart
+         strategy: simple_one_for_one
+     # 用户进程
+     - user_server: &user_server
+         name: "user_server"
+    # 用户登录进程
+     - user_login_server: &user_login_server
+         name: "user_login_server"
+     # 任务监控进程
+     - missions_server_sup: &missions_server_sup
+         name: "mission_server_sup"
+         max_retries: 10
+         within_duration: 10_000_000_000
+         directive: restart
+         strategy: one_for_one
+     - missions_server: &missions_server
+         name: "missions_server"
+     - rest_server_sup: &rest_server_sup
+         name: "rest_server_sup"
+         max_retries: 10
+         within_duration: 10_000_000_000
+         directive: restart
+         strategy: one_for_one
+     - rest_server: &rest_server
+         name: "rest_server"
+   node: # 描述整个节点的运行时信息, 通过调整节点设置,可以调整该节点进程的启动
+     - # 应用, 可以并列配置多个应用
+      sup: *main_application
+      remote: # 开启remote,只有配置在根节点的Application上时,才会生效,在开启后,该应用下的所有进程可以被远程访问
+        host: "127.0.0.1"
+        port: 9090
+      children:
+          - # 主监控树
+            sup: *main_sup
+            children:
+              - # 用户相关
+                sup: *user_manager_sup
+                children:
+                   - server: *user_manager
+                   -
+                     sup: *user_sup
+                     location:
+                       host: "127.0.0.1"
+                       port: 9091
+                     children:
+                       - *user_server
+                   - *user_login_server
+              - # 任务相关
+                sup: *missions_server_sup
+                location: # 设置进程位置,只有监控进程可以设置,设置后,将不在本节点启动该进程及其子进程,而是认为其在指定位置启动了,
+                          #访问时也会根据location的信息进行远程访问
+                  host: "127.0.0.1"
+                  port: 9092
+                children:
+                  - *missions_server
+              - # restfull api服务
+                sup: *rest_server_sup
+                children:
+                  - *rest_server
+
